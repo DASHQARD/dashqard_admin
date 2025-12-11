@@ -1,0 +1,137 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-metropolis:
+    'Metropolis', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* brand colors */
+  --color-primary-500: var(--color-primary-500);
+  --color-primary-400: var(--color-primary-400);
+  --color-primary-700: var(--color-primary-700);
+
+  --color-black-50: var(--color-black-50);
+
+  --color-yellow-500: var(--color-yellow-500);
+
+  --color-grey-500: var(--color-grey-500);
+
+  --color-error-50: var(--color-error-50);
+  --color-error-500: var(--color-error-500);
+
+  --color-success: var(--color-success);
+  --color-success-100: var(--color-success-100);
+  --color-warning-25: var(--color-warning-25);
+  --color-warning-50: var(--color-warning-50);
+  --color-warning-100: var(--color-warning-100);
+  --color-warning-200: var(--color-warning-200);
+  --color-warning-300: var(--color-warning-300);
+  --color-warning-400: var(--color-warning-400);
+  --color-warning-500: var(--color-warning-500);
+  --color-warning-600: var(--color-warning-600);
+  --color-warning-700: var(--color-warning-700);
+  --color-warning-800: var(--color-warning-800);
+  --color-warning-900: var(--color-warning-900);
+  --color-warning-950: var(--color-warning-950);
+}
+
+:root {
+  --color-primary-500: #402d87;
+  --color-primary-400: #66579f;
+  --color-primary-700: #2d2060;
+
+  --color-black-50: #e8e8e8;
+
+  --color-yellow-500: #ffc70a;
+
+  --color-grey-500: #666;
+
+  --color-error-50: #fef3f2;
+  --color-error-500: #f04438;
+
+  --color-warning-25: #fffcf5;
+  --color-warning-50: #fffaeb;
+  --color-warning-100: #fef0c7;
+  --color-warning-200: #fedf89;
+  --color-warning-300: #fec84b;
+  --color-warning-400: #fdb022;
+  --color-warning-500: #f79009;
+  --color-warning-600: #dc6803;
+  --color-warning-700: #b54708;
+  --color-warning-800: #93370d;
+  --color-warning-900: #7a2e0e;
+  --color-warning-950: #4e1d09;
+
+  --color-success: #4fc749;
+  --color-success-100: #d1fadf;
+}
+
+/* Hide print-view portal on screen, show only when printing */
+.print-view {
+  display: none;
+}
+
+@media print {
+  .print-view {
+    display: block;
+  }
+  .no-print {
+    display: none !important;
+  }
+}
+
+@font-face {
+  font-family: 'Metropolis';
+  src: url('../assets/fonts/Metropolis-Light.otf') format('opentype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Metropolis';
+  src: url('../assets/fonts/Metropolis-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Metropolis';
+  src: url('../assets/fonts/Metropolis-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Metropolis';
+  src: url('../assets/fonts/Metropolis-SemiBold.otf') format('opentype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Metropolis';
+  src: url('../assets/fonts/Metropolis-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+.wrapper {
+  width: 91.11%;
+  margin: auto;
+  max-width: 1440px;
+}
+
+body {
+  font-family:
+    var(--font-metropolis),
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  margin: 0;
+}
