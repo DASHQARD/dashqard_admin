@@ -9,23 +9,10 @@ export const ROUTES = {
     },
     DASHBOARD: {
       HOME: '/dashboard',
-      ORDERS: '/dashboard/orders',
-      REDEEM: '/dashboard/redeem/dashpro',
-      REDEMPTIONS: '/dashboard/redemptions',
-      TRANSACTIONS: '/dashboard/transactions',
-      EXPERIENCE: '/dashboard/experience',
-      RECIPIENTS: '/dashboard/recipients',
-      PAYMENT_METHODS: '/dashboard/payment-methods',
-      BRANCHES: '/dashboard/branches',
-      COMPLIANCE: {
-        ROOT: '/dashboard/compliance',
-        PROFILE_INFORMATION: '/dashboard/compliance/profile',
-        UPLOAD_ID: '/dashboard/compliance/upload-id',
-        BUSINESS_DETAILS: '/dashboard/compliance/business-details',
-        BUSINESS_IDENTIFICATION_CARDS:
-          '/dashboard/compliance/business-identification-cards',
-        ADD_BRANCH: '/dashboard/compliance/add-branch',
-        CREATE_BRANCH: '/dashboard/compliance/add-branch/create',
+      CUSTOMERS: '/dashboard/customers',
+      REQUESTS: {
+        VENDOR_REQUESTS: '/dashboard/requests/vendor-requests',
+        CORPORATE_REQUESTS: '/dashboard/requests/corporate-requests',
       },
     },
     ADMIN: {
@@ -46,6 +33,10 @@ export const ROUTES = {
       PENDING_LIMITS: '/admin/transactions/pending-limits',
       PROFILE: '/admin/profile',
       SETTINGS: '/admin/settings',
+      REQUESTS: {
+        VENDOR_REQUESTS: '/admin/requests/vendor-requests',
+        CORPORATE_REQUESTS: '/admin/requests/corporate-requests',
+      },
     },
   },
   ENDPOINT: {
@@ -90,23 +81,6 @@ export const ENV_VARS = {
 };
 
 export const isTesting = ENVIRONMENT === 'test';
-
-export const DEFAULT_QUERY = {
-  page: 1,
-  limit: 10,
-  search: '',
-  status: '',
-  vendor_id: '',
-  branch_type: '',
-  is_single_branch: '',
-  parent_branch_id: '',
-  card_type: '',
-  card_id: '',
-  date_from: '',
-  date_to: '',
-  min_amount: '',
-  max_amount: '',
-};
 
 export const MODAL_NAMES = {
   RECIPIENT: {
@@ -199,4 +173,17 @@ export const MODAL_NAMES = {
     REJECT_KYC: 'reject-kyc',
     REJECT_DAILY_LIMIT: 'reject-daily-limit',
   },
+};
+
+export const DEFAULT_QUERY = {
+  page: 1,
+  limit: 10,
+  search: '',
+  status: '',
+  date: '',
+  role: '',
+  type: '',
+  tier: '',
+  endDate: '',
+  startDates: '',
 };

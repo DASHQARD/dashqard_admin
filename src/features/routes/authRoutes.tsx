@@ -3,7 +3,7 @@ import { Login, Onboarding } from '../pages';
 
 export const authRoutes: RouteObject[] = [
   {
-    path: '',
+    path: 'login',
     element: <Login />,
   },
   {

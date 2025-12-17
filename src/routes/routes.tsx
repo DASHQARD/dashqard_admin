@@ -1,11 +1,11 @@
 import { type RouteObject } from 'react-router-dom';
 import { CustomErrorBoundary } from '@/components';
-import { DashboardLayout } from '@/features';
-import { authRoutes, dashboardRoutes } from '@/features/routes';
+import { AdminLayout, DashboardLayout } from '@/features';
+import { adminRoutes, authRoutes, dashboardRoutes } from '@/features/routes';
 
 export const routes: RouteObject[] = [
   {
-    path: '/',
+    path: '/auth',
     errorElement: <CustomErrorBoundary />,
     children: authRoutes,
   },
@@ -14,5 +14,11 @@ export const routes: RouteObject[] = [
     element: <DashboardLayout />,
     errorElement: <CustomErrorBoundary />,
     children: dashboardRoutes,
+  },
+  {
+    path: '/admin',
+    element: <AdminLayout />,
+    errorElement: <CustomErrorBoundary />,
+    children: adminRoutes,
   },
 ];

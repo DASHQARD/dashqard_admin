@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Icon } from '@/libs';
 import { useAuthStore } from '@/stores';
-import { ROUTES } from '@/utils/constants';
+import { ADMIN_NAV_ITEMS, ROUTES } from '@/utils/constants';
 import { cn } from '@/libs';
 
 export default function AdminSidebar() {
@@ -60,109 +60,26 @@ export default function AdminSidebar() {
     return false;
   };
 
-  const adminNavItems = [
-    {
-      section: 'Overview',
-      items: [
-        {
-          path: ROUTES.IN_APP.ADMIN.HOME,
-          label: 'Dashboard',
-          icon: 'bi:speedometer2',
-        },
-      ],
-    },
-    {
-      section: 'User Management',
-      items: [
-        {
-          path: ROUTES.IN_APP.ADMIN.CUSTOMERS,
-          label: 'Customers',
-          icon: 'bi:people-fill',
-        },
-        {
-          path: ROUTES.IN_APP.ADMIN.VENDORS,
-          label: 'Vendors',
-          icon: 'bi:shop',
-        },
-        {
-          path: ROUTES.IN_APP.ADMIN.MERCHANTS,
-          label: 'Cooperate',
-          icon: 'bi:building',
-        },
-      ],
-    },
-    {
-      section: 'Admin Management',
-      items: [
-        {
-          path: ROUTES.IN_APP.ADMIN.ADMINS,
-          label: 'Admins',
-          icon: 'bi:person-check-fill',
-        },
-        {
-          path: ROUTES.IN_APP.ADMIN.ROLES,
-          label: 'Roles & Permissions',
-          icon: 'bi:shield-lock-fill',
-        },
-        {
-          path: ROUTES.IN_APP.ADMIN.ARCHIVED,
-          label: 'Archived',
-          icon: 'bi:archive-fill',
-        },
-      ],
-    },
-    {
-      section: 'Transactions',
-      items: [
-        {
-          path: ROUTES.IN_APP.ADMIN.TRANSACTIONS,
-          label: 'All Transactions',
-          icon: 'bi:receipt',
-        },
-        {
-          path: ROUTES.IN_APP.ADMIN.PENDING_LIMITS,
-          label: 'Pending Limits',
-          icon: 'bi:clock-history',
-        },
-      ],
-    },
-    {
-      section: 'Settings & Support',
-      items: [
-        {
-          path: ROUTES.IN_APP.ADMIN.PROFILE,
-          label: 'Profile',
-          icon: 'bi:person-circle',
-        },
-        {
-          path: ROUTES.IN_APP.ADMIN.SETTINGS,
-          label: 'Settings',
-          icon: 'bi:gear-fill',
-        },
-      ],
-    },
-  ];
-
   return (
     <aside
       className={cn(
         'bg-white flex flex-col w-[380px] transition-all duration-300 ease-in-out',
         'shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_4px_20px_rgba(0,0,0,0.08),0_8px_40px_rgba(0,0,0,0.04)]',
-        'border-r border-black/8 min-h-full h-auto flex-shrink-0 relative z-[5]',
+        'border-r border-black/8 min-h-full h-auto shrink-0 relative z-5',
         'max-lg:hidden',
-        isCollapsed && 'w-[90px] flex-shrink-0'
+        isCollapsed && 'w-[90px] shrink-0'
       )}
     >
-      <div className="flex flex-col flex-grow min-h-full h-full overflow-hidden relative z-[2] p-0">
-        <div className="flex items-center justify-between p-6 mb-6 border-b border-black/6 bg-white relative z-[1]">
+      <div className="flex flex-col grow min-h-full h-full overflow-hidden relative z-2 p-0">
+        <div className="flex items-center justify-between p-6 mb-6 border-b border-black/6 bg-white relative z-1">
           <div
             className={cn(
               'flex items-center gap-4 flex-1 min-w-0',
               isCollapsed && 'flex-col gap-3'
             )}
           >
-            <div className="flex-shrink-0">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#402D87] to-[#2d1a72] flex items-center justify-center text-white text-xl shadow-[0_4px_12px_rgba(64,45,135,0.25)] transition-all duration-300 hover:translate-y-[-1px] hover:shadow-[0_6px_16px_rgba(64,45,135,0.35)]">
+            <div className="shrink-0">
+              <div className="w-12 h-12 rounded-full bg-linear-to-br from-[#402D87] to-[#2d1a72] flex items-center justify-center text-white text-xl shadow-[0_4px_12px_rgba(64,45,135,0.25)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_6px_16px_rgba(64,45,135,0.35)]">
                 <Icon icon="bi:shield-check" />
               </div>
             </div>
@@ -205,13 +122,13 @@ export default function AdminSidebar() {
           )}
         </div>
 
-        <nav className="flex-grow relative z-[1]">
+        <nav className="grow relative z-1">
           <ul className="list-none p-0 m-0 px-5">
-            {adminNavItems.map((section) => (
+            {ADMIN_NAV_ITEMS.map((section) => (
               <React.Fragment key={section.section}>
                 {!isCollapsed && (
                   <li className="py-5 px-5 mt-5 first:mt-3">
-                    <span className="text-[0.7rem] font-extrabold uppercase tracking-wider text-[#6c757d]/90 relative flex items-center after:content-[''] after:absolute after:bottom-[-6px] after:left-0 after:w-5 after:h-0.5 after:bg-gradient-to-r after:from-[#402D87] after:to-[rgba(64,45,135,0.4)] after:rounded-sm after:shadow-[0_1px_2px_rgba(64,45,135,0.2)] before:content-[''] before:absolute before:top-[-0.5rem] before:left-[-1.25rem] before:right-[-1.25rem] before:h-px before:bg-gradient-to-r before:from-transparent before:via-black/6 before:to-transparent">
+                    <span className="text-[0.7rem] font-extrabold uppercase tracking-wider text-[#6c757d]/90 relative flex items-center after:content-[''] after:absolute after:bottom-[-6px] after:left-0 after:w-5 after:h-0.5 after:bg-linear-to-r after:from-[#402D87] after:to-[rgba(64,45,135,0.4)] after:rounded-sm after:shadow-[0_1px_2px_rgba(64,45,135,0.2)] before:content-[''] before:absolute before:top-[-0.5rem] before:left-[-1.25rem] before:right-[-1.25rem] before:h-px before:bg-linear-to-r before:from-transparent before:via-black/6 before:to-transparent">
                       {section.section}
                     </span>
                   </li>
@@ -224,20 +141,20 @@ export default function AdminSidebar() {
                       isActive(item.path) &&
                         'bg-[rgba(64,45,135,0.08)] border-l-[3px] border-[#402D87] rounded-l-none rounded-r-[10px] shadow-[0_2px_8px_rgba(64,45,135,0.1)]',
                       !isActive(item.path) &&
-                        'hover:bg-[rgba(64,45,135,0.04)] hover:translate-x-[1px]',
+                        'hover:bg-[rgba(64,45,135,0.04)] hover:translate-x-px',
                       isCollapsed && 'justify-center mb-3'
                     )}
                   >
                     {isActive(item.path) && (
                       <>
-                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-white/30 via-[#402D87] to-[#2d1a72] rounded-r-sm shadow-[2px_0_8px_rgba(64,45,135,0.4),2px_0_16px_rgba(64,45,135,0.2)]" />
-                        <div className="absolute inset-0 rounded-r-2xl bg-gradient-to-br from-white/8 via-transparent to-[rgba(45,26,114,0.03)] pointer-events-none" />
+                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-linear-to-b from-white/30 via-[#402D87] to-[#2d1a72] rounded-r-sm shadow-[2px_0_8px_rgba(64,45,135,0.4),2px_0_16px_rgba(64,45,135,0.2)]" />
+                        <div className="absolute inset-0 rounded-r-2xl bg-linear-to-br from-white/8 via-transparent to-[rgba(45,26,114,0.03)] pointer-events-none" />
                       </>
                     )}
                     <Link
                       to={item.path}
                       className={cn(
-                        'flex items-center gap-3.5 no-underline text-[#495057] font-medium text-sm py-3 px-4 w-full transition-all duration-200 rounded-[10px] relative z-[2]',
+                        'flex items-center gap-3.5 no-underline text-[#495057] font-medium text-sm py-3 px-4 w-full transition-all duration-200 rounded-[10px] relative z-2',
                         isActive(item.path) &&
                           'text-[#402D87] font-bold [text-shadow:0_1px_2px_rgba(64,45,135,0.2)]',
                         !isActive(item.path) && 'hover:text-[#402D87]',
@@ -257,7 +174,7 @@ export default function AdminSidebar() {
                       {!isCollapsed && <span>{item.label}</span>}
                     </Link>
                     {isCollapsed && isActive(item.path) && (
-                      <div className="absolute right-[-0.75rem] top-1/2 -translate-y-1/2 w-1 h-6 bg-gradient-to-b from-[#402D87] to-[#2d1a72] rounded-l-sm" />
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 w-1 h-6 bg-linear-to-b from-[#402D87] to-[#2d1a72] rounded-l-sm" />
                     )}
                   </li>
                 ))}
@@ -266,7 +183,7 @@ export default function AdminSidebar() {
 
             {!isCollapsed && (
               <li className="py-5 px-5 mt-5">
-                <span className="text-[0.7rem] font-extrabold uppercase tracking-wider text-[#6c757d]/90 relative flex items-center after:content-[''] after:absolute after:bottom-[-6px] after:left-0 after:w-5 after:h-0.5 after:bg-gradient-to-r after:from-[#402D87] after:to-[rgba(64,45,135,0.4)] after:rounded-sm after:shadow-[0_1px_2px_rgba(64,45,135,0.2)] before:content-[''] before:absolute before:top-[-0.5rem] before:left-[-1.25rem] before:right-[-1.25rem] before:h-px before:bg-gradient-to-r before:from-transparent before:via-black/6 before:to-transparent">
+                <span className="text-[0.7rem] font-extrabold uppercase tracking-wider text-[#6c757d]/90 relative flex items-center after:content-[''] after:absolute after:bottom-[-6px] after:left-0 after:w-5 after:h-0.5 after:bg-linear-to-r after:from-[#402D87] after:to-[rgba(64,45,135,0.4)] after:rounded-sm after:shadow-[0_1px_2px_rgba(64,45,135,0.2)] before:content-[''] before:absolute before:top-[-0.5rem] before:left-[-1.25rem] before:right-[-1.25rem] before:h-px before:bg-gradient-to-r before:from-transparent before:via-black/6 before:to-transparent">
                   Account Actions
                 </span>
               </li>
@@ -275,14 +192,14 @@ export default function AdminSidebar() {
               className={cn(
                 'flex items-center mb-2 rounded-[10px] transition-all duration-200 relative overflow-hidden',
                 !isCollapsed &&
-                  'hover:bg-[rgba(64,45,135,0.04)] hover:translate-x-[1px]',
+                  'hover:bg-[rgba(64,45,135,0.04)] hover:translate-x-px',
                 isCollapsed && 'justify-center mb-3'
               )}
             >
               <button
                 onClick={handleLogout}
                 className={cn(
-                  'flex items-center gap-3.5 no-underline text-[#495057] font-medium text-sm py-3 px-4 w-full transition-all duration-200 rounded-[10px] relative z-[2] cursor-pointer bg-transparent border-none',
+                  'flex items-center gap-3.5 no-underline text-[#495057] font-medium text-sm py-3 px-4 w-full transition-all duration-200 rounded-[10px] relative z-2 cursor-pointer bg-transparent border-none',
                   'hover:text-[#402D87]',
                   isCollapsed && 'justify-center py-4 px-3'
                 )}
