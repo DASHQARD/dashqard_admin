@@ -7,6 +7,8 @@ type State = {
   refreshToken: string | null;
   user: Record<string, any> | null;
   isAuthenticated: boolean;
+  role: Record<string, any> | null;
+  permissions: Array<{ permission: string }> | null;
 };
 
 type Actions = {
@@ -14,6 +16,8 @@ type Actions = {
   authenticate: (details: {
     token: string;
     refreshToken?: string | null;
+    role?: Record<string, any> | null;
+    permissions?: Array<{ permission: string }> | null;
   }) => void;
   getToken: () => State['token'];
   getRefreshToken: () => State['refreshToken'];
@@ -36,16 +40,20 @@ const initialState: State = {
   refreshToken: null,
   isAuthenticated: false,
   user: null,
+  role: null,
+  permissions: null,
 };
 
 const authStore: StateCreator<State & Actions> = (set, get) => ({
   ...initialState,
   reset: () => set(initialState),
-  authenticate: ({ token, refreshToken }) => {
+  authenticate: ({ token, refreshToken, role, permissions }) => {
     set({
       user: decodeUser(token),
       token,
       refreshToken: refreshToken ?? null,
+      role: role ?? null,
+      permissions: permissions ?? null,
       isAuthenticated: true,
     });
   },
@@ -54,6 +62,8 @@ const authStore: StateCreator<State & Actions> = (set, get) => ({
       token: null,
       refreshToken: null,
       user: null,
+      role: null,
+      permissions: null,
       isAuthenticated: false,
     });
   },
@@ -69,7 +79,7 @@ const authStore: StateCreator<State & Actions> = (set, get) => ({
 
 const useAuthStore = create(
   persist(authStore, {
-    name: 'dashqard-auth-store',
+    name: 'dashqard-admin-auth-store',
   })
 );
 

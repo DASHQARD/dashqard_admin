@@ -9,17 +9,8 @@ import {
 import { useCorporateManagementBase } from '@/features/hooks/corporateManagement';
 
 export default function Corporates() {
-  const {
-    corporatesList,
-    corporateInfo,
-    isLoadingCorporatesList,
-    query,
-    setQuery,
-  } = useCorporateManagementBase();
-
-  console.log('corporatesList', corporatesList);
-  console.log('corporateInfo', corporateInfo);
-  console.log('isLoadingCorporatesList', isLoadingCorporatesList);
+  const { corporatesList, isLoadingCorporatesList, query, setQuery } =
+    useCorporateManagementBase();
 
   return (
     <>
@@ -41,7 +32,7 @@ export default function Corporates() {
               columns={corporateListColumns}
               data={corporatesList || []}
               total={corporatesList?.length || 0}
-              loading={false}
+              loading={isLoadingCorporatesList}
               query={query}
               setQuery={setQuery}
               searchPlaceholder="Search by corporate name or location..."
