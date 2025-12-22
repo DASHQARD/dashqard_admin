@@ -8,6 +8,7 @@ import { useAuthStore } from '@/stores';
 import { ROUTES } from '@/utils/constants';
 
 import { adminLogin, verifyLoginToken } from '../services';
+import type { VerifyLoginTokenResponse } from '@/types/admin';
 
 export function useAuth() {
   const toast = useToast();
@@ -33,11 +34,14 @@ export function useAuth() {
   function useVerifyLoginTokenService() {
     return useMutation({
       mutationFn: verifyLoginToken,
-      onSuccess: (response: { accessToken: string; refreshToken: string }) => {
+      onSuccess: (response: VerifyLoginTokenResponse) => {
         useAuthStore.getState().authenticate({
-          token: response.accessToken,
-          refreshToken: response.refreshToken,
+          token: response.data.accessToken,
+          refreshToken: response.data.refreshToken,
+          role: response.data.permissions.role,
+          permissions: response.data.permissions.permissions,
         });
+
         toast.success('Login successful');
         navigate(ROUTES.IN_APP.DASHBOARD.HOME);
       },

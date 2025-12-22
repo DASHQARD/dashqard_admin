@@ -1,30 +1,51 @@
 import React from 'react';
 
-import { useAdminService } from '@/features/hooks/useAdminService';
 import { useAuthStore } from '@/stores';
-import type { PermissionType } from '@/types';
+import type { PermissionType } from '@/types/roles';
 import { isTesting } from '@/utils/constants';
-// import { getAllAdminPermissions } from '@/utils/helpers/role';
+import { getAllAdminPermissions } from '@/utils/helpers/role';
 
 export function useContentGuard(
   permission?: PermissionType | PermissionType[]
 ) {
-  const { user } = useAuthStore();
-  const { useAdminProfile } = useAdminService();
-  const { data, isLoading } = useAdminProfile();
+  const { user, permissions: storedPermissions } = useAuthStore();
 
-  const userPermissions = React.useMemo(
-    () => getAllAdminPermissions(data?.roles),
-    [data?.roles]
-  );
+  const userPermissions = React.useMemo(() => {
+    // First, try to get permissions from admin profile (IAdmin structure)
+    if (user?.role) {
+      return getAllAdminPermissions(user.role);
+    }
+
+    // Handle nested permissions structure (from verify-login-token response format)
+    // data.permissions.permissions is an array of permission objects
+    if (
+      user?.permissions &&
+      typeof user.permissions === 'object' &&
+      'permissions' in user.permissions
+    ) {
+      const permissionsArray = (
+        user.permissions as { permissions?: Array<{ permission: string }> }
+      ).permissions;
+      if (Array.isArray(permissionsArray)) {
+        return getAllAdminPermissions(undefined, permissionsArray);
+      }
+    }
+
+    // If data has permissions array directly (flat structure)
+    if (user?.permissions && Array.isArray(user.permissions)) {
+      return getAllAdminPermissions(undefined, user.permissions);
+    }
+
+    // Fallback to stored permissions from auth store (from verify-login-token)
+    if (storedPermissions && Array.isArray(storedPermissions)) {
+      return getAllAdminPermissions(undefined, storedPermissions);
+    }
+
+    return [];
+  }, [user, storedPermissions]);
 
   if (isTesting) {
     return { isAllowed: true, isLoading: false };
-  }
-
-  // Wait for data to load before making authorization decisions
-  if (isLoading) {
-    return { isAllowed: false, isLoading: true };
   }
 
   let hasPermission: boolean;

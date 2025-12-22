@@ -6,25 +6,18 @@ import {
   postMethod,
   putMethod,
 } from '@/services';
-import type { IAdmin } from '@/types';
+import type { IAdmin } from '@/types/admin';
 import { ROUTES } from '@/utils/constants';
-
-type AdminResponse = {
-  admins: IAdmin[];
-  currentPage: string;
-  totalCount: number;
-  totalPages: number;
-};
 
 export const getAllAdmins = async (
   query?: Record<string, any>
-): Promise<AdminResponse> => {
-  const response = await getList(`${ROUTES.ENDPOINT.ADMIN.ROOT}`, query);
-  return response;
+): Promise<any> => {
+  return await getList(`admins`, query);
 };
+
 export const getAllArchivedAdmins = async (
   query?: Record<string, any>
-): Promise<AdminResponse> => {
+): Promise<any> => {
   const response = await getList(`${ROUTES.ENDPOINT.ADMIN.ARCHIVED}`, query);
   return response;
 };

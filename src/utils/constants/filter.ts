@@ -1,4 +1,6 @@
 export const OPTIONS = {
+  CORPORATE_MANAGEMENT_STATUS: ['active', 'deactivated', 'inactive'],
+  VENDOR_MANAGEMENT_STATUS: ['active', 'deactivated', 'inactive'],
   ADMIN_STATUS: ['active', 'deactivated', 'pending'],
   AGENT_STATUS: ['active', 'deactivated', 'inactive'],
   AGENT_TIER: ['A1', 'A2', 'A3'],

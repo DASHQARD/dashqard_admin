@@ -1,9 +1,7 @@
 export * from './auth';
-export * from './useVendors';
 export * from './useVendorDetails';
 export * from './useUpdateVendorStatus';
 export * from './customerManagement/useCustomers';
-export * from './useCustomerDetails';
 export * from './useUpdateCustomerStatus';
 export * from './useInviteAdmin';
 export * from './useAdminRefreshToken';
@@ -11,3 +9,4 @@ export * from './useAdminOnboarding';
 export * from './useRoles';
 export * from './usePermissions';
 export * from './customerManagement';
+export * from './adminManagement';

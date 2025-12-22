@@ -8,7 +8,7 @@ export const postMethod = async (url: string, payload?: any) => {
 
 export const getList = async <T = any>(
   url: string,
-  query?: Record<string, any>,
+  query?: Record<string, any>
 ): Promise<T> => {
   const res = await axiosClient.get(`${url}?${getQueryString(query)}`);
   return res.data;
@@ -16,7 +16,7 @@ export const getList = async <T = any>(
 
 export const getMethod = async <T = any>(
   url: string,
-  id?: string,
+  id?: string
 ): Promise<T> => {
   const readyUrl = id ? `${url}/${id}` : url;
   const res = await axiosClient.get(readyUrl);

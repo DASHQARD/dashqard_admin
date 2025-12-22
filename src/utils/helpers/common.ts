@@ -1,6 +1,23 @@
 import dayjs from 'dayjs';
+import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
 export function toKebabCase(str: string) {
   return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+}
+
+export function getTarget(
+  inputObj: Record<string, any>,
+  path: string | string[]
+): any {
+  const pathArr = Array.isArray(path) ? path : path?.split('.');
+  return pathArr.reduce(
+    (target, currentPath) => target?.[currentPath],
+    inputObj
+  );
 }
 
 export function getQueryString(obj?: Record<string, any>) {
@@ -13,6 +30,13 @@ export function getQueryString(obj?: Record<string, any>) {
         `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
     )
     .join('&');
+}
+
+export function getFullName(customer: {
+  first_name: string;
+  last_name: string;
+}) {
+  return [customer.first_name, customer.last_name].filter(Boolean).join(' ');
 }
 
 export function sentenceCase(str: string) {

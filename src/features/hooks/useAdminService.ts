@@ -3,7 +3,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { usePersistedModalState, useToast } from '@/hooks';
 import { axiosClient } from '@/libs';
 import { useAuthStore } from '@/stores';
-import type { DropdownOption, Func, IAdmin } from '@/types';
+import type { Func } from '@/types/shared';
+import type { Admin } from '@/types/admin';
 import { MODALS } from '@/utils/constants';
 
 import {
@@ -23,9 +24,10 @@ import {
   restoreAdmin,
   toggleAdminStatus,
 } from '../services/admins';
+import { getAdminInfo } from '../services/auth';
 
 type AdminResponse = {
-  admins: IAdmin[];
+  admins: Admin[];
   currentPage: string;
   totalCount: number;
   totalPages: number;
@@ -44,7 +46,7 @@ export function useGetAllAchievedAdmins(query?: Record<string, any>) {
   });
 }
 export function useGetSingleAdmin(id?: string) {
-  return useQuery<IAdmin>({
+  return useQuery<Admin>({
     queryKey: ['single-admin', id],
     queryFn: async () => {
       const res = await axiosClient.get(`/admin/${id}`);
@@ -54,23 +56,12 @@ export function useGetSingleAdmin(id?: string) {
   });
 }
 
-export function useGetAllAdminOptions(options = {}) {
-  const { data, isPending } = useGetAllAdmins(options);
-  const allAdminOptions: DropdownOption[] =
-    data?.admins?.map((user) => ({
-      label: `${user?.full_name}`,
-      value: user.id,
-    })) ?? [];
-
-  return { isLoadingAdmins: isPending, allAdminOptions };
-}
-
 export function useAdminService() {
   const { isAuthenticated } = useAuthStore();
   const queryClient = useQueryClient();
   const { error, success } = useToast();
   const modal = usePersistedModalState({
-    paramName: MODALS.ADMIN.PARAM_NAME,
+    paramName: MODALS.ADMIN.ROOT,
   });
 
   function useAdminProfile() {
@@ -309,10 +300,19 @@ export function useAdminService() {
     });
   }
 
+  function useGetAdminInfo(id: number | undefined) {
+    return useQuery({
+      queryKey: ['admin-info', id],
+      queryFn: () => getAdminInfo(id!),
+      enabled: !!id && typeof id === 'number',
+    });
+  }
+
   return {
     useAssignAdminsToRole,
     useAdminProfile,
     useInviteAdmin,
+    useGetAdminInfo,
     useDeleteAdmin,
     useToggleAdminStatus,
     useAssignRolesToAdmin,

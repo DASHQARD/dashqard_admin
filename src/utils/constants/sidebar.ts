@@ -25,7 +25,7 @@ export const ADMIN_NAV_ITEMS = [
         icon: 'bi:shop',
       },
       {
-        path: ROUTES.IN_APP.ADMIN.MERCHANTS,
+        path: ROUTES.IN_APP.ADMIN.CORPORATES,
         label: 'Cooperate',
         icon: 'bi:building',
       },

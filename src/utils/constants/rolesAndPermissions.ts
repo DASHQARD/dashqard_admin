@@ -1,18 +1,51 @@
+// Permission categories from API
+export const PERMISSION_CATEGORIES = [
+  'users',
+  'roles',
+  'admins',
+  'vendors',
+  'countries',
+  'fees',
+  'transaction_limits',
+  'audit_logs',
+  'payments',
+  'ticket_supports',
+  'corporates',
+] as const;
+
+// Permission actions from API
+export const PERMISSION_ACTIONS = [
+  'management',
+  'view',
+  'create',
+  'update',
+  'delete',
+  'get',
+  'manage',
+] as const;
+
+// Permission modules - updated to match API categories with display-friendly names
+// These map to PERMISSION_CATEGORIES from the API
 export const PERMISSION_MODULES = [
-  'Dashboard',
-  'Transactions',
-  'Savings management',
-  'Loan management',
-  'Customer management',
-  'Agent management',
-  'Merchant management',
-  'KYC management',
-  'Admin management',
-  'Audit logs',
+  'Dashboard', // UI-specific, not in API but may be used for navigation
+  'Users', // maps to 'users' category
+  'Roles', // maps to 'roles' category
+  'Admins', // maps to 'admins' category
+  'Vendors', // maps to 'vendors' category
+  'Countries', // maps to 'countries' category
+  'Fees', // maps to 'fees' category
+  'Transaction Limits', // maps to 'transaction_limits' category
+  'Audit Logs', // maps to 'audit_logs' category
+  'Payments', // maps to 'payments' category
+  'Ticket Supports', // maps to 'ticket_supports' category
+  'Corporates', // maps to 'corporates' category
+  // Legacy modules (kept for backward compatibility)
+
   'Notifications',
   'Settings',
 ] as const;
 
+// Legacy permission keys (for backward compatibility)
 export const PERMISSION_KEYS = [
   'view',
   'create',

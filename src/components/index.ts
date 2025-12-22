@@ -29,3 +29,4 @@ export * from './Table';
 export * from './Avatar';
 export * from './Cells';
 export * from './Tag';
+export * from './Profile';

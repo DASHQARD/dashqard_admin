@@ -10,12 +10,17 @@ export const ROUTES = {
     DASHBOARD: {
       HOME: '/dashboard',
       CUSTOMERS: '/dashboard/customers',
+      VENDORS: '/dashboard/vendors',
+      CORPORATES: '/dashboard/corporates',
+      VENDOR_DETAILS: '/dashboard/vendors/:vendorId',
+      CORPORATE_DETAILS: '/dashboard/corporates/:corporateId',
       REQUESTS: {
         VENDOR_REQUESTS: '/dashboard/requests/vendor-requests',
         CORPORATE_REQUESTS: '/dashboard/requests/corporate-requests',
       },
     },
     ADMIN: {
+      ROOT: 'admin-modal',
       AUTH: {
         LOGIN: '/admin/auth/login',
         ONBOARD: '/admin/auth/onboard',
@@ -25,7 +30,7 @@ export const ROUTES = {
       HOME: '/admin',
       CUSTOMERS: '/admin/customers',
       VENDORS: '/admin/vendors',
-      MERCHANTS: '/admin/merchants',
+      CORPORATES: '/admin/corporates',
       ADMINS: '/admin/admins',
       ROLES: '/admin/roles',
       ARCHIVED: '/admin/archived',

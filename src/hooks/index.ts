@@ -2,7 +2,6 @@ export * from './useDebouncedState';
 export * from './useToast';
 export * from './useCountriesData';
 export * from './useUploadFiles';
-export * from './useUserProfile';
 export * from './useAutoRefreshToken';
 export * from './useAutoRefreshAdminToken';
 export * from './useReducerSpread';

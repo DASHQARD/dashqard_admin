@@ -17,10 +17,14 @@ export function useAutoRefreshAdminToken() {
   const logout = useAuthStore((state) => state.logout);
   const toast = useToast();
   const refreshPromiseRef = useRef<Promise<void> | null>(null);
+  const timeoutIdRef = useRef<number | null>(null);
 
   useEffect(() => {
-    // Only run if we're on an admin route
-    if (!window.location.pathname.startsWith('/admin')) {
+    // Run for both admin and dashboard routes
+    const isAdminRoute = window.location.pathname.startsWith('/admin');
+    const isDashboardRoute = window.location.pathname.startsWith('/dashboard');
+
+    if (!isAdminRoute && !isDashboardRoute) {
       return;
     }
 
@@ -34,8 +38,6 @@ export function useAutoRefreshAdminToken() {
       );
       return;
     }
-
-    let timeoutId: number | null = null;
 
     const safeDecode = (jwtToken: string): JwtPayload | null => {
       try {
@@ -74,6 +76,38 @@ export function useAutoRefreshAdminToken() {
           refreshToken: nextRefreshToken,
         });
         console.log('[useAutoRefreshAdminToken] refresh succeeded');
+
+        // Reschedule the next refresh after successful refresh
+        const newToken = nextAccessToken;
+        const decoded = safeDecode(newToken);
+        if (decoded?.exp) {
+          const expiresAt = decoded.exp * 1000;
+          const refreshAt = expiresAt - REFRESH_THRESHOLD_MS;
+          const delay = refreshAt - Date.now();
+
+          // Clear any existing timeout
+          if (timeoutIdRef.current) {
+            window.clearTimeout(timeoutIdRef.current);
+            timeoutIdRef.current = null;
+          }
+
+          if (delay > 0) {
+            console.log(
+              '[useAutoRefreshAdminToken] rescheduling next refresh',
+              {
+                expiresAt,
+                refreshAt,
+                delay,
+              }
+            );
+            timeoutIdRef.current = window.setTimeout(() => {
+              runRefresh(nextRefreshToken);
+            }, delay);
+          } else {
+            // Token expires soon, refresh immediately
+            runRefresh(nextRefreshToken);
+          }
+        }
       } catch (error) {
         console.error('Failed to refresh admin token', error);
         logout();
@@ -113,14 +147,15 @@ export function useAutoRefreshAdminToken() {
         return;
       }
 
-      timeoutId = window.setTimeout(trigger, delay);
+      timeoutIdRef.current = window.setTimeout(trigger, delay);
     };
 
     scheduleRefresh();
 
     return () => {
-      if (timeoutId) {
-        window.clearTimeout(timeoutId);
+      if (timeoutIdRef.current) {
+        window.clearTimeout(timeoutIdRef.current);
+        timeoutIdRef.current = null;
       }
     };
   }, [token, refreshToken, authenticate, logout, toast]);

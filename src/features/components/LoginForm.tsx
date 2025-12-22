@@ -82,22 +82,6 @@ export default function LoginForm() {
               >
                 Forgot password?
               </Link>
-              <p className="text-xs text-center text-gray-500">
-                By continuing, you agree to our{' '}
-                <a
-                  href={ROUTES.IN_APP.TERMS_OF_SERVICE}
-                  className="text-primary-500 underline"
-                >
-                  Terms of Service
-                </a>{' '}
-                and{' '}
-                <a
-                  href={ROUTES.IN_APP.PRIVACY_POLICY}
-                  className="text-primary-500 underline"
-                >
-                  Privacy Policy
-                </a>
-              </p>
 
               <hr className="border-gray-200" />
 

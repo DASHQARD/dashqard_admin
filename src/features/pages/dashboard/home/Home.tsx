@@ -2,49 +2,9 @@ import { LoaderGif } from '@/assets/gifs';
 import { Icon } from '@/libs';
 import React from 'react';
 
-interface LocationInfo {
-  city: string;
-  country: string;
-  ip: string;
-  isp: string;
-}
-
 export default function Home() {
   const isLoading = false;
   const [selectedPeriod, setSelectedPeriod] = React.useState('30');
-  const [locationInfo, setLocationInfo] = React.useState<LocationInfo>({
-    city: 'Accra',
-    country: 'Ghana',
-    ip: 'Loading...',
-    isp: 'Loading...',
-  });
-
-  // Fetch location data
-  React.useEffect(() => {
-    const fetchLocation = async () => {
-      try {
-        const response = await fetch('https://ipapi.co/json/');
-        const data = await response.json();
-        if (data.city && data.country_name) {
-          setLocationInfo({
-            city: data.city,
-            country: data.country_name,
-            ip: data.ip || 'N/A',
-            isp: data.org || 'N/A',
-          });
-        }
-      } catch {
-        setLocationInfo({
-          city: 'Accra',
-          country: 'Ghana',
-          ip: 'N/A',
-          isp: 'N/A',
-        });
-      }
-    };
-
-    fetchLocation();
-  }, []);
 
   const handlePeriodChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedPeriod(e.target.value);
@@ -124,7 +84,7 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Total Users */}
           <div className="bg-white rounded-xl p-6 shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-[#f1f3f4] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.1)] flex items-center gap-5">
-            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[#402D87] to-[#2d1a72] flex items-center justify-center text-white text-3xl shrink-0">
+            <div className="w-16 h-16 rounded-xl bg-linear-to-br from-[#402D87] to-[#2d1a72] flex items-center justify-center text-white text-3xl shrink-0">
               <Icon icon="bi:people-fill" />
             </div>
             <div className="flex-1">
@@ -139,7 +99,7 @@ export default function Home() {
 
           {/* Total Transactions */}
           <div className="bg-white rounded-xl p-6 shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-[#f1f3f4] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.1)] flex items-center gap-5">
-            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[#402D87] to-[#2d1a72] flex items-center justify-center text-white text-3xl shrink-0">
+            <div className="w-16 h-16 rounded-xl bg-linear-to-br from-[#402D87] to-[#2d1a72] flex items-center justify-center text-white text-3xl shrink-0">
               <Icon icon="bi:receipt" />
             </div>
             <div className="flex-1">
@@ -154,7 +114,7 @@ export default function Home() {
 
           {/* Total Revenue */}
           <div className="bg-white rounded-xl p-6 shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-[#f1f3f4] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.1)] flex items-center gap-5">
-            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[#402D87] to-[#2d1a72] flex items-center justify-center text-white text-3xl shrink-0">
+            <div className="w-16 h-16 rounded-xl bg-linear-to-br from-[#402D87] to-[#2d1a72] flex items-center justify-center text-white text-3xl shrink-0">
               <Icon icon="bi:currency-dollar" />
             </div>
             <div className="flex-1">
@@ -169,7 +129,7 @@ export default function Home() {
 
           {/* Pending Approvals */}
           <div className="bg-white rounded-xl p-6 shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-[#f1f3f4] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.1)] flex items-center gap-5">
-            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[#402D87] to-[#2d1a72] flex items-center justify-center text-white text-3xl shrink-0">
+            <div className="w-16 h-16 rounded-xl bg-linear-to-br from-[#402D87] to-[#2d1a72] flex items-center justify-center text-white text-3xl shrink-0">
               <Icon icon="bi:clock-history" />
             </div>
             <div className="flex-1">
@@ -217,32 +177,6 @@ export default function Home() {
                 <Icon icon="bi:graph-up" className="text-[#402D87] mr-2" />
                 Access Analytics
               </h5>
-            </div>
-
-            <div className="px-6 pb-6 space-y-0">
-              <div className="py-4 border-b border-[#f1f3f4] last:border-b-0">
-                <div className="text-xs text-[#6c757d] uppercase tracking-wider mb-1 font-semibold">
-                  Location
-                </div>
-                <div className="text-base font-semibold text-[#495057] mb-0.5">
-                  {locationInfo.country}
-                </div>
-                <div className="text-[13px] text-[#adb5bd]">
-                  {locationInfo.city}
-                </div>
-              </div>
-
-              <div className="py-4 border-b border-[#f1f3f4] last:border-b-0">
-                <div className="text-xs text-[#6c757d] uppercase tracking-wider mb-1 font-semibold">
-                  IP Address
-                </div>
-                <div className="text-base font-semibold text-[#495057] mb-0.5">
-                  {locationInfo.ip}
-                </div>
-                <div className="text-[13px] text-[#adb5bd]">
-                  {locationInfo.isp}
-                </div>
-              </div>
             </div>
           </div>
         </div>

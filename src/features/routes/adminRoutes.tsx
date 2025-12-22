@@ -1,5 +1,13 @@
 import { type RouteObject } from 'react-router-dom';
-import { Customers, Home } from '../pages';
+import {
+  Admins,
+  CorporateDetails,
+  Corporates,
+  Customers,
+  Home,
+  Vendors,
+} from '../pages';
+import { CorporateRequests } from '../pages/dashboard/requests';
 
 export const adminRoutes: RouteObject[] = [
   {
@@ -10,5 +18,33 @@ export const adminRoutes: RouteObject[] = [
     path: 'customers',
     element: <Customers />,
   },
-  // Add other admin routes here as needed
+  {
+    path: 'vendors',
+    element: <Vendors />,
+  },
+  {
+    path: 'corporates',
+    element: <Corporates />,
+  },
+  {
+    path: 'admins',
+    element: <Admins />,
+  },
+  {
+    path: 'requests',
+    children: [
+      {
+        path: 'corporate-requests',
+        element: <CorporateRequests />,
+      },
+      // {
+      //   path: 'vendor-requests',
+      //   element: <VendorRequests />,
+      // },
+    ],
+  },
+  {
+    path: 'corporates/:corporateId',
+    element: <CorporateDetails />,
+  },
 ];

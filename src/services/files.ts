@@ -1,9 +1,6 @@
 import { axiosClient } from '@/libs';
-import type {
-  UserProfileResponse,
-  PaymentInfoData,
-  PaymentResponse,
-} from '@/types';
+import type { PaymentInfoData, PaymentResponse } from '@/types';
+import { postMethod } from './requests';
 
 const uploadFiles = async (data: File[]) => {
   const formData = new FormData();
@@ -19,15 +16,9 @@ const uploadFiles = async (data: File[]) => {
 };
 
 const getPresignedURL = async (file: string) => {
-  const response = await axiosClient.post(`/file/generate/signed-url`, {
+  return await postMethod(`/file/generate/signed-url`, {
     file,
   });
-  return response.data;
-};
-
-const getUserProfile = async () => {
-  const response = await axiosClient.get<UserProfileResponse>(`/users/info`);
-  return response.data;
 };
 
 const paymentInfo = async (data: PaymentInfoData) => {
@@ -56,7 +47,6 @@ const refreshToken = async (token: string) => {
 export {
   uploadFiles,
   getPresignedURL,
-  getUserProfile,
   paymentInfo,
   getPaymentInfo,
   getPaymentById,

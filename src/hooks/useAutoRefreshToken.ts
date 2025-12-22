@@ -67,7 +67,9 @@ export function useAutoRefreshToken() {
       } catch (error) {
         console.error('Failed to refresh token', error);
         logout();
-        toast.error('Session expired. Please log in again.');
+        if (toast?.error) {
+          toast.error('Session expired. Please log in again.');
+        }
       }
     };
 

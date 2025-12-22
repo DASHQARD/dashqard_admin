@@ -3,7 +3,6 @@ import { PaginatedTable, Text } from '@/components';
 import { OPTIONS } from '@/utils/constants';
 import { useCustomersManagementBase } from '@/features/hooks';
 import { customerListColumns } from '@/features/components';
-import { CustomerDetailsModal } from './CustomerDetailsModal';
 import { UpdateCustomerStatusModal } from './UpdateCustomerStatusModal';
 
 export default function Customers() {
@@ -44,7 +43,6 @@ export default function Customers() {
       </section>
 
       {/* Modals */}
-      <CustomerDetailsModal />
 
       <UpdateCustomerStatusModal />
     </div>
