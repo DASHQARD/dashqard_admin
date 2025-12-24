@@ -11,6 +11,7 @@ export const PERMISSION_CATEGORIES = [
   'payments',
   'ticket_supports',
   'corporates',
+  'requests',
 ] as const;
 
 // Permission actions from API
@@ -39,6 +40,7 @@ export const PERMISSION_MODULES = [
   'Payments', // maps to 'payments' category
   'Ticket Supports', // maps to 'ticket_supports' category
   'Corporates', // maps to 'corporates' category
+  'Requests', // maps to 'requests' category
   // Legacy modules (kept for backward compatibility)
 
   'Notifications',

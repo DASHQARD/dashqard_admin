@@ -40,6 +40,8 @@ export function useCorporateManagementBase() {
     isLoading: isLoadingCorporateBusinessDetails,
   } = useGetCorporateBusinessDetails(params?.corporateId || '');
 
+  console.log('corporateDetails inside', corporatesList);
+
   const corporateInfo = React.useMemo(() => {
     if (!corporateDetails?.data) return [];
 

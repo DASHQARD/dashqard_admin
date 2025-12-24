@@ -1,27 +1,21 @@
-import { Tag } from '@/components';
 import {
   useContentGuard,
   usePersistedModalState,
   useReducerSpread,
 } from '@/hooks';
 
-import {
-  DEFAULT_QUERY,
-  formatDate,
-  getStatusVariant,
-  MODALS,
-  ROUTES,
-} from '@/utils';
+import { DEFAULT_QUERY, formatDate, MODALS } from '@/utils';
 
 import { vendorManagementQueries } from './vendorQueries';
-import { useNavigate } from 'react-router';
+import { useVendorDetails } from '../useVendorDetails';
+import { useParams } from 'react-router';
 import { useSearch } from '@/hooks/useSearch';
 import { useAuthStore } from '@/stores';
 import React from 'react';
 
 export function useVendorManagementBase() {
   const { state } = useSearch();
-  const navigate = useNavigate();
+  const params = useParams();
 
   const [query, setQuery] = useReducerSpread(DEFAULT_QUERY);
   const { userPermissions = [] } = useContentGuard();
@@ -36,117 +30,157 @@ export function useVendorManagementBase() {
   }, [setQuery, state?.searchQuery]);
 
   const { useGetVendors } = vendorManagementQueries();
-  const { data: vendorsList, isLoading: isLoadingVendorsList } =
-    useGetVendors();
+  const { data, isLoading: isLoadingVendorsList } = useGetVendors();
+  const { data: vendorDetails, isLoading: isLoadingVendorDetails } =
+    useVendorDetails(params?.vendorId || '');
+  const vendorsList = data?.data || [];
 
-  const modal = usePersistedModalState({
-    paramName: MODALS.VENDOR_MANAGEMENT.ROOT,
-  });
+  console.log('vendorDetails inside', vendorsList);
+  const vendorInfo = React.useMemo(() => {
+    if (!vendorDetails) return [];
 
-  const vendorInfo = [
-    {
-      label: 'Branch Name',
-      value: vendorsList?.data[0]?.branch_name,
-    },
-    {
-      label: 'Address',
-      value: vendorsList?.data[0]?.business_address || '-',
-    },
-    {
-      label: 'Date Joined',
-      value: formatDate(vendorsList?.data[0]?.date_joined || ''),
-    },
-    {
-      label: 'Last Login',
-      value: '-',
-    },
-    {
-      label: 'Phone number',
-      value: vendorsList?.data[0]?.phone_number || '-',
-    },
-    {
-      label: 'Wallet Status',
-      value: (
-        <Tag
-          value={vendorsList?.data[0]?.wallet_active ? 'Active' : 'Frozen'}
-          variant={getStatusVariant(
-            vendorsList?.data[0]?.wallet_active ? 'active' : 'failed'
-          )}
-        />
-      ),
-    },
-  ];
+    const details = vendorDetails;
 
-  function getVendorOptions(
-    vendor: any,
+    return [
+      {
+        label: 'Vendor Name',
+        value: details.fullname || '-',
+      },
+      {
+        label: 'Email',
+        value: details.email || '-',
+      },
+      {
+        label: 'Phone Number',
+        value: details.phonenumber || '-',
+      },
+      {
+        label: 'Vendor User Type',
+        value: details.user_type || '-',
+      },
+      {
+        label: 'Vendor Status',
+        value: details.status || '-',
+      },
+      {
+        label: 'Vendor ID',
+        value: details.id || '-',
+      },
+      {
+        label: 'Date Created',
+        value: details.created_at
+          ? formatDate(details.created_at, 'DD MMM YYYY')
+          : '-',
+      },
+    ];
+  }, [vendorDetails]);
+
+  function getVendorOptions({
+    modal: modalInstance,
+    vendor,
+    option,
+    loginUser,
+    userPermissions: providedPermissions,
+  }: {
+    modal: ReturnType<typeof usePersistedModalState>;
+    vendor: any;
     option: {
       hasView?: boolean;
       hasUpdate?: boolean;
-      hasDelete?: boolean;
       hasActivate?: boolean;
       hasDeactivate?: boolean;
-    }
-  ) {
+      hasDelete?: boolean;
+    };
+    loginUser: any;
+    userPermissions: string[];
+  }) {
+    console.log('vendor stuff check', vendor);
     if (!vendor) return [];
-    const baseOptions = [];
 
-    const viewOption = [
-      {
-        label: 'View',
-        onClickFn: () =>
-          navigate(
-            `${ROUTES.IN_APP.DASHBOARD.VENDOR_DETAILS.replace(':vendorId', vendor.id)}`
-          ),
-      },
-    ];
+    const actions = [];
+    const permissionsToCheck = providedPermissions || userPermissions;
+    const userToCheck = loginUser || user;
 
-    const editOption = {
-      label: 'Edit',
-      onClickFn: () => modal.openModal(MODALS.VENDOR_MANAGEMENT.EDIT, vendor),
-    };
-
-    const activateOption = {
-      label: 'Activate',
-      onClickFn: () =>
-        modal.openModal(MODALS.VENDOR_MANAGEMENT.ACTIVATE, vendor),
-    };
-
-    const deactivateOption = {
-      label: 'Deactivate',
-      onClickFn: () =>
-        modal.openModal(MODALS.VENDOR_MANAGEMENT.DEACTIVATE, vendor),
-    };
-
+    // View option
     if (
       option?.hasView &&
-      (userPermissions.includes('Vendors management view') ||
-        user?.isSuperAdmin)
+      (permissionsToCheck.some(
+        (p) =>
+          p.toLowerCase().includes('vendors:view') ||
+          p.toLowerCase().includes('vendor management view')
+      ) ||
+        userToCheck?.isSuperAdmin)
     ) {
-      baseOptions.push(...viewOption);
+      actions.push({
+        label: 'View',
+        onClickFn: () =>
+          modalInstance.openModal(
+            MODALS.VENDOR_MANAGEMENT.CHILDREN.VIEW,
+            vendor
+          ),
+      });
     }
 
+    // Edit option
     if (
       option?.hasUpdate &&
-      (userPermissions.includes('Vendors management edit') ||
-        user?.isSuperAdmin)
+      (permissionsToCheck.some(
+        (p) =>
+          p.toLowerCase().includes('vendors:update') ||
+          p.toLowerCase().includes('vendor management edit')
+      ) ||
+        userToCheck?.isSuperAdmin)
     ) {
-      baseOptions.push(editOption);
+      actions.push({
+        label: 'Edit',
+        onClickFn: () =>
+          modalInstance.openModal(
+            MODALS.VENDOR_MANAGEMENT.CHILDREN.EDIT,
+            vendor
+          ),
+      });
     }
+
+    // Activate option
     if (
       option?.hasActivate &&
-      (userPermissions.includes('Vendors management deactivate/activate') ||
-        user?.isSuperAdmin)
+      (permissionsToCheck.some(
+        (p) =>
+          p.toLowerCase().includes('vendors:update') ||
+          p.toLowerCase().includes('vendor management deactivate/activate')
+      ) ||
+        userToCheck?.isSuperAdmin)
     ) {
-      baseOptions.push(activateOption);
+      actions.push({
+        label: 'Activate',
+        onClickFn: () =>
+          modalInstance.openModal(
+            MODALS.VENDOR_MANAGEMENT.CHILDREN.ACTIVATE,
+            vendor
+          ),
+      });
     }
+
+    // Deactivate option
     if (
       option?.hasDeactivate &&
-      (userPermissions.includes('Vendors management deactivate/activate') ||
-        user?.isSuperAdmin)
+      (permissionsToCheck.some(
+        (p) =>
+          p.toLowerCase().includes('vendors:update') ||
+          p.toLowerCase().includes('vendor management deactivate/activate')
+      ) ||
+        userToCheck?.isSuperAdmin)
     ) {
-      baseOptions.push(deactivateOption);
+      actions.push({
+        label: 'Deactivate',
+        onClickFn: () =>
+          modalInstance.openModal(
+            MODALS.VENDOR_MANAGEMENT.CHILDREN.DEACTIVATE,
+            vendor
+          ),
+      });
     }
-    return baseOptions;
+    return actions;
   }
 
   return {
@@ -154,7 +188,9 @@ export function useVendorManagementBase() {
     vendorsList,
     getVendorOptions,
     vendorInfo,
+    vendorDetails,
     isLoadingVendorsList,
+    isLoadingVendorDetails,
     setQuery,
   };
 }

@@ -1,25 +1,16 @@
 import { PaginatedTable, Text } from '@/components';
 
 import { OPTIONS } from '@/utils/constants/filter';
-import { DEFAULT_QUERY } from '@/utils/constants/shared';
-import { useReducerSpread } from '@/hooks';
 import {
   vendorListColumns,
   vendorListCsvHeaders,
+  ViewVendorDetails,
 } from '@/features/components/vendors';
 import { useVendorManagementBase } from '@/features/hooks/vendorManagement';
 
-type QueryType = typeof DEFAULT_QUERY;
-
 export default function Vendors() {
-  const [query, setQuery] = useReducerSpread<QueryType>(DEFAULT_QUERY);
-
-  const { vendorsList, vendorInfo, isLoadingVendorsList } =
+  const { query, setQuery, vendorsList, isLoadingVendorsList } =
     useVendorManagementBase();
-
-  console.log('vendorsList', vendorsList);
-  console.log('vendorInfo', vendorInfo);
-  console.log('isLoadingVendorsList', isLoadingVendorsList);
 
   return (
     <>
@@ -39,9 +30,9 @@ export default function Vendors() {
             <PaginatedTable
               filterWrapperClassName="lg:absolute lg:top-0 lg:right-[2px]"
               columns={vendorListColumns}
-              data={vendorsList?.data || []}
-              total={vendorsList?.data?.length || 0}
-              loading={false}
+              data={vendorsList || []}
+              total={vendorsList?.length || 0}
+              loading={isLoadingVendorsList}
               query={query}
               setQuery={setQuery}
               searchPlaceholder="Search by vendor name or location..."
@@ -59,6 +50,9 @@ export default function Vendors() {
           </div>
         </div>
       </div>
+
+      {/* Modals */}
+      <ViewVendorDetails />
     </>
   );
 }

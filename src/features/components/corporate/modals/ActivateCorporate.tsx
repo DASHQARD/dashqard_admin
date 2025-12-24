@@ -84,7 +84,11 @@ export function ActivateCorporate() {
             >
               Cancel
             </Button>
-            <Button loading={activateMutation.isPending} className="grow">
+            <Button
+              variant="secondary"
+              loading={activateMutation.isPending}
+              className="grow"
+            >
               Activate
             </Button>
           </div>

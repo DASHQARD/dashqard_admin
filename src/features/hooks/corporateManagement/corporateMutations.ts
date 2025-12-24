@@ -9,7 +9,7 @@ export function corporateManagementMutations() {
     return useMutation({
       mutationFn: updateCorporateStatus,
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['corporates'] });
+        queryClient.invalidateQueries();
         success('Corporate status updated successfully');
       },
       onError: (err: any) => {

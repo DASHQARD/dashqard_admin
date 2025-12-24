@@ -10,8 +10,9 @@ import {
   ViewRequestDetails,
 } from '@/features/components';
 import { useRequestManagementBase } from '@/features/hooks/requestManagement ';
-import { MODALS } from '@/utils';
+import { MODALS, ROUTES } from '@/utils';
 import { usePersistedModalState } from '@/hooks';
+import { useNavigate } from 'react-router';
 
 type RequestCorporate = {
   id: number;
@@ -26,6 +27,7 @@ type RequestCorporate = {
 };
 
 export default function Corporates() {
+  const navigate = useNavigate();
   const modal = usePersistedModalState<RequestCorporate>({
     paramName: MODALS.REQUEST_CORPORATE_MANAGEMENT.PARAM_NAME,
   });
@@ -62,9 +64,11 @@ export default function Corporates() {
               searchPlaceholder="Search by corporate name or location..."
               csvHeaders={requestCorporateListCsvHeaders}
               onRowClick={(row) => {
-                modal.openModal(
-                  MODALS.REQUEST_CORPORATE_MANAGEMENT.CHILDREN.VIEW,
-                  row
+                navigate(
+                  ROUTES.IN_APP.DASHBOARD.CORPORATE_DETAILS.replace(
+                    ':corporateId',
+                    row.entity_id
+                  )
                 );
               }}
               filterBy={{

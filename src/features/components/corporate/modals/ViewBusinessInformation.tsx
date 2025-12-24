@@ -58,10 +58,6 @@ export function ViewBusinessInformation() {
     };
   }, [corporateData]);
 
-  const guarantors = React.useMemo(() => {
-    return corporateData?.guarantors || [];
-  }, [corporateData]);
-
   if (!corporateData) {
     return null;
   }
@@ -153,64 +149,6 @@ export function ViewBusinessInformation() {
           </div>
 
           <hr className="my-6 border-gray-200" />
-          <div className="space-y-4">
-            <Text
-              variant="p"
-              weight="medium"
-              className="text-sm text-primary-900"
-            >
-              Guarantor(s) details
-            </Text>
-
-            {guarantors.length > 0 ? (
-              <div className="space-y-6">
-                {guarantors.map(
-                  (
-                    guarantor: { name: string; contact: string },
-                    index: number
-                  ) => (
-                    <div key={index} className="space-y-4">
-                      <Text
-                        variant="p"
-                        className="text-gray-500 uppercase text-xs font-medium"
-                      >
-                        Guarantor {index + 1}
-                      </Text>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-1">
-                          <Text
-                            variant="p"
-                            className="text-gray-400 text-xs capitalize"
-                          >
-                            Full name
-                          </Text>
-                          <Text variant="p" className="text-sm text-gray-800">
-                            {guarantor.name || '-'}
-                          </Text>
-                        </div>
-
-                        <div className="space-y-1">
-                          <Text
-                            variant="p"
-                            className="text-gray-400 text-xs capitalize"
-                          >
-                            Contact
-                          </Text>
-                          <Text variant="p" className="text-sm text-gray-800">
-                            {guarantor.contact || '-'}
-                          </Text>
-                        </div>
-                      </div>
-                    </div>
-                  )
-                )}
-              </div>
-            ) : (
-              <Text variant="p" className="text-sm text-gray-400">
-                No guarantors available
-              </Text>
-            )}
-          </div>
         </div>
 
         <div>

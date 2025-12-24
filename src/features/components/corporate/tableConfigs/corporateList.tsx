@@ -71,7 +71,7 @@ export function CorporateActionCell({ row }: TableCellProps<{ id: string }>) {
   const navigate = useNavigate();
   const { getCorporateOptions } = useCorporateManagementBase();
   const modal = usePersistedModalState({
-    paramName: MODALS.CORPORATE_MANAGEMENT.ROOT,
+    paramName: MODALS.CORPORATE_MANAGEMENT.PARAM_NAME,
   });
 
   const { userPermissions = [] } = useContentGuard();
