@@ -35,7 +35,13 @@ export function useVendorManagementBase() {
   console.log('data inside', data);
   const { data: vendorDetails, isLoading: isLoadingVendorDetails } =
     useVendorDetails(params?.vendorId || '');
-  const vendorsList = data || [];
+
+  const vendorsList = React.useMemo(() => {
+    if (!data) return [];
+    return data.filter((vendor: any) =>
+      vendor.user_type?.toLowerCase().includes('vendor')
+    );
+  }, [data]);
 
   console.log('vendorDetails inside', vendorsList);
   const vendorInfo = React.useMemo(() => {
