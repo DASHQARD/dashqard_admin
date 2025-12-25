@@ -39,7 +39,7 @@ export function useVendorManagementBase() {
   const vendorsList = React.useMemo(() => {
     if (!data) return [];
     return data.filter((vendor: any) =>
-      vendor.user_type?.toLowerCase().includes('vendor')
+      vendor.vendor_user_type?.toLowerCase().includes('vendor')
     );
   }, [data]);
 

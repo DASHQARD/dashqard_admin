@@ -15,13 +15,13 @@ type VendorData = {
   vendor_id?: number;
 };
 
-export function ApproveVendor() {
+export function ActivateVendor() {
   const modal = usePersistedModalState<VendorData>({
     paramName: MODALS.VENDOR_MANAGEMENT.PARAM_NAME,
   });
 
-  const { useApproveVendor } = vendorManagementMutations();
-  const approveVendorMutation = useApproveVendor();
+  const { useUpdateVendorStatus } = vendorManagementMutations();
+  const updateStatusMutation = useUpdateVendorStatus();
 
   const form = useCustomForm({
     resolver: zodResolver(
@@ -47,10 +47,10 @@ export function ApproveVendor() {
   }, [modal.modalData]);
 
   const onSubmit: SubmitHandler<{ vendor_account_id: number }> = (data) => {
-    approveVendorMutation.mutate(
+    updateStatusMutation.mutate(
       {
         ...data,
-        approval_status: 'approved',
+        status: 'active',
       },
       {
         onSuccess: () => {
@@ -63,7 +63,7 @@ export function ApproveVendor() {
   return (
     <Modal
       panelClass=" "
-      isOpen={modal.isModalOpen(MODALS.VENDOR_MANAGEMENT.CHILDREN.APPROVE)}
+      isOpen={modal.isModalOpen(MODALS.VENDOR_MANAGEMENT.CHILDREN.ACTIVATE)}
       setIsOpen={(isOpen) => {
         if (!isOpen) {
           modal.closeModal();
@@ -75,17 +75,18 @@ export function ApproveVendor() {
         <div className="p-6 flex flex-col gap-12">
           <div className="flex flex-col gap-4 items-center justify-center">
             <CustomIcon
-              name={'OrangeWarningSign'}
+              name={'InfoSign'}
               width={48}
               height={48}
               className="text-error"
             />
             <div className="flex flex-col gap-1">
               <Text variant="h3" className="text-center font-semibold">
-                Approve vendor
+                Activate vendor
               </Text>
               <p className="text-gray-600 text-center text-sm">
-                Are you sure you want to approve this vendor?
+                Are you sure you want to activate this vendor? Confirm action
+                below
               </p>
             </div>
           </div>
@@ -101,10 +102,10 @@ export function ApproveVendor() {
             </Button>
             <Button
               variant="secondary"
-              loading={approveVendorMutation.isPending}
+              loading={updateStatusMutation.isPending}
               className="grow"
             >
-              Approve
+              Activate
             </Button>
           </div>
         </div>

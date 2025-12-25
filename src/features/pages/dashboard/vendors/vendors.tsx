@@ -6,6 +6,8 @@ import {
   vendorListCsvHeaders,
   ViewVendorDetails,
   ApproveVendor,
+  ActivateVendor,
+  DeactivateVendor,
 } from '@/features/components/vendors';
 import { useVendorManagementBase } from '@/features/hooks/vendorManagement';
 
@@ -55,6 +57,8 @@ export default function Vendors() {
       {/* Modals */}
       <ViewVendorDetails />
       <ApproveVendor />
+      <ActivateVendor />
+      <DeactivateVendor />
     </>
   );
 }

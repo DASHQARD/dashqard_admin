@@ -13,3 +13,10 @@ export const approveVendor = async (data: {
 }): Promise<any> => {
   return await patchMethod(`${commonUrl}/admin/approve`, data);
 };
+
+export const updateVendorAccountStatus = async (data: {
+  vendor_account_id: number;
+  status: 'active' | 'inactive';
+}): Promise<any> => {
+  return await patchMethod(`${commonUrl}/status`, data);
+};
