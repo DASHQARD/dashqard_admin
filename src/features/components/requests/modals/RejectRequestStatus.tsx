@@ -8,7 +8,7 @@ import { useCustomForm } from '@/libs';
 import type { ToggleSavingsStatusSchemaType } from '@/types';
 import { MODALS } from '@/utils/constants';
 import { toggleSavingsStatusSchema } from '@/utils/schemas/shared';
-import { requestManagementQueries } from '@/features/hooks/requestManagement /requestsQueries';
+import { requestManagementMutations } from '@/features/hooks/requestManagement /requestsMutations';
 
 export function RejectRequestStatus() {
   const modal = usePersistedModalState<{
@@ -18,7 +18,7 @@ export function RejectRequestStatus() {
     paramName: MODALS.REQUEST_CORPORATE_MANAGEMENT.PARAM_NAME,
   });
 
-  const { useUpdateRequestStatus } = requestManagementQueries();
+  const { useUpdateRequestStatus } = requestManagementMutations();
   const updateRequestStatusMutation = useUpdateRequestStatus();
 
   const form = useCustomForm({
@@ -41,7 +41,7 @@ export function RejectRequestStatus() {
     <Modal
       panelClass=" "
       isOpen={modal.isModalOpen(
-        MODALS.REQUEST_CORPORATE_MANAGEMENT.CHILDREN.UPDATE
+        MODALS.REQUEST_CORPORATE_MANAGEMENT.CHILDREN.REJECT
       )}
       setIsOpen={(isOpen) => {
         if (!isOpen) {

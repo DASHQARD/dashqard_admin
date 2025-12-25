@@ -114,7 +114,7 @@ export const ViewKYC = ({ corporate, noProfile }: Props) => {
       try {
         const response = await getPresignedURL(logoDoc.file_url);
         const url =
-          response?.data || response?.url || response || logoDoc.file_url;
+          (typeof response === 'string' ? response : response?.data || response?.url) || logoDoc.file_url;
         if (!cancelled) {
           setLogoPresignedUrl(url);
         }
@@ -209,7 +209,7 @@ export const ViewKYC = ({ corporate, noProfile }: Props) => {
                 />
               </div>
               <Text className="text-gray-500 text-xs capitalize">
-                Onboarding Stage: {corporateData.onboarding_stage || 'N/A'}
+                Onboarding Stage: {(corporateData as any).onboarding_stage || 'N/A'}
               </Text>
             </div>
           </div>

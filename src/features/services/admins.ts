@@ -6,7 +6,7 @@ import {
   postMethod,
   putMethod,
 } from '@/services';
-import type { IAdmin } from '@/types/admin';
+import type { Admin as AdminType } from '@/types/admin';
 import { ROUTES } from '@/utils/constants';
 
 export const getAllAdmins = async (
@@ -21,7 +21,7 @@ export const getAllArchivedAdmins = async (
   const response = await getList(`${ROUTES.ENDPOINT.ADMIN.ARCHIVED}`, query);
   return response;
 };
-export const getAdminProfile = async (): Promise<IAdmin> => {
+export const getAdminProfile = async (): Promise<AdminType> => {
   const response = await getMethod(`${ROUTES.ENDPOINT.ADMIN.PROFILE}`);
   return response;
 };
@@ -29,7 +29,7 @@ export const getAdminProfile = async (): Promise<IAdmin> => {
 export const inviteAdmin = async (data: any) => {
   const response = await postMethod(`${ROUTES.ENDPOINT.ADMIN.INVITE}`, data);
 
-  return response;
+  return response.data || response;
 };
 export const inviteBulkAdmin = async (data: any) => {
   return await postMethod(`${ROUTES.ENDPOINT.ADMIN.BULK_INVITE}`, data);

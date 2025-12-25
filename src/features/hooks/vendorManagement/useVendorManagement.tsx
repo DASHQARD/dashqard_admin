@@ -62,7 +62,7 @@ export function useVendorManagementBase() {
       },
       {
         label: 'Vendor Status',
-        value: details.approval_status || '-',
+        value: (details as any).approval_status || details.status || '-',
       },
       {
         label: 'Vendor ID',

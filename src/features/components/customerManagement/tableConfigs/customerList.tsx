@@ -59,14 +59,13 @@ export const customerListCsvHeaders: Array<CsvHeader> = [
   },
 ];
 
-function ActionCell({ row }: TableCellProps<{ id: string }>) {
-  const { getSavingsOptions } = useCustomersManagementBase();
+function ActionCell(_props: TableCellProps<{ id: string }>) {
+  // TODO: Implement when customer management actions are ready
+  // const { getSavingsOptions } = useCustomersManagementBase();
 
   return (
     <Dropdown
-      actions={getSavingsOptions(row.original as ISavingsAjo, {
-        hasView: true,
-      })}
+      actions={[]}
     >
       <button
         type="button"

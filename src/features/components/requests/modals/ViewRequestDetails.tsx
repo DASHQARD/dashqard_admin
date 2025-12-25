@@ -13,7 +13,7 @@ export function ViewRequestDetails() {
 
   const { useGetRequestCorporateDetails } = requestManagementQueries();
   const { data: requestCorporateDetails } = useGetRequestCorporateDetails(
-    requestData?.id
+    String(requestData?.id || '')
   );
 
   return (
@@ -36,7 +36,7 @@ export function ViewRequestDetails() {
               <p className="text-gray-400 text-xs">Status</p>
               <Tag
                 value={requestCorporateDetails?.status || 'Pending'}
-                variant={getStatusVariant(requestData?.status || 'pending')}
+                variant={getStatusVariant((requestData as any)?.status || requestCorporateDetails?.status || 'pending')}
                 className="w-fit"
               />
             </div>

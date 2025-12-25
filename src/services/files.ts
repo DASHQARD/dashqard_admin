@@ -16,9 +16,10 @@ const uploadFiles = async (data: File[]) => {
 };
 
 const getPresignedURL = async (file: string) => {
-  return await postMethod(`/file/generate/signed-url`, {
+  const response = await postMethod(`/file/generate/signed-url`, {
     file,
   });
+  return response.data;
 };
 
 const paymentInfo = async (data: PaymentInfoData) => {

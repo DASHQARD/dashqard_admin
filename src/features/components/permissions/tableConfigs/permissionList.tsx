@@ -1,5 +1,4 @@
 import { DateCell, Dropdown } from '@/components';
-import { permissionsManagementMutations } from '@/features/hooks/permissionsManagement';
 import { useContentGuard, usePersistedModalState } from '@/hooks';
 import { Icon } from '@/libs';
 import { useAuthStore } from '@/stores';
@@ -66,18 +65,9 @@ export function PermissionActionCell({ row }: TableCellProps<{ id: number }>) {
 
   const { userPermissions = [] } = useContentGuard();
   const user = useAuthStore().user;
-  const { useDeletePermission } = permissionsManagementMutations();
-  const deletePermissionMutation = useDeletePermission();
 
-  const handleDelete = () => {
-    if (window.confirm('Are you sure you want to delete this permission?')) {
-      deletePermissionMutation.mutate(String(row.original.id), {
-        onSuccess: () => {
-          modal.closeModal();
-        },
-      });
-    }
-  };
+  // Delete functionality is handled directly in actions
+  // Keeping this for potential future use
 
   const actions = [];
 

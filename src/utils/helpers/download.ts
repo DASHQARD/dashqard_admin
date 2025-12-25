@@ -10,13 +10,13 @@ export function generateCsv(options: generateCsvParams) {
   const rows = []
 
   // add headers first
-  rows.push(headers.map((h) => h.name).join(separator))
+  rows.push(headers.map((h: any) => h.name).join(separator))
 
   // append rows
-  data.forEach((row) => {
+  data.forEach((row: any) => {
     rows.push(
       headers
-        .map((h) => {
+        .map((h: any) => {
           const transform = h.transform ?? String
           return `"${transform(h.accessor ? getTarget(row, h.accessor) : row)}"`
         })

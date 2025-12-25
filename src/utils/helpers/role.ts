@@ -1,4 +1,5 @@
-import type { IAdmin, MenuItem, PermissionType } from '@/types';
+import type { MenuItem } from '@/types';
+import type { PermissionType } from '@/types/roles';
 
 /**
  * Extracts permissions from roles or API response structure
@@ -7,7 +8,7 @@ import type { IAdmin, MenuItem, PermissionType } from '@/types';
  * 2. API verify-login-token response: data.permissions.permissions (array of permission objects with .permission field)
  */
 export function getAllAdminPermissions(
-  roles?: IAdmin['roles'],
+  roles?: any,
   apiPermissions?: Array<{ permission: string }>
 ): string[] {
   // If API permissions are provided (from verify-login-token response)
@@ -25,7 +26,7 @@ export function getAllAdminPermissions(
     if (!role?.permissions) return [];
 
     // Handle both string array and object array with permission field
-    return role.permissions.map((perm) =>
+    return role.permissions.map((perm: any) =>
       typeof perm === 'string' ? perm : perm.permission || perm
     );
   });

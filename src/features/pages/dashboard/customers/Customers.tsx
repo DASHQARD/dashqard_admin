@@ -43,8 +43,11 @@ export default function Customers() {
       </section>
 
       {/* Modals */}
-
-      <UpdateCustomerStatusModal />
+      <UpdateCustomerStatusModal
+        customer={null}
+        isOpen={false}
+        onClose={() => {}}
+      />
     </div>
   );
 }

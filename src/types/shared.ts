@@ -58,18 +58,6 @@ export interface ConfirmModalStateReturn {
 
 export type RoleStatus = 'active' | 'inactive' | 'deactivated' | 'deactivate';
 
-export type Role = {
-  id: string;
-  name: string;
-  description: string;
-  permissions: string[];
-  admins: any[];
-  admin_count: number;
-  status: RoleStatus;
-  created_at: string;
-  updated_at: string;
-};
-
 export const TagVariants: Record<
   string,
   React.ComponentProps<typeof Tag>['variant']

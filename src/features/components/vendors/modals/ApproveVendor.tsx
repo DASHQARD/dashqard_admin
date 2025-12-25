@@ -21,6 +21,9 @@ export function ApproveVendor() {
   const { useApproveVendor } = vendorManagementMutations();
   const approveVendorMutation = useApproveVendor();
 
+  const vendorAccountId =
+    modal.modalData?.vendor_account_id || modal.modalData?.id || 0;
+
   const form = useCustomForm({
     resolver: zodResolver(
       z.object({
@@ -28,8 +31,7 @@ export function ApproveVendor() {
       })
     ),
     defaultValues: {
-      vendor_account_id:
-        modal.modalData?.vendor_account_id || modal.modalData?.id,
+      vendor_account_id: vendorAccountId,
     },
   });
 
