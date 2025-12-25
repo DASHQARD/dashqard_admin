@@ -38,7 +38,7 @@ export function useCorporateManagementBase() {
     return data.filter((corporate: any) =>
       corporate.user_type?.toLowerCase().includes('corporate')
     );
-  }, [data?.data]);
+  }, [data]);
   const { data: corporateDetails, isLoading: isLoadingCorporateDetails } =
     useGetCorporateDetails(params?.corporateId || '');
   const {
