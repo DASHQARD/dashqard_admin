@@ -7,13 +7,19 @@ import {
   Home,
   Vendors,
   Permissions,
+  Onboarding,
 } from '../pages';
 import { CorporateRequests } from '../pages/dashboard/requests';
+import InviteAdmin from '../pages/dashboard/admins/InviteAdmin';
 
 export const adminRoutes: RouteObject[] = [
   {
     index: true,
     element: <Home />,
+  },
+  {
+    path: 'onboard',
+    element: <Onboarding />,
   },
   {
     path: 'customers',
@@ -30,6 +36,10 @@ export const adminRoutes: RouteObject[] = [
   {
     path: 'admins',
     element: <Admins />,
+  },
+  {
+    path: 'admins/invite',
+    element: <InviteAdmin />,
   },
   {
     path: 'requests',
