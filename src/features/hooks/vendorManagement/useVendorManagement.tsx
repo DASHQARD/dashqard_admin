@@ -31,9 +31,11 @@ export function useVendorManagementBase() {
 
   const { useGetVendors } = vendorManagementQueries();
   const { data, isLoading: isLoadingVendorsList } = useGetVendors();
+
+  console.log('data inside', data);
   const { data: vendorDetails, isLoading: isLoadingVendorDetails } =
     useVendorDetails(params?.vendorId || '');
-  const vendorsList = data?.data || [];
+  const vendorsList = data || [];
 
   console.log('vendorDetails inside', vendorsList);
   const vendorInfo = React.useMemo(() => {
@@ -60,7 +62,7 @@ export function useVendorManagementBase() {
       },
       {
         label: 'Vendor Status',
-        value: details.status || '-',
+        value: details.approval_status || '-',
       },
       {
         label: 'Vendor ID',
@@ -126,7 +128,7 @@ export function useVendorManagementBase() {
       option?.hasUpdate &&
       (permissionsToCheck.some(
         (p) =>
-          p.toLowerCase().includes('vendors:update') ||
+          p.toLowerCase().includes('vendors:manage') ||
           p.toLowerCase().includes('vendor management edit')
       ) ||
         userToCheck?.isSuperAdmin)
@@ -146,7 +148,7 @@ export function useVendorManagementBase() {
       option?.hasActivate &&
       (permissionsToCheck.some(
         (p) =>
-          p.toLowerCase().includes('vendors:update') ||
+          p.toLowerCase().includes('vendors:manage') ||
           p.toLowerCase().includes('vendor management deactivate/activate')
       ) ||
         userToCheck?.isSuperAdmin)
@@ -166,7 +168,7 @@ export function useVendorManagementBase() {
       option?.hasDeactivate &&
       (permissionsToCheck.some(
         (p) =>
-          p.toLowerCase().includes('vendors:update') ||
+          p.toLowerCase().includes('vendors:manage') ||
           p.toLowerCase().includes('vendor management deactivate/activate')
       ) ||
         userToCheck?.isSuperAdmin)
@@ -176,6 +178,25 @@ export function useVendorManagementBase() {
         onClickFn: () =>
           modalInstance.openModal(
             MODALS.VENDOR_MANAGEMENT.CHILDREN.DEACTIVATE,
+            vendor
+          ),
+      });
+    }
+
+    // Approve option
+    if (
+      permissionsToCheck.some(
+        (p) =>
+          p.toLowerCase().includes('vendors:manage') ||
+          p.toLowerCase().includes('vendor management approve')
+      ) ||
+      userToCheck?.isSuperAdmin
+    ) {
+      actions.push({
+        label: 'Approve',
+        onClickFn: () =>
+          modalInstance.openModal(
+            MODALS.VENDOR_MANAGEMENT.CHILDREN.APPROVE,
             vendor
           ),
       });

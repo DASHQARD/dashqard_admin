@@ -341,7 +341,9 @@ export function ViewVendorDetails() {
                             value={reference.approval_status
                               .split('_')
                               .join(' ')}
-                            variant={getStatusVariant(reference.approval_status)}
+                            variant={getStatusVariant(
+                              reference.approval_status
+                            )}
                             className="w-fit"
                           />
                         </div>
@@ -387,10 +389,7 @@ export function ViewVendorDetails() {
             </Text>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <Text
-                  variant="p"
-                  className="text-gray-400 text-xs capitalize"
-                >
+                <Text variant="p" className="text-gray-400 text-xs capitalize">
                   Created At
                 </Text>
                 <Text variant="p" className="text-sm text-gray-800">
@@ -400,10 +399,7 @@ export function ViewVendorDetails() {
                 </Text>
               </div>
               <div className="space-y-1">
-                <Text
-                  variant="p"
-                  className="text-gray-400 text-xs capitalize"
-                >
+                <Text variant="p" className="text-gray-400 text-xs capitalize">
                   Updated At
                 </Text>
                 <Text variant="p" className="text-sm text-gray-800">
@@ -425,6 +421,3 @@ export function ViewVendorDetails() {
     </Modal>
   );
 }
-
-
-

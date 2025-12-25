@@ -31,8 +31,14 @@ export function useCorporateManagementBase() {
     useGetCorporateDetails,
     useGetCorporateBusinessDetails,
   } = corporateManagementQueries();
-  const { data: corporatesList, isLoading: isLoadingCorporatesList } =
-    useGetCorporates();
+  const { data, isLoading: isLoadingCorporatesList } = useGetCorporates();
+
+  const corporatesList = React.useMemo(() => {
+    if (!data) return [];
+    return data.filter((corporate: any) =>
+      corporate.user_type?.toLowerCase().includes('corporate')
+    );
+  }, [data?.data]);
   const { data: corporateDetails, isLoading: isLoadingCorporateDetails } =
     useGetCorporateDetails(params?.corporateId || '');
   const {

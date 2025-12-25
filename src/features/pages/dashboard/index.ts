@@ -3,3 +3,4 @@ export * from './home';
 export * from './vendors';
 export * from './corporate';
 export * from './admins';
+export * from './permissions';

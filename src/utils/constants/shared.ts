@@ -14,6 +14,7 @@ export const ROUTES = {
       CORPORATES: '/dashboard/corporates',
       VENDOR_DETAILS: '/dashboard/vendors/:vendorId',
       CORPORATE_DETAILS: '/dashboard/corporates/:corporateId',
+      PERMISSIONS: '/dashboard/permissions',
       REQUESTS: {
         VENDOR_REQUESTS: '/dashboard/requests/vendor-requests',
         CORPORATE_REQUESTS: '/dashboard/requests/corporate-requests',

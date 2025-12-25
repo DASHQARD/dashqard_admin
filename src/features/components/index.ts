@@ -6,3 +6,5 @@ export * from './corporate';
 export * from './vendors';
 export * from './admin';
 export * from './requests';
+export * from './permissions';
+export * from './roles';

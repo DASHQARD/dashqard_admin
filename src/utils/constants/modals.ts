@@ -47,6 +47,7 @@ export const MODALS = {
       DEACTIVATE: 'deactivate-vendor',
       ACTIVATE: 'activate-vendor',
       DELETE: 'delete-vendor',
+      APPROVE: 'approve-vendor',
     },
   },
   PAYMENT: {
@@ -75,5 +76,23 @@ export const MODALS = {
     RESEND_INVITE: 'resend-admin-invite',
     RESTORE: 'restore-admin',
     PERMANENTLY_DELETE: 'permanently-delete-admin',
+  },
+  PERMISSIONS_MANAGEMENT: {
+    PARAM_NAME: 'permissions-management-modal',
+    CHILDREN: {
+      CREATE: 'create-permission',
+      EDIT: 'edit-permission',
+      DELETE: 'delete-permission',
+    },
+  },
+  ROLES_MANAGEMENT: {
+    PARAM_NAME: 'roles-management-modal',
+    CHILDREN: {
+      CREATE: 'create-role',
+      EDIT: 'edit-role',
+      DELETE: 'delete-role',
+      VIEW: 'view-role',
+      ASSIGN: 'assign-role',
+    },
   },
 };

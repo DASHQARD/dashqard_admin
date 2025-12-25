@@ -6,6 +6,7 @@ import {
   Customers,
   Home,
   Vendors,
+  Permissions,
 } from '../pages';
 import { CorporateRequests } from '../pages/dashboard/requests';
 
@@ -46,5 +47,9 @@ export const adminRoutes: RouteObject[] = [
   {
     path: 'corporates/:corporateId',
     element: <CorporateDetails />,
+  },
+  {
+    path: 'roles',
+    element: <Permissions />,
   },
 ];

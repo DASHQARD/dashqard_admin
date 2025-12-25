@@ -1,48 +1,10 @@
-import { Dropdown, StatusCell } from '@/components';
+import { Dropdown, Tag } from '@/components';
 import { useVendorManagementBase } from '@/features/hooks/vendorManagement';
 import { useContentGuard, usePersistedModalState } from '@/hooks';
 import { Icon } from '@/libs';
 import { useAuthStore } from '@/stores';
 import type { CsvHeader, TableCellProps } from '@/types/shared';
-import { MODALS } from '@/utils/constants';
-
-// {
-//               "id": 1,
-//               "corporate_user_id": 12,
-//               "vendor_user_id": 12,
-//               "vendor_id": 1,
-//               "created_by_user_id": 12,
-//               "relationship_type": "owner_managed",
-//               "approval_status": "auto_approved",
-//               "status": "active",
-//               "approved_by_admin_id": null,
-//               "approved_at": null,
-//               "rejection_reason": null,
-//               "created_at": "2025-12-23T11:51:38.563Z",
-//               "updated_at": "2025-12-23T11:51:38.563Z",
-//               "vendor_name": "Abeeku Djokoto",
-//               "vendor_email": "wesetavesse-1891@yopmail.com",
-//               "vendor_phone": "+233559617908",
-//               "vendor_avatar": null,
-//               "vendor_user_type": "corporate super admin",
-//               "vendor_status": "approved",
-//               "corporate_name": "Abeeku Djokoto",
-//               "corporate_email": "wesetavesse-1891@yopmail.com",
-//               "business_name": "Mart Ghana",
-//               "gvid": "GVID-2335-000001",
-//               "onboarding_stage": "business_documents",
-//               "onboarding_completed": false,
-//               "branch_count": "0",
-//               "data_references": [
-//                   {
-//                       "id": 1,
-//                       "data_type": "business_details",
-//                       "approval_status": "not_required",
-//                       "requires_approval": false,
-//                       "is_copied_from_corporate": true
-//                   }
-//               ]
-//           }
+import { MODALS, getStatusVariant } from '@/utils';
 
 export const vendorListColumns = [
   {
@@ -64,7 +26,7 @@ export const vendorListColumns = [
   {
     header: 'Vendor Status',
     accessorKey: 'vendor_status',
-    cell: StatusCell,
+    cell: VendorStatusCell,
   },
   {
     id: 'actions',
@@ -96,6 +58,15 @@ export const vendorListCsvHeaders: Array<CsvHeader> = [
     accessor: 'vendor_id',
   },
 ];
+
+function VendorStatusCell({ getValue }: { getValue: () => string }) {
+  const status = getValue();
+  return (
+    <>
+      {status ? <Tag value={status} variant={getStatusVariant(status)} /> : '-'}
+    </>
+  );
+}
 
 export function VendorActionCell({ row }: TableCellProps<{ id: string }>) {
   const { getVendorOptions } = useVendorManagementBase();
