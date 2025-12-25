@@ -9,8 +9,9 @@ import { z } from 'zod';
 import { useCustomForm } from '@/libs';
 
 type VendorData = {
-  id: number;
+  id?: number;
   vendor_account_id?: number;
+  vendor_id?: number;
 };
 
 export function ApproveVendor() {
@@ -21,6 +22,7 @@ export function ApproveVendor() {
   const { useApproveVendor } = vendorManagementMutations();
   const approveVendorMutation = useApproveVendor();
 
+  // The vendor_account_id is the id field in the vendor account data
   const vendorAccountId =
     modal.modalData?.vendor_account_id || modal.modalData?.id || 0;
 

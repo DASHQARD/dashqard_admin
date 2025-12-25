@@ -66,9 +66,6 @@ export function PermissionActionCell({ row }: TableCellProps<{ id: number }>) {
   const { userPermissions = [] } = useContentGuard();
   const user = useAuthStore().user;
 
-  // Delete functionality is handled directly in actions
-  // Keeping this for potential future use
-
   const actions = [];
 
   if (
