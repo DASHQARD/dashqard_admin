@@ -23,7 +23,7 @@ export const getAllRolesPermissions = async (): Promise<any> => {
 export const createRole = async (data: {
   role: string;
   description: string;
-  permissions: string[];
+  permissions: number[];
 }): Promise<any> => {
   return await postMethod(`${commonUrl}/create`, data);
 };

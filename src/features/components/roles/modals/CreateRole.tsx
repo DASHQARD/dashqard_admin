@@ -14,7 +14,7 @@ const createRoleSchema = z.object({
   role: z.string().min(1, 'Role name is required'),
   description: z.string().min(1, 'Description is required'),
   permissions: z
-    .array(z.string())
+    .array(z.number())
     .min(1, 'At least one permission is required'),
 });
 
@@ -99,20 +99,18 @@ export function CreateRole() {
                   render={({ field }) => (
                     <Checkbox
                       label={`${permission.permission} - ${permission.description}`}
-                      checked={
-                        field.value?.includes(permission.permission) || false
-                      }
+                      checked={field.value?.includes(permission.id) || false}
                       onChange={(e) => {
                         const currentPermissions = field.value || [];
                         if (e.target.checked) {
                           field.onChange([
                             ...currentPermissions,
-                            permission.permission,
+                            permission.id,
                           ]);
                         } else {
                           field.onChange(
                             currentPermissions.filter(
-                              (p: string) => p !== permission.permission
+                              (p: number) => p !== permission.id
                             )
                           );
                         }

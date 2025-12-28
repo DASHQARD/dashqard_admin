@@ -1,3 +1,8 @@
+export const ADMIN_TYPES = [
+  { label: 'Super Admin', value: 'super_admin' },
+  { label: 'Admin', value: 'admin' },
+];
+
 export const OPTIONS = {
   CORPORATE_MANAGEMENT_STATUS: ['active', 'deactivated', 'inactive'],
   VENDOR_MANAGEMENT_STATUS: ['active', 'deactivated', 'inactive'],

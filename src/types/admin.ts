@@ -4,7 +4,6 @@ export type InviteAdminPayload = {
   last_name: string;
   phone_number: string;
   role_id: string;
-  type: string;
 };
 
 export type InviteAdminResponse = {

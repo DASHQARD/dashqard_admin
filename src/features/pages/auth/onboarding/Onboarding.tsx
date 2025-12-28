@@ -1,7 +1,5 @@
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
-import CreateAccountMan from '@/assets/images/create-account-man.png';
-import LogoWhite from '@/assets/svgs/logo-white.svg?react';
 import { ROUTES } from '@/utils/constants';
 import { Input, Text } from '@/components';
 import { Button } from '@/components/Button';
@@ -59,19 +57,6 @@ export default function Onboarding() {
 
   return (
     <div className="flex relative min-h-screen overflow-hidden">
-      <div className="bg-primary-500 rounded-tr-[220px] min-w-[623.34px] relative hidden lg:block">
-        <Link
-          to={ROUTES.IN_APP.DASHBOARD.HOME}
-          className="absolute top-[80px] left-1/2 -translate-x-1/2 z-10"
-        >
-          <LogoWhite />
-        </Link>
-        <img
-          src={CreateAccountMan}
-          alt="Create Account Man"
-          className="absolute bottom-0 -right-15 z-10"
-        />
-      </div>
       <div className="flex-1 flex items-center justify-center">
         <form
           onSubmit={form.handleSubmit(onSubmit)}
@@ -114,22 +99,7 @@ export default function Onboarding() {
             >
               Complete Onboarding
             </Button>
-            <p className="text-xs text-center text-gray-500">
-              By continuing, you agree to our{' '}
-              <a
-                href="#"
-                className="text-primary-500 underline"
-              >
-                Terms of Service
-              </a>{' '}
-              and{' '}
-              <a
-                href="#"
-                className="text-primary-500 underline"
-              >
-                Privacy Policy
-              </a>
-            </p>
+
             <hr className="border-gray-200" />
             <div className="flex items-center gap-2">
               <p>

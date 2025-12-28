@@ -16,22 +16,15 @@ const inviteAdminSchema = z.object({
   last_name: z.string().min(1, 'Last name is required'),
   phone_number: z.string().min(1, 'Phone number is required'),
   role_id: z.string().min(1, 'Role is required'),
-  type: z.string().min(1, 'Admin type is required'),
 });
 
 type InviteAdminSchemaType = z.infer<typeof inviteAdminSchema>;
-
-const adminTypes = [
-  { label: 'Super Admin', value: 'super_admin' },
-  { label: 'Admin', value: 'admin' },
-];
 
 export default function InviteAdmin() {
   const navigate = useNavigate();
   const { mutate: inviteAdmin, isPending } = useInviteAdmin();
   const { useGetAllRoles } = rolesManagementQueries();
   const { data: rolesData, isLoading: isLoadingRoles } = useGetAllRoles();
-  const rolesList = rolesData || [];
 
   const form = useCustomForm({
     resolver: zodResolver(inviteAdminSchema),
@@ -41,30 +34,23 @@ export default function InviteAdmin() {
       last_name: '',
       phone_number: '',
       role_id: '',
-      type: '',
     },
   });
 
   const rolesOptions = React.useMemo(() => {
+    const rolesList = rolesData || [];
     return rolesList.map((role: any) => ({
       label: role.role || role.name || '',
       value: String(role.id),
     }));
-  }, [rolesList]);
+  }, [rolesData]);
 
   const onSubmit: SubmitHandler<InviteAdminSchemaType> = (data) => {
-    inviteAdmin(
-      {
-        ...data,
-        role_id: data.role_id,
-        type: data.type,
+    inviteAdmin(data, {
+      onSuccess: () => {
+        navigate(ROUTES.IN_APP.ADMIN.ADMINS);
       },
-      {
-        onSuccess: () => {
-          navigate(ROUTES.IN_APP.ADMIN.ADMINS);
-        },
-      }
-    );
+    });
   };
 
   return (
@@ -134,23 +120,6 @@ export default function InviteAdmin() {
                 )}
               />
 
-              <Controller
-                control={form.control}
-                name="type"
-                render={({ field }) => (
-                  <Combobox
-                    label="Admin Type"
-                    placeholder="Select admin type"
-                    options={adminTypes}
-                    value={field.value}
-                    onChange={(e: { target: { value: string } }) => {
-                      field.onChange(e.target.value);
-                    }}
-                    error={form.formState.errors.type?.message}
-                  />
-                )}
-              />
-
               <div className="flex items-center gap-3 pt-4 border-t">
                 <Button
                   type="button"
@@ -176,4 +145,3 @@ export default function InviteAdmin() {
     </div>
   );
 }
-

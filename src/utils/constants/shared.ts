@@ -24,7 +24,7 @@ export const ROUTES = {
       ROOT: 'admin-modal',
       AUTH: {
         LOGIN: '/admin/auth/login',
-        ONBOARD: '/admin/auth/onboard',
+        ONBOARD: '/admin/onboard',
         FORGET_PASSWORD: '/admin/auth/forget-password',
         RESET_PASSWORD: '/admin/auth/reset-password',
       },
