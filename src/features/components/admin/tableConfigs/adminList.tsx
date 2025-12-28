@@ -1,28 +1,16 @@
-import { Avatar, Dropdown, StatusCell } from '@/components';
+import { Dropdown, NameCell, StatusCell } from '@/components';
 import { useAdminManagementBase } from '@/features/hooks';
 import { useContentGuard, usePersistedModalState } from '@/hooks';
 import { Icon } from '@/libs';
 import { useAuthStore } from '@/stores';
 import type { CsvHeader, TableCellProps } from '@/types/shared';
 import { MODALS } from '@/utils/constants';
-import { useNavigate } from 'react-router';
 
 export const adminListColumns = [
   {
     header: 'Full Name',
     accessorKey: 'full_name',
-    cell: (row: any) => (
-      <div className="flex items-center gap-2">
-        <Avatar
-          src={row.avatar}
-          alt={row.full_name}
-          className="w-10 h-10 rounded-full"
-        />
-        <span>
-          {row.first_name} {row.last_name}
-        </span>
-      </div>
-    ),
+    cell: NameCell,
   },
   {
     header: 'Email',
@@ -73,7 +61,6 @@ export const adminListCsvHeaders: Array<CsvHeader> = [
 ];
 
 export function AdminActionCell({ row }: TableCellProps<{ id: string }>) {
-  const navigate = useNavigate();
   const modal = usePersistedModalState({
     paramName: MODALS.ADMIN.ROOT,
   });
@@ -86,7 +73,6 @@ export function AdminActionCell({ row }: TableCellProps<{ id: string }>) {
     <Dropdown
       actions={getAdminOptions({
         modal,
-        navigate,
         admin: row.original as any,
         option: {
           hasView: true,

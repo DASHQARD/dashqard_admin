@@ -73,7 +73,7 @@ export default function CorporateDetails() {
             {corporateDetails?.data?.status === 'approved' ||
             corporateDetails?.status === 'approved' ? (
               <Button
-                variant="outline"
+                variant="danger"
                 size="medium"
                 className="border-primary-500 text-primary-500"
                 onClick={() =>

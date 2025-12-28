@@ -4,7 +4,6 @@ import DocViewer, { DocViewerRenderers } from '@cyntler/react-doc-viewer';
 import { Loader, Modal } from '@/components';
 
 import { usePersistedModalState, usePresignedURL } from '@/hooks';
-import { Icon } from '@/libs';
 import { MODALS } from '@/utils/constants';
 
 export const ViewKycDocument = () => {
@@ -48,7 +47,15 @@ export const ViewKycDocument = () => {
         const response = await getPresignedURL(fileUrl);
         console.log('Presigned URL response:', response);
 
-        const url = response?.data;
+        // Handle different response structures (string, object with data, object with url)
+        const url: string =
+          (typeof response === 'string'
+            ? response
+            : typeof response === 'object' && response
+              ? (response as any)?.data ||
+                (response as any)?.url ||
+                String(response)
+              : String(response)) || fileUrl;
         console.log('fetched url', url);
 
         if (!cancelled) {
@@ -60,6 +67,10 @@ export const ViewKycDocument = () => {
           `Failed to fetch presigned URL for file ${fileUrl}:`,
           error
         );
+        if (!cancelled) {
+          setDocumentUrl(null);
+          setIsPending(false);
+        }
       }
     };
 
@@ -73,12 +84,20 @@ export const ViewKycDocument = () => {
 
   // Get file type from file_url extension
   const fileType = modal.modalData?.file_url
-    ? modal.modalData?.file_url.split('.').pop() || ''
+    ? modal.modalData?.file_url.split('.').pop()?.toLowerCase() || ''
     : '';
+
+  // Check if file is an image
+  const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'].includes(
+    fileType
+  );
+
+  // Check if file is a PDF
+  const isPdf = fileType === 'pdf';
 
   return (
     <Modal
-      title={'View document'}
+      title="View Document"
       isOpen={modal.isModalOpen(
         MODALS.CORPORATE_MANAGEMENT.CHILDREN.VIEW_KYC_DOCUMENT
       )}
@@ -90,16 +109,6 @@ export const ViewKycDocument = () => {
       panelClass="!w-[1240px]"
     >
       <section className="max-h-[760px] bg-gray-50 flex flex-col gap-4 p-6 rounded-4xl">
-        <div className="flex justify-between items-center sticky top-0 bg-gray-50">
-          <h2 className="text-lg font-medium">KYC Document</h2>
-
-          <button
-            className="text-xl bg-gray-100 w-8 h-8 grid place-items-center rounded-full text-gray-400 hover:bg-gray-200 hover:text-gray-500"
-            onClick={modal.closeModal}
-          >
-            <Icon icon="ic:round-close" />
-          </button>
-        </div>
         <div className="border-2 border-dashed border-[#EEEEEE] p-4 w-full overflow-y-auto">
           <div className="bg-white rounded">
             {isPending ? (
@@ -107,26 +116,57 @@ export const ViewKycDocument = () => {
                 <Loader />
               </div>
             ) : documentUrl ? (
-              <DocViewer
-                documents={[
-                  {
-                    uri: documentUrl,
-                    fileName: 'KYC Document',
-                    fileType: fileType,
-                  },
-                ]}
-                pluginRenderers={DocViewerRenderers}
-                config={{
-                  header: {
-                    disableFileName: true,
-                    disableHeader: false,
-                  },
-                  pdfVerticalScrollByDefault: true,
-                }}
-                style={{
-                  height: '100%',
-                }}
-              />
+              isImage ? (
+                <div className="flex justify-center items-center p-4">
+                  <img
+                    src={documentUrl}
+                    alt="KYC Document"
+                    className="max-w-full max-h-[700px] object-contain"
+                  />
+                </div>
+              ) : isPdf ? (
+                <DocViewer
+                  documents={[
+                    {
+                      uri: documentUrl,
+                      fileName: 'KYC Document',
+                      fileType: 'pdf',
+                    },
+                  ]}
+                  pluginRenderers={DocViewerRenderers}
+                  config={{
+                    header: {
+                      disableFileName: true,
+                      disableHeader: false,
+                    },
+                    pdfVerticalScrollByDefault: true,
+                  }}
+                  style={{
+                    height: '100%',
+                  }}
+                />
+              ) : (
+                <DocViewer
+                  documents={[
+                    {
+                      uri: documentUrl,
+                      fileName: 'KYC Document',
+                      fileType: fileType,
+                    },
+                  ]}
+                  pluginRenderers={DocViewerRenderers}
+                  config={{
+                    header: {
+                      disableFileName: true,
+                      disableHeader: false,
+                    },
+                    pdfVerticalScrollByDefault: true,
+                  }}
+                  style={{
+                    height: '100%',
+                  }}
+                />
+              )
             ) : (
               <div className="flex justify-center items-center h-96 text-gray-400">
                 <p>No document available</p>

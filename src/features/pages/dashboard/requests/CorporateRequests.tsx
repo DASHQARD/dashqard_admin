@@ -4,6 +4,7 @@ import { OPTIONS } from '@/utils/constants/filter';
 
 import {
   ApproveRequestStatus,
+  DeleteRequest,
   RejectRequestStatus,
   requestCorporateListColumns,
   requestCorporateListCsvHeaders,
@@ -96,6 +97,10 @@ export default function Corporates() {
       {modal.modalState ===
         MODALS.REQUEST_CORPORATE_MANAGEMENT.CHILDREN.REJECT && (
         <RejectRequestStatus />
+      )}
+      {modal.modalState ===
+        MODALS.REQUEST_CORPORATE_MANAGEMENT.CHILDREN.DELETE && (
+        <DeleteRequest />
       )}
     </>
   );

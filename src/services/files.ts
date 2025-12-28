@@ -39,12 +39,12 @@ const getPaymentById = async (id: string) => {
   return response.data;
 };
 
-const refreshToken = async (token: string) => {
-  const response = await axiosClient.post(`/auth/refresh-token`, {
-    refresh_token: token,
+const refreshToken = async (refreshToken: string) => {
+  return await postMethod(`/admin/refresh-token`, {
+    refresh_token: refreshToken,
   });
-  return response.data;
 };
+
 export {
   uploadFiles,
   getPresignedURL,

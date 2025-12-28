@@ -89,6 +89,7 @@ export function useVendorManagementBase() {
     option,
     loginUser,
     userPermissions: providedPermissions,
+    navigate: navigateFn,
   }: {
     modal: ReturnType<typeof usePersistedModalState>;
     vendor: any;
@@ -101,6 +102,7 @@ export function useVendorManagementBase() {
     };
     loginUser: any;
     userPermissions: string[];
+    navigate?: ReturnType<typeof import('react-router').useNavigate>;
   }) {
     console.log('vendor stuff check', vendor);
     if (!vendor) return [];
@@ -109,7 +111,7 @@ export function useVendorManagementBase() {
     const permissionsToCheck = providedPermissions || userPermissions;
     const userToCheck = loginUser || user;
 
-    // View option
+    // View option - navigate to vendor details page
     if (
       option?.hasView &&
       (permissionsToCheck.some(
@@ -119,13 +121,23 @@ export function useVendorManagementBase() {
       ) ||
         userToCheck?.isSuperAdmin)
     ) {
+      const vendorId =
+        vendor.vendor_account_id ||
+        vendor.vendor_id ||
+        vendor.id ||
+        '';
       actions.push({
         label: 'View',
-        onClickFn: () =>
-          modalInstance.openModal(
-            MODALS.VENDOR_MANAGEMENT.CHILDREN.VIEW,
-            vendor
-          ),
+        onClickFn: () => {
+          if (navigateFn) {
+            navigateFn(`/admin/vendors/${vendorId}`);
+          } else {
+            modalInstance.openModal(
+              MODALS.VENDOR_MANAGEMENT.CHILDREN.VIEW,
+              vendor
+            );
+          }
+        },
       });
     }
 

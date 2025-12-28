@@ -3,7 +3,6 @@ export * from './useToast';
 export * from './useCountriesData';
 export * from './useUploadFiles';
 export * from './useAutoRefreshToken';
-export * from './useAutoRefreshAdminToken';
 export * from './useReducerSpread';
 export * from './useFormInputRef';
 export * from './usePersistedModalState';

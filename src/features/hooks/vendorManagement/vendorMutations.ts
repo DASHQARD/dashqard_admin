@@ -1,4 +1,8 @@
-import { approveVendor, updateVendorAccountStatus } from '@/features/services';
+import {
+  approveVendor,
+  updateVendorAccountStatus,
+  removeVendorAdmin,
+} from '@/features/services';
 import { useToast } from '@/hooks';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -37,8 +41,25 @@ export function vendorManagementMutations() {
     });
   }
 
+  function useRemoveVendorAdmin() {
+    const queryClient = useQueryClient();
+    const { error, success } = useToast();
+    return useMutation({
+      mutationFn: removeVendorAdmin,
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['vendors'] });
+        queryClient.invalidateQueries({ queryKey: ['vendor-details'] });
+        success('Vendor admin removed successfully');
+      },
+      onError: (err: any) => {
+        error(err?.message || 'Failed to remove vendor admin');
+      },
+    });
+  }
+
   return {
     useApproveVendor,
     useUpdateVendorStatus,
+    useRemoveVendorAdmin,
   };
 }

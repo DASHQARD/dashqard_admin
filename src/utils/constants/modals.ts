@@ -5,15 +5,17 @@ export const MODALS = {
       APPROVE: 'approve',
       REJECT: 'reject',
       VIEW: 'view',
+      DELETE: 'delete',
     },
   },
   REQUEST_VENDOR_MANAGEMENT: {
-    ROOT: 'request-vendor-management-modal',
     PARAM_NAME: 'request-vendor-management-modal',
-    VIEW: 'view-request-vendor',
-    EDIT: 'edit-request-vendor',
-    DEACTIVATE: 'deactivate-request-vendor',
-    ACTIVATE: 'activate-request-vendor',
+    CHILDREN: {
+      VIEW: 'view-request-vendor',
+      APPROVE: 'approve-request-vendor',
+      REJECT: 'reject-request-vendor',
+      DELETE: 'delete-request-vendor',
+    },
   },
   ADMIN_MANAGEMENT: {
     ROOT: 'admin-management-modal',
@@ -93,6 +95,37 @@ export const MODALS = {
       DELETE: 'delete-role',
       VIEW: 'view-role',
       ASSIGN: 'assign-role',
+    },
+  },
+  COUNTRIES_MANAGEMENT: {
+    PARAM_NAME: 'countries-management-modal',
+    CHILDREN: {
+      CREATE: 'create-country',
+      EDIT: 'edit-country',
+      DELETE: 'delete-country',
+      UPDATE_STATUS: 'update-country-status',
+    },
+  },
+  TICKETS_MANAGEMENT: {
+    PARAM_NAME: 'tickets-management-modal',
+    CHILDREN: {
+      CREATE: 'create-ticket',
+      VIEW: 'view-ticket',
+      UPDATE_STATUS: 'update-ticket-status',
+    },
+  },
+  PAYMENT_DETAILS_MANAGEMENT: {
+    PARAM_NAME: 'payment-details-management-modal',
+    CHILDREN: {
+      DELETE: 'delete-payment-detail',
+    },
+  },
+  PAYMENTS_MANAGEMENT: {
+    PARAM_NAME: 'payments-management-modal',
+    CHILDREN: {
+      VIEW: 'view-payment',
+      UPDATE_STATUS: 'update-payment-status',
+      DELETE: 'delete-payment',
     },
   },
 };

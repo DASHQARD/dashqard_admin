@@ -29,7 +29,11 @@ export function CreateRole() {
   const createRoleMutation = useCreateRole();
   const { useGetAllPermissions } = permissionsManagementQueries();
   const { data: permissionsData } = useGetAllPermissions();
-  const permissionsList = permissionsData?.data || [];
+  // Extract data - getList returns res.data, which is the full response {status, data: [...]}
+  // So we need to extract the data array from the response
+  const permissionsList = Array.isArray(permissionsData)
+    ? permissionsData
+    : permissionsData?.data || [];
 
   const form = useCustomForm({
     resolver: zodResolver(createRoleSchema),
@@ -60,10 +64,13 @@ export function CreateRole() {
           form.reset();
         }
       }}
-      position="center"
+      position="side"
     >
-      <form onSubmit={form.handleSubmit(onSubmit)}>
-        <div className="p-6 flex flex-col gap-6 max-h-[80vh] overflow-y-auto">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="flex flex-col h-full"
+      >
+        <div className="p-6 flex flex-col gap-6 flex-1 overflow-y-auto">
           <Input
             label="Role Name"
             placeholder="e.g., Admin"
@@ -72,6 +79,8 @@ export function CreateRole() {
           />
           <Input
             label="Description"
+            rows={4}
+            innerClassName="h-24"
             placeholder="e.g., Full access to all features"
             {...form.register('description')}
             error={form.formState.errors.description?.message}
@@ -119,25 +128,25 @@ export function CreateRole() {
               </p>
             )}
           </div>
+        </div>
 
-          <div className="flex items-center gap-3 pt-4 border-t">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={modal.closeModal}
-              className="grow"
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="secondary"
-              loading={createRoleMutation.isPending}
-              type="submit"
-              className="grow"
-            >
-              Create Role
-            </Button>
-          </div>
+        <div className="flex items-center gap-3 pt-4 px-6 pb-6 border-t border-gray-200 shrink-0">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={modal.closeModal}
+            className="grow"
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="secondary"
+            loading={createRoleMutation.isPending}
+            type="submit"
+            className="grow"
+          >
+            Create Role
+          </Button>
         </div>
       </form>
     </Modal>

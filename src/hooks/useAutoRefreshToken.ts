@@ -1,9 +1,9 @@
 import { useEffect, useRef } from 'react';
 import { jwtDecode } from 'jwt-decode';
 
-import { refreshToken as refreshTokenRequest } from '@/services';
 import { useAuthStore } from '@/stores';
 import { useToast } from './useToast';
+import { refreshToken as refreshTokenService } from '@/features/services';
 
 type JwtPayload = {
   exp?: number;
@@ -46,30 +46,28 @@ export function useAutoRefreshToken() {
     const runRefresh = async (activeRefreshToken: string) => {
       try {
         console.log('[useAutoRefreshToken] starting refresh');
-        const response = await refreshTokenRequest(activeRefreshToken);
+        const response = await refreshTokenService(activeRefreshToken);
         console.log('[useAutoRefreshToken] refresh response', response);
-        const nextAccessToken =
-          response?.data?.accessToken ?? response?.accessToken ?? null;
-        const nextRefreshToken =
-          response?.data?.refreshToken ??
-          response?.refreshToken ??
-          activeRefreshToken;
+        const nextAccessToken = response?.data?.accessToken;
+        const nextRefreshToken = response?.data?.refreshToken;
 
         if (!nextAccessToken) {
           throw new Error('Unable to refresh access token');
         }
 
+        // Preserve existing role and permissions when refreshing token
+        const currentState = useAuthStore.getState();
         authenticate({
           token: nextAccessToken,
           refreshToken: nextRefreshToken,
+          role: currentState.role,
+          permissions: currentState.permissions,
         });
         console.log('[useAutoRefreshToken] refresh succeeded');
       } catch (error) {
         console.error('Failed to refresh token', error);
         logout();
-        if (toast?.error) {
-          toast.error('Session expired. Please log in again.');
-        }
+        toast.error('Session expired. Please log in again.');
       }
     };
 

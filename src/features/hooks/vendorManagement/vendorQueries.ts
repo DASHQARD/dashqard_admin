@@ -1,5 +1,4 @@
-import { getVendorsList } from '@/features/services';
-import { getVendorInfo } from '@/features/services';
+import { getVendorsList, getVendorDetails, getVendorQrCode } from '@/features/services';
 import { useQuery } from '@tanstack/react-query';
 
 export function vendorManagementQueries() {
@@ -10,14 +9,25 @@ export function vendorManagementQueries() {
     });
   }
 
-  function useGetVendorDetails(id: string) {
+  function useGetVendorDetails(id: string | number) {
     return useQuery({
       queryKey: ['vendor-details', id],
-      queryFn: () => getVendorInfo(id),
+      queryFn: () => getVendorDetails(id),
+      enabled: !!id,
     });
   }
+
+  function useGetVendorQrCode(id: string | number) {
+    return useQuery({
+      queryKey: ['vendor-qr-code', id],
+      queryFn: () => getVendorQrCode(id),
+      enabled: false, // Only fetch when explicitly called
+    });
+  }
+
   return {
     useGetVendors,
     useGetVendorDetails,
+    useGetVendorQrCode,
   };
 }

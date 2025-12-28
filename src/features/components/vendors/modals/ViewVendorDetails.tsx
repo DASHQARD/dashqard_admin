@@ -6,7 +6,10 @@ import { formatDate } from '@/utils/helpers/common';
 
 type VendorData = {
   id?: number;
+  corporate_user_id?: number;
+  vendor_user_id?: number;
   vendor_id?: number;
+  created_by_user_id?: number;
   vendor_name?: string;
   vendor_email?: string;
   vendor_phone?: string;
@@ -48,6 +51,8 @@ export function ViewVendorDetails() {
   const vendorInfo = React.useMemo(() => {
     if (!vendorData) return {};
     return {
+      vendor_id: vendorData.vendor_id || vendorData.id || '-',
+      vendor_user_id: vendorData.vendor_user_id || '-',
       vendor_name: vendorData.vendor_name || '-',
       vendor_email: vendorData.vendor_email || '-',
       vendor_phone: vendorData.vendor_phone || '-',
@@ -61,6 +66,7 @@ export function ViewVendorDetails() {
   const corporateInfo = React.useMemo(() => {
     if (!vendorData) return {};
     return {
+      corporate_user_id: vendorData.corporate_user_id || '-',
       corporate_name: vendorData.corporate_name || '-',
       corporate_email: vendorData.corporate_email || '-',
     };
@@ -81,6 +87,8 @@ export function ViewVendorDetails() {
       relationship_type: vendorData.relationship_type || '-',
       approval_status: vendorData.approval_status || '-',
       status: vendorData.status || '-',
+      created_by_user_id: vendorData.created_by_user_id || '-',
+      approved_by_admin_id: vendorData.approved_by_admin_id || '-',
       approved_at: vendorData.approved_at
         ? formatDate(vendorData.approved_at)
         : '-',

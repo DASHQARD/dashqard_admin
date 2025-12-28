@@ -105,6 +105,7 @@ export function RequestCorporateActionCell({
           hasView: true,
           hasApprove: true,
           hasReject: true,
+          hasDelete: true,
         },
         loginUser: user!,
         userPermissions,

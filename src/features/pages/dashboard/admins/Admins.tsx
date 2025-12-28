@@ -5,16 +5,16 @@ import { OPTIONS } from '@/utils/constants/filter';
 import { ROUTES } from '@/utils/constants';
 
 import { useAdminManagementBase } from '@/features/hooks/adminManagement';
-import { adminListColumns, adminListCsvHeaders } from '@/features/components';
+import {
+  adminListColumns,
+  adminListCsvHeaders,
+  ViewAdmin,
+} from '@/features/components';
 
 export default function Admins() {
   const navigate = useNavigate();
   const { adminsList, isLoadingAdminsList, query, setQuery } =
     useAdminManagementBase();
-
-  console.log('adminsList', adminsList);
-
-  console.log('isLoadingAdminsList', isLoadingAdminsList);
 
   return (
     <>
@@ -42,7 +42,7 @@ export default function Admins() {
               columns={adminListColumns}
               data={adminsList || []}
               total={adminsList?.length || 0}
-              loading={false}
+              loading={isLoadingAdminsList}
               query={query}
               setQuery={setQuery}
               searchPlaceholder="Search by corporate name or location..."
@@ -60,6 +60,7 @@ export default function Admins() {
           </div>
         </div>
       </div>
+      <ViewAdmin />
     </>
   );
 }

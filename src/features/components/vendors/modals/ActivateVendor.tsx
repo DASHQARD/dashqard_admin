@@ -1,55 +1,19 @@
-import type { SubmitHandler } from 'react-hook-form';
-import { useEffect } from 'react';
-
 import { Button, CustomIcon, Modal, Text } from '@/components';
 import { usePersistedModalState } from '@/hooks';
-import { MODALS } from '@/utils/constants';
-import { vendorManagementMutations } from '@/features/hooks/vendorManagement';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { useCustomForm } from '@/libs';
-
-type VendorData = {
-  id?: number;
-  vendor_account_id?: number;
-  vendor_id?: number;
-};
+import { MODALS } from '@/utils';
+import { vendorManagementMutations } from '@/features/hooks/vendorManagement/vendorMutations';
 
 export function ActivateVendor() {
-  const modal = usePersistedModalState<VendorData>({
-    paramName: MODALS.VENDOR_MANAGEMENT.PARAM_NAME,
+  const modal = usePersistedModalState<{ vendor_account_id: number }>({
+    paramName: MODALS.VENDOR_MANAGEMENT.CHILDREN.ACTIVATE,
   });
-
   const { useUpdateVendorStatus } = vendorManagementMutations();
-  const updateStatusMutation = useUpdateVendorStatus();
+  const activateMutation = useUpdateVendorStatus();
 
-  const form = useCustomForm({
-    resolver: zodResolver(
-      z.object({
-        vendor_account_id: z.number(),
-      })
-    ),
-    defaultValues: {
-      vendor_account_id: 0,
-    },
-  });
-
-  useEffect(() => {
-    if (modal.modalData) {
-      // The vendor_account_id is the id field in the vendor account data
-      const vendorAccountId =
-        modal.modalData?.vendor_account_id || modal.modalData?.id || 0;
-      form.reset({
-        vendor_account_id: vendorAccountId,
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [modal.modalData]);
-
-  const onSubmit: SubmitHandler<{ vendor_account_id: number }> = (data) => {
-    updateStatusMutation.mutate(
+  const onSubmit = () => {
+    activateMutation.mutate(
       {
-        ...data,
+        vendor_account_id: modal.modalData?.vendor_account_id || 0,
         status: 'active',
       },
       {
@@ -71,45 +35,47 @@ export function ActivateVendor() {
       }}
       position="center"
     >
-      <form onSubmit={form.handleSubmit(onSubmit)}>
-        <div className="p-6 flex flex-col gap-12">
-          <div className="flex flex-col gap-4 items-center justify-center">
-            <CustomIcon
-              name={'InfoSign'}
-              width={48}
-              height={48}
-              className="text-error"
-            />
-            <div className="flex flex-col gap-1">
-              <Text variant="h3" className="text-center font-semibold">
-                Activate vendor
-              </Text>
-              <p className="text-gray-600 text-center text-sm">
-                Are you sure you want to activate this vendor? Confirm action
-                below
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <Button
-              type="button"
-              variant={'outline'}
-              onClick={modal.closeModal}
-              className="grow"
+      <div className="p-6">
+        <div className="space-y-4 flex flex-col items-center justify-center">
+          <CustomIcon
+            name={'CheckMarkCircle'}
+            width={48}
+            height={48}
+            className="text-success"
+          />
+          <div>
+            <Text
+              variant="h3"
+              className="text-center font-semibold capitalize"
             >
-              Cancel
-            </Button>
-            <Button
-              variant="secondary"
-              loading={updateStatusMutation.isPending}
-              className="grow"
-            >
-              Activate
-            </Button>
+              Activate Vendor
+            </Text>
+            <p className="mt-4 mx-6 mb-12 text-[#5F6166] text-center">
+              Are you sure you want to activate this vendor? Confirm action
+              below
+            </p>
           </div>
         </div>
-      </form>
+
+        <div className="flex items-center gap-3">
+          <Button
+            type="button"
+            variant={'outline'}
+            onClick={modal.closeModal}
+            className="grow"
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="secondary"
+            loading={activateMutation.isPending}
+            className="grow"
+            onClick={onSubmit}
+          >
+            Activate
+          </Button>
+        </div>
+      </div>
     </Modal>
   );
 }

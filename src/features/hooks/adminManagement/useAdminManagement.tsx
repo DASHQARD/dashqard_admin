@@ -4,10 +4,10 @@ import {
   useReducerSpread,
 } from '@/hooks';
 
-import { DEFAULT_QUERY, MODALS, ROUTES } from '@/utils';
+import { DEFAULT_QUERY, MODALS } from '@/utils';
 
 import { adminManagementQueries } from './adminQueries';
-import { useNavigate } from 'react-router';
+
 import { useSearch } from '@/hooks/useSearch';
 import { useAuthStore } from '@/stores';
 import React from 'react';
@@ -29,8 +29,6 @@ export function useAdminManagementBase() {
 
   const { useGetAdmins } = adminManagementQueries();
   const { data: adminsList, isLoading: isLoadingAdminsList } = useGetAdmins();
-
-  console.log('adminsList', adminsList);
 
   const adminInfo = [
     {
@@ -65,7 +63,6 @@ export function useAdminManagementBase() {
     option,
     loginUser,
     userPermissions: providedPermissions,
-    navigate: navigateFn,
   }: {
     modal: ReturnType<typeof usePersistedModalState>;
     admin: any;
@@ -78,7 +75,6 @@ export function useAdminManagementBase() {
     };
     loginUser: any;
     userPermissions: string[];
-    navigate: ReturnType<typeof useNavigate>;
   }) {
     if (!admin) return [];
 
@@ -98,8 +94,7 @@ export function useAdminManagementBase() {
     ) {
       actions.push({
         label: 'View',
-        onClickFn: () =>
-          navigateFn(`${ROUTES.IN_APP.ADMIN.ADMINS}/${admin.id}`),
+        onClickFn: () => modalInstance.openModal(MODALS.ADMIN.VIEW, admin),
       });
     }
 

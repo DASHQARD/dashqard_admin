@@ -11,10 +11,6 @@ import type {
   UpdateCustomerStatusPayload,
   UpdateCustomerStatusResponse,
 } from '@/types/customer';
-import type {
-  AdminRefreshTokenPayload,
-  AdminRefreshTokenResponse,
-} from '@/types/admin';
 import { getList, getMethod, postMethod } from '@/services/requests';
 import { ROUTES } from '@/utils/constants/shared';
 
@@ -57,9 +53,6 @@ const getCustomers = async (
   return response as unknown as CustomersListResponse;
 };
 
-const getAdminInfo = async (id: number): Promise<any> => {
-  return await getList(`${ROUTES.ENDPOINT.ADMIN.ROOT}/info/${id}`);
-};
 
 const updateCustomerStatus = async (
   data: UpdateCustomerStatusPayload
@@ -70,33 +63,6 @@ const updateCustomerStatus = async (
     data
   );
   return response as unknown as UpdateCustomerStatusResponse;
-};
-
-const refreshAdminToken = async (
-  data: AdminRefreshTokenPayload
-): Promise<AdminRefreshTokenResponse> => {
-  console.log('[refreshAdminToken] Starting refresh token request', {
-    hasRefreshToken: !!data.refresh_token,
-    refreshTokenLength: data.refresh_token?.length,
-    timestamp: new Date().toISOString(),
-  });
-
-  try {
-    const response = await axiosClient.post('/admin/refresh-token', data);
-    console.log('[refreshAdminToken] Refresh token response received', {
-      hasAccessToken: !!response?.data?.accessToken,
-      hasRefreshToken: !!response?.data?.refreshToken,
-      status: response?.status,
-      timestamp: new Date().toISOString(),
-    });
-    return response as unknown as AdminRefreshTokenResponse;
-  } catch (error) {
-    console.error('[refreshAdminToken] Refresh token request failed', {
-      error,
-      timestamp: new Date().toISOString(),
-    });
-    throw error;
-  }
 };
 
 const onboardAdmin = async (data: {
@@ -123,6 +89,12 @@ const getPermissionDetails = async (id: string): Promise<any> => {
   return await getMethod(`/permissions/single/${id}`);
 };
 
+const refreshToken = async (refreshToken: string) => {
+  return await postMethod(`/admin/refresh-token`, {
+    refresh_token: refreshToken,
+  });
+};
+
 export {
   adminLogin,
   verifyLoginToken,
@@ -130,12 +102,11 @@ export {
   getVendorCards,
   updateVendorStatus,
   getCustomers,
-  getAdminInfo,
   updateCustomerStatus,
-  refreshAdminToken,
   onboardAdmin,
   getRoles,
   getPermissions,
   getRoleDetails,
   getPermissionDetails,
+  refreshToken,
 };

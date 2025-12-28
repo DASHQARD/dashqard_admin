@@ -12,6 +12,7 @@ import {
   assignRolesToAdmin,
   deleteAdmin,
   editAdmin,
+  getAdminInfo,
   getAdminProfile,
   getAllAdmins,
   getAllArchivedAdmins,
@@ -24,7 +25,6 @@ import {
   restoreAdmin,
   toggleAdminStatus,
 } from '../services/admins';
-import { getAdminInfo } from '../services/auth';
 
 type AdminResponse = {
   admins: Admin[];

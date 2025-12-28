@@ -4,7 +4,6 @@ export * from './useUpdateVendorStatus';
 export * from './customerManagement/useCustomers';
 export * from './useUpdateCustomerStatus';
 export * from './useInviteAdmin';
-export * from './useAdminRefreshToken';
 export * from './useAdminOnboarding';
 export * from './useRoles';
 export * from './usePermissions';

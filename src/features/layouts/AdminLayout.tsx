@@ -1,10 +1,7 @@
 import { Outlet } from 'react-router-dom';
-import { useAutoRefreshAdminToken } from '@/hooks/useAutoRefreshAdminToken';
 import { Sidebar } from '../components';
 
 export default function AdminLayout() {
-  useAutoRefreshAdminToken();
-
   return (
     <div className="no-print relative flex">
       <Sidebar />

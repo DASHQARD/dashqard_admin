@@ -49,6 +49,8 @@ export function getStatusVariant(status?: string) {
   switch (status) {
     case 'active':
       return 'success';
+    case 'verified':
+      return 'success';
     case 'paid':
       return 'success';
     case 'successful':

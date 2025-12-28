@@ -1,3 +1,5 @@
+import { useNavigate } from 'react-router';
+
 import { Dropdown, Tag } from '@/components';
 import { useVendorManagementBase } from '@/features/hooks/vendorManagement';
 import { useContentGuard, usePersistedModalState } from '@/hooks';
@@ -73,6 +75,7 @@ export function VendorActionCell({ row }: TableCellProps<{ id: string }>) {
   const modal = usePersistedModalState({
     paramName: MODALS.VENDOR_MANAGEMENT.PARAM_NAME,
   });
+  const navigate = useNavigate();
 
   const { userPermissions = [] } = useContentGuard();
   const user = useAuthStore().user;
@@ -93,6 +96,7 @@ export function VendorActionCell({ row }: TableCellProps<{ id: string }>) {
         },
         loginUser: user!,
         userPermissions,
+        navigate,
       })}
     >
       <button

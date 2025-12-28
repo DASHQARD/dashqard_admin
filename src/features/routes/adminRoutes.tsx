@@ -8,8 +8,16 @@ import {
   Vendors,
   Permissions,
   Onboarding,
+  TransactionLimits,
+  Countries,
+  Fees,
+  Profile,
+  Tickets,
+  Payment,
+  Payments,
 } from '../pages';
-import { CorporateRequests } from '../pages/dashboard/requests';
+import VendorDetails from '../pages/dashboard/vendors/VendorDetails';
+import { CorporateRequests, VendorRequests } from '../pages/dashboard/requests';
 import InviteAdmin from '../pages/dashboard/admins/InviteAdmin';
 
 export const adminRoutes: RouteObject[] = [
@@ -30,6 +38,10 @@ export const adminRoutes: RouteObject[] = [
     element: <Vendors />,
   },
   {
+    path: 'vendors/:vendorId',
+    element: <VendorDetails />,
+  },
+  {
     path: 'corporates',
     element: <Corporates />,
   },
@@ -48,10 +60,10 @@ export const adminRoutes: RouteObject[] = [
         path: 'corporate-requests',
         element: <CorporateRequests />,
       },
-      // {
-      //   path: 'vendor-requests',
-      //   element: <VendorRequests />,
-      // },
+      {
+        path: 'vendor-requests',
+        element: <VendorRequests />,
+      },
     ],
   },
   {
@@ -61,5 +73,33 @@ export const adminRoutes: RouteObject[] = [
   {
     path: 'roles',
     element: <Permissions />,
+  },
+  {
+    path: 'transaction-limits',
+    element: <TransactionLimits />,
+  },
+  {
+    path: 'countries',
+    element: <Countries />,
+  },
+  {
+    path: 'fees',
+    element: <Fees />,
+  },
+  {
+    path: 'profile',
+    element: <Profile />,
+  },
+  {
+    path: 'tickets',
+    element: <Tickets />,
+  },
+  {
+    path: 'payment',
+    element: <Payment />,
+  },
+  {
+    path: 'payments',
+    element: <Payments />,
   },
 ];

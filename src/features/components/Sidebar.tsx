@@ -1,15 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useEffect, useState, useMemo } from 'react';
+import { useLocation } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { Icon } from '@/libs';
 import { useAuthStore } from '@/stores';
 import { ADMIN_NAV_ITEMS, ROUTES } from '@/utils/constants';
 import { cn } from '@/libs';
+import { SidebarSection } from './SidebarSection';
+import { usePendingRequestsCount } from '@/features/hooks/requestManagement/usePendingRequestsCount';
 
 export default function AdminSidebar() {
   const location = useLocation();
-  const navigate = useNavigate();
   const { user, logout } = useAuthStore();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
 
   const userName =
     (user as any)?.name ||
@@ -23,9 +26,17 @@ export default function AdminSidebar() {
     localStorage.setItem('adminSidebarCollapsed', newState.toString());
   };
 
-  const handleLogout = async () => {
+  const queryClient = useQueryClient();
+
+  const handleLogout = () => {
+    // Clear auth state
     logout();
-    navigate(ROUTES.IN_APP.ADMIN.AUTH.LOGIN);
+    // Clear React Query cache
+    queryClient.clear();
+    // Clear sidebar state from localStorage
+    localStorage.removeItem('adminSidebarCollapsed');
+    // Force full page reload to login page - use direct path since ROUTES.IN_APP.AUTH.LOGIN is '/'
+    window.location.href = '/auth/login';
   };
 
   useEffect(() => {
@@ -60,18 +71,99 @@ export default function AdminSidebar() {
     return false;
   };
 
+  const toggleExpanded = (path: string) => {
+    setExpandedItems((prev) => {
+      const next = new Set(prev);
+      if (next.has(path)) {
+        next.delete(path);
+      } else {
+        next.add(path);
+      }
+      return next;
+    });
+  };
+
+  const isExpanded = (path: string) => expandedItems.has(path);
+
+  // Get pending requests counts
+  const { corporate: corporatePendingCount, vendor: vendorPendingCount } =
+    usePendingRequestsCount();
+
+  // Add badge counts to navigation items
+  const navItemsWithBadges = useMemo(() => {
+    return ADMIN_NAV_ITEMS.map((section) => ({
+      ...section,
+      items: section.items.map((item) => {
+        // Check if this is the vendors or corporates item
+        const isVendorsItem = item.path === ROUTES.IN_APP.ADMIN.VENDORS;
+        const isCorporatesItem = item.path === ROUTES.IN_APP.ADMIN.CORPORATES;
+
+        // Add badge count to children if they are request items
+        const childrenWithBadges =
+          'children' in item && item.children
+            ? item.children.map((child: any) => {
+                const isVendorRequest =
+                  child.path === ROUTES.IN_APP.ADMIN.REQUESTS.VENDOR_REQUESTS;
+                const isCorporateRequest =
+                  child.path ===
+                  ROUTES.IN_APP.ADMIN.REQUESTS.CORPORATE_REQUESTS;
+
+                return {
+                  ...child,
+                  badgeCount: isVendorRequest
+                    ? vendorPendingCount
+                    : isCorporateRequest
+                      ? corporatePendingCount
+                      : undefined,
+                };
+              })
+            : undefined;
+
+        return {
+          ...item,
+          children: childrenWithBadges,
+          // Also add badge to parent if it has pending children
+          badgeCount:
+            (isVendorsItem && vendorPendingCount > 0) ||
+            (isCorporatesItem && corporatePendingCount > 0)
+              ? isVendorsItem
+                ? vendorPendingCount
+                : corporatePendingCount
+              : undefined,
+        };
+      }),
+    }));
+  }, [corporatePendingCount, vendorPendingCount]);
+
+  // Auto-expand items if any of their children are active
+  useEffect(() => {
+    ADMIN_NAV_ITEMS.forEach((section) => {
+      section.items.forEach((item: any) => {
+        if (item.children) {
+          const hasActiveChild = item.children.some((child: any) =>
+            isActive(child.path)
+          );
+          if (hasActiveChild) {
+            setExpandedItems((prev) => new Set(prev).add(item.path));
+          }
+        }
+      });
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname]);
+
   return (
     <aside
       className={cn(
         'bg-white flex flex-col w-[380px] transition-all duration-300 ease-in-out',
         'shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_4px_20px_rgba(0,0,0,0.08),0_8px_40px_rgba(0,0,0,0.04)]',
-        'border-r border-black/8 min-h-full h-auto shrink-0 relative z-5',
+        'border-r border-black/8 h-screen shrink-0 relative z-5',
         'max-lg:hidden',
         isCollapsed && 'w-[90px] shrink-0'
       )}
     >
-      <div className="flex flex-col grow min-h-full h-full overflow-hidden relative z-2 p-0">
-        <div className="flex items-center justify-between p-6 mb-6 border-b border-black/6 bg-white relative z-1">
+      <div className="flex flex-col h-full overflow-hidden relative z-2 p-0">
+        <div className="flex items-center justify-between p-6 mb-6 border-b border-black/6 bg-white relative z-1 shrink-0">
           <div
             className={cn(
               'flex items-center gap-4 flex-1 min-w-0',
@@ -122,63 +214,17 @@ export default function AdminSidebar() {
           )}
         </div>
 
-        <nav className="grow relative z-1">
-          <ul className="list-none p-0 m-0 px-5">
-            {ADMIN_NAV_ITEMS.map((section) => (
-              <React.Fragment key={section.section}>
-                {!isCollapsed && (
-                  <li className="py-5 px-5 mt-5 first:mt-3">
-                    <span className="text-[0.7rem] font-extrabold uppercase tracking-wider text-[#6c757d]/90 relative flex items-center after:content-[''] after:absolute after:bottom-[-6px] after:left-0 after:w-5 after:h-0.5 after:bg-linear-to-r after:from-[#402D87] after:to-[rgba(64,45,135,0.4)] after:rounded-sm after:shadow-[0_1px_2px_rgba(64,45,135,0.2)] before:content-[''] before:absolute before:top-[-0.5rem] before:left-[-1.25rem] before:right-[-1.25rem] before:h-px before:bg-linear-to-r before:from-transparent before:via-black/6 before:to-transparent">
-                      {section.section}
-                    </span>
-                  </li>
-                )}
-                {section.items.map((item) => (
-                  <li
-                    key={item.path}
-                    className={cn(
-                      'flex items-center mb-2 rounded-[10px] transition-all duration-200 relative overflow-hidden',
-                      isActive(item.path) &&
-                        'bg-[rgba(64,45,135,0.08)] border-l-[3px] border-[#402D87] rounded-l-none rounded-r-[10px] shadow-[0_2px_8px_rgba(64,45,135,0.1)]',
-                      !isActive(item.path) &&
-                        'hover:bg-[rgba(64,45,135,0.04)] hover:translate-x-px',
-                      isCollapsed && 'justify-center mb-3'
-                    )}
-                  >
-                    {isActive(item.path) && (
-                      <>
-                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-linear-to-b from-white/30 via-[#402D87] to-[#2d1a72] rounded-r-sm shadow-[2px_0_8px_rgba(64,45,135,0.4),2px_0_16px_rgba(64,45,135,0.2)]" />
-                        <div className="absolute inset-0 rounded-r-2xl bg-linear-to-br from-white/8 via-transparent to-[rgba(45,26,114,0.03)] pointer-events-none" />
-                      </>
-                    )}
-                    <Link
-                      to={item.path}
-                      className={cn(
-                        'flex items-center gap-3.5 no-underline text-[#495057] font-medium text-sm py-3 px-4 w-full transition-all duration-200 rounded-[10px] relative z-2',
-                        isActive(item.path) &&
-                          'text-[#402D87] font-bold [text-shadow:0_1px_2px_rgba(64,45,135,0.2)]',
-                        !isActive(item.path) && 'hover:text-[#402D87]',
-                        isCollapsed && 'justify-center py-4 px-3'
-                      )}
-                      title={isCollapsed ? item.label : ''}
-                    >
-                      <Icon
-                        icon={item.icon}
-                        className={cn(
-                          'w-5 h-5 text-base flex items-center justify-center transition-all duration-200 shrink-0 text-[#6c757d]',
-                          isActive(item.path) && 'text-[#402D87]',
-                          !isActive(item.path) &&
-                            'hover:scale-110 hover:rotate-2 hover:text-[#402D87] hover:filter-[drop-shadow(0_2px_4px_rgba(64,45,135,0.3))]'
-                        )}
-                      />
-                      {!isCollapsed && <span>{item.label}</span>}
-                    </Link>
-                    {isCollapsed && isActive(item.path) && (
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2 w-1 h-6 bg-linear-to-b from-[#402D87] to-[#2d1a72] rounded-l-sm" />
-                    )}
-                  </li>
-                ))}
-              </React.Fragment>
+        <nav className="flex-1 relative z-1 overflow-y-auto overflow-x-hidden">
+          <ul className="list-none p-0 m-0 px-5 pb-4">
+            {navItemsWithBadges.map((section) => (
+              <SidebarSection
+                key={section.section}
+                section={section}
+                isCollapsed={isCollapsed}
+                isActive={isActive}
+                isExpanded={isExpanded}
+                toggleExpanded={toggleExpanded}
+              />
             ))}
 
             {!isCollapsed && (

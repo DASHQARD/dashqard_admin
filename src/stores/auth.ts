@@ -48,12 +48,14 @@ const authStore: StateCreator<State & Actions> = (set, get) => ({
   ...initialState,
   reset: () => set(initialState),
   authenticate: ({ token, refreshToken, role, permissions }) => {
+    // Preserve existing role and permissions if not provided (e.g., during token refresh)
+    const currentState = get();
     set({
       user: decodeUser(token),
       token,
       refreshToken: refreshToken ?? null,
-      role: role ?? null,
-      permissions: permissions ?? null,
+      role: role ?? currentState.role,
+      permissions: permissions ?? currentState.permissions,
       isAuthenticated: true,
     });
   },

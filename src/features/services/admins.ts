@@ -23,7 +23,8 @@ export const getAllArchivedAdmins = async (
 };
 export const getAdminProfile = async (): Promise<AdminType> => {
   const response = await getMethod(`${ROUTES.ENDPOINT.ADMIN.PROFILE}`);
-  return response;
+  // Handle nested response structure: { status, statusCode, message, data: {...} }
+  return response?.data || response;
 };
 
 export const inviteAdmin = async (data: any) => {
@@ -113,4 +114,9 @@ export const uploadAdminImage = async (adminId: string, fileName: string) => {
     fileName,
   });
   return response.data;
+};
+
+export const getAdminInfo = async (id: string | number): Promise<any> => {
+  const response = await getMethod(`${ROUTES.ENDPOINT.ADMIN.ROOT}/info/${id}`);
+  return response?.data || response;
 };

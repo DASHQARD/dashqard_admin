@@ -33,6 +33,13 @@ export function ViewRequestDetails() {
         <div className="px-6 flex flex-col gap-3 flex-1 overflow-y-auto">
           <section className="flex flex-col gap-3">
             <div className="flex flex-col gap-1 pb-3 border-b border-gray-100">
+              <p className="text-gray-400 text-xs">Request ID</p>
+              <Text variant="span" weight="normal" className="text-gray-800">
+                {requestCorporateDetails?.request_id || '-'}
+              </Text>
+            </div>
+
+            <div className="flex flex-col gap-1 pb-3 border-b border-gray-100">
               <p className="text-gray-400 text-xs">Status</p>
               <Tag
                 value={requestCorporateDetails?.status || 'Pending'}
@@ -82,6 +89,24 @@ export function ViewRequestDetails() {
                 {requestCorporateDetails?.entity_id || '-'}
               </Text>
             </div>
+
+            {requestCorporateDetails?.reviewed_by && (
+              <div className="flex flex-col gap-1 pb-3 border-b border-gray-100">
+                <p className="text-gray-400 text-xs">Reviewed By</p>
+                <Text variant="span" weight="normal" className="text-gray-800">
+                  {requestCorporateDetails.reviewed_by}
+                </Text>
+              </div>
+            )}
+
+            {requestCorporateDetails?.reviewed_at && (
+              <div className="flex flex-col gap-1 pb-3 border-b border-gray-100">
+                <p className="text-gray-400 text-xs">Reviewed At</p>
+                <Text variant="span" weight="normal" className="text-gray-800">
+                  {formatDate(requestCorporateDetails.reviewed_at, 'DD MMM YYYY, HH:mm')}
+                </Text>
+              </div>
+            )}
 
             <div className="flex flex-col gap-1 pb-3 border-b border-gray-100">
               <p className="text-gray-400 text-xs">Created At</p>
