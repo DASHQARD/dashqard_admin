@@ -54,7 +54,11 @@ export function useCorporateManagementBase() {
     return [
       {
         label: 'User ID',
-        value: details.corporate_id || '-',
+        value: details.user_id || details.corporate_id || '-',
+      },
+      {
+        label: 'Full Name',
+        value: details.fullname || '-',
       },
       {
         label: 'Email',
@@ -67,6 +71,10 @@ export function useCorporateManagementBase() {
       {
         label: 'Country',
         value: details.country || '-',
+      },
+      {
+        label: 'Country Code',
+        value: details.country_code || '-',
       },
       {
         label: 'Street Address',
@@ -104,40 +112,44 @@ export function useCorporateManagementBase() {
   }, [corporateDetails]);
 
   const businessInfo = React.useMemo(() => {
-    if (!corporateDetails) return [];
+    if (!corporateDetails?.data) return [];
+
+    const details = corporateDetails.data;
 
     return [
       {
         label: 'Business Name',
-        value: corporateDetails?.business_name || '-',
+        value: details.business_name || '-',
       },
       {
         label: 'Business Type',
-        value: corporateDetails?.business_type || '-',
+        value: details.business_type || '-',
       },
       {
         label: 'Business Phone',
-        value: corporateDetails?.business_phone || '-',
+        value: details.business_phone || '-',
       },
       {
         label: 'Business Email',
-        value: corporateDetails?.business_email || '-',
+        value: details.business_email || '-',
       },
       {
         label: 'Business Address',
-        value: corporateDetails?.business_address || '-',
+        value: details.business_address || '-',
       },
       {
         label: 'Digital Address',
-        value: corporateDetails?.business_digital_address || '-',
+        value: details.business_digital_address || '-',
       },
       {
         label: 'Registration Number',
-        value: corporateDetails?.registration_number || '-',
+        value: details.registration_number || '-',
       },
       {
         label: 'Business Created',
-        value: DateCell,
+        value: details.business_created_at
+          ? formatDate(details.business_created_at)
+          : '-',
       },
     ];
   }, [corporateDetails]);

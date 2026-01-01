@@ -15,6 +15,7 @@ import {
   Tickets,
   Payment,
   Payments,
+  SuperAdminInvitations,
 } from '../pages';
 import VendorDetails from '../pages/dashboard/vendors/VendorDetails';
 import { CorporateRequests, VendorRequests } from '../pages/dashboard/requests';
@@ -101,5 +102,9 @@ export const adminRoutes: RouteObject[] = [
   {
     path: 'payments',
     element: <Payments />,
+  },
+  {
+    path: 'super-admin-invitations',
+    element: <SuperAdminInvitations />,
   },
 ];

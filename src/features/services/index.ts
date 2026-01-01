@@ -11,3 +11,4 @@ export * from './fees';
 export * from './tickets';
 export * from './paymentDetails';
 export * from './payments';
+export * from './superAdminInvitations';

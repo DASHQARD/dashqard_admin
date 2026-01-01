@@ -43,6 +43,7 @@ export const ROUTES = {
       FEES: '/admin/fees',
       TICKETS: '/admin/tickets',
       PAYMENTS: '/admin/payments',
+      SUPER_ADMIN_INVITATIONS: '/admin/super-admin-invitations',
       PROFILE: '/admin/profile',
       SETTINGS: '/admin/settings',
       REQUESTS: {

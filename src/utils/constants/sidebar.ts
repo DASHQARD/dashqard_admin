@@ -78,6 +78,12 @@ export const ADMIN_NAV_ITEMS = [
         permission: 'admins:get',
       },
       {
+        path: ROUTES.IN_APP.ADMIN.SUPER_ADMIN_INVITATIONS,
+        label: 'Corporate Invitations',
+        icon: 'bi:envelope-plus',
+        permission: 'admins:get',
+      },
+      {
         path: ROUTES.IN_APP.ADMIN.ROLES,
         label: 'Roles & Permissions',
         icon: 'bi:shield-lock-fill',

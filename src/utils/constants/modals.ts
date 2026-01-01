@@ -128,4 +128,12 @@ export const MODALS = {
       DELETE: 'delete-payment',
     },
   },
+  SUPER_ADMIN_INVITATIONS_MANAGEMENT: {
+    PARAM_NAME: 'super-admin-invitations-management-modal',
+    CHILDREN: {
+      CREATE: 'create-super-admin-invitation',
+      DELETE: 'delete-super-admin-invitation',
+      UPDATE_STATUS: 'update-super-admin-invitation-status',
+    },
+  },
 };

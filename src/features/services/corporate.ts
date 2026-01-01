@@ -1,4 +1,5 @@
 import { getList, patchMethod } from '@/services';
+import { axiosClient } from '@/libs/axios';
 
 const commonUrl = '/corporates';
 
@@ -7,7 +8,10 @@ export const getCorporatesList = async (): Promise<any> => {
 };
 
 export const getCorporateDetails = async (id: string): Promise<any> => {
-  return await getList(`${commonUrl}/${id}`);
+  // getList returns res.data, but we need the full response structure
+  // Use axiosClient directly to get full response with status and data
+  const response = await axiosClient.get(`${commonUrl}/${id}`);
+  return response;
 };
 
 export const getCorporateBusinessDetails = async (id: string): Promise<any> => {

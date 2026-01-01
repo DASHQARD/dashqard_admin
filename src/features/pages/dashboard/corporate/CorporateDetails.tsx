@@ -1,36 +1,39 @@
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 
 import {
-  // Badge,
   Button,
   CustomIcon,
   Loader,
   Profile,
-  // Tag,
-  // TabbedView,
+  Tag,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
   Text,
 } from '@/components';
 import { usePersistedModalState } from '@/hooks';
 import { MODALS } from '@/utils/constants';
+import { getStatusVariant } from '@/utils';
 
 import { useCorporateManagementBase } from '@/features/hooks/corporateManagement';
 import {
   ActivateCorporate,
   SuspendCorporate,
-  ViewBusinessInformation,
-  ViewKYC,
   ViewKycDocument,
 } from '@/features/components';
 
 export default function CorporateDetails() {
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('personal');
 
-  const kycModal = usePersistedModalState({
-    paramName: MODALS.CORPORATE_MANAGEMENT.CHILDREN.KYC,
-  });
-
-  const businessInfoModal = usePersistedModalState({
-    paramName: MODALS.CORPORATE_MANAGEMENT.CHILDREN.VIEW_BUSINESS_INFORMATION,
+  const documentModal = usePersistedModalState<{
+    id: string;
+    file_url: string;
+    verified: boolean;
+  }>({
+    paramName: MODALS.CORPORATE_MANAGEMENT.CHILDREN.VIEW_KYC_DOCUMENT,
   });
 
   const activateModal = usePersistedModalState({
@@ -47,6 +50,57 @@ export default function CorporateDetails() {
     businessInfo,
     isLoadingCorporateDetails,
   } = useCorporateManagementBase();
+
+  const corporateData = corporateDetails?.data || corporateDetails;
+
+  // Group documents by type
+  const businessDocuments = React.useMemo(() => {
+    return corporateData?.business_documents || [];
+  }, [corporateData?.business_documents]);
+
+  const documentGroups = React.useMemo(() => {
+    const groups: Record<string, typeof businessDocuments> = {};
+    businessDocuments.forEach((doc: (typeof businessDocuments)[0]) => {
+      if (!groups[doc.type]) {
+        groups[doc.type] = [];
+      }
+      groups[doc.type].push(doc);
+    });
+    return groups;
+  }, [businessDocuments]);
+
+  const formatDocumentType = (type: string): string => {
+    return type
+      .split('_')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+
+  const handleViewDocument = (document: (typeof businessDocuments)[0]) => {
+    if (!document?.file_url) return;
+
+    const corporateId =
+      corporateDetails?.data?.id ||
+      corporateDetails?.data?.corporate_id ||
+      corporateDetails?.id ||
+      '';
+
+    documentModal.openModal(
+      MODALS.CORPORATE_MANAGEMENT.CHILDREN.VIEW_KYC_DOCUMENT,
+      {
+        id: String(corporateId),
+        file_url: document.file_url,
+        verified: corporateData?.status === 'approved',
+      }
+    );
+  };
+
+  const requiredDocumentTypes = [
+    'certificate_of_incorporation',
+    'business_license',
+    'articles_of_incorporation',
+    'utility_bill',
+  ];
 
   return (
     <>
@@ -70,8 +124,7 @@ export default function CorporateDetails() {
             </h2>
           </div>
           <div className="flex gap-4 items-center">
-            {corporateDetails?.data?.status === 'approved' ||
-            corporateDetails?.status === 'approved' ? (
+            {corporateData?.status === 'approved' ? (
               <Button
                 variant="danger"
                 size="medium"
@@ -81,10 +134,7 @@ export default function CorporateDetails() {
                     MODALS.CORPORATE_MANAGEMENT.CHILDREN.DEACTIVATE,
                     {
                       id:
-                        corporateDetails?.data?.id ||
-                        corporateDetails?.data?.corporate_id ||
-                        corporateDetails?.id ||
-                        '',
+                        corporateData?.id || corporateData?.corporate_id || '',
                     }
                   )
                 }
@@ -94,39 +144,21 @@ export default function CorporateDetails() {
               </Button>
             ) : (
               <Button
-                variant="outline"
                 size="medium"
-                className="border-primary-500 text-primary-500"
+                className="bg-green-500! text-white!"
                 onClick={() =>
                   activateModal.openModal(
                     MODALS.CORPORATE_MANAGEMENT.CHILDREN.ACTIVATE,
                     {
                       id:
-                        corporateDetails?.data?.id ||
-                        corporateDetails?.data?.corporate_id ||
-                        corporateDetails?.id ||
-                        '',
+                        corporateData?.id || corporateData?.corporate_id || '',
                     }
                   )
                 }
               >
-                <CustomIcon name="CheckMarkCircle" width={20} height={20} />
                 Activate Corporate
               </Button>
             )}
-            <Button
-              onClick={() =>
-                kycModal.openModal(
-                  MODALS.CORPORATE_MANAGEMENT.CHILDREN.KYC,
-                  corporateDetails
-                )
-              }
-              size={'medium'}
-              variant={'outline'}
-              className="border-primary-500 text-primary-500"
-            >
-              View KYC
-            </Button>
           </div>
         </div>
 
@@ -138,94 +170,173 @@ export default function CorporateDetails() {
           </div>
         ) : (
           <Profile
-            name={corporateDetails?.fullname || 'N/A'}
-            businessName={corporateDetails?.business_name || 'N/A'}
-            status={corporateDetails?.status || 'N/A'}
+            name={corporateData?.fullname || 'N/A'}
+            businessName={corporateData?.business_name || 'N/A'}
+            status={corporateData?.status || 'N/A'}
           >
             <div className="flex flex-col gap-6 w-full">
-              <div className="flex justify-between items-center">
-                <Text variant="h5" weight="medium">
-                  Personal Information
-                </Text>
-                <Button
-                  onClick={() =>
-                    businessInfoModal.openModal(
-                      MODALS.CORPORATE_MANAGEMENT.CHILDREN
-                        .VIEW_BUSINESS_INFORMATION,
-                      corporateDetails
-                    )
-                  }
-                  variant="outline"
-                  size="medium"
-                >
-                  View business information
-                </Button>
-              </div>
+              <Tabs value={activeTab} onValueChange={setActiveTab}>
+                <TabsList>
+                  <TabsTrigger value="personal">Personal Profile</TabsTrigger>
+                  <TabsTrigger value="business">Business Profile</TabsTrigger>
+                  <TabsTrigger value="documents">Documents</TabsTrigger>
+                </TabsList>
 
-              <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-                {corporateInfo.map((item) => (
-                  <div className="flex flex-col gap-1 min-w-0" key={item.label}>
-                    <p className="text-xs text-gray-400 whitespace-nowrap">
-                      {item.label}
-                    </p>
-                    <Text
-                      variant="span"
-                      className="wrap-break-word overflow-hidden"
-                    >
-                      {item.value}
-                    </Text>
-                  </div>
-                ))}
-                <div className="flex flex-col gap-1 min-w-0">
-                  <p className="text-xs text-gray-400 whitespace-nowrap">
-                    Status
-                  </p>
-                  <Text variant="span" className="capitalize">
-                    {corporateDetails?.status || '-'}
-                  </Text>
-                </div>
-              </section>
+                <TabsContent value="personal" className="mt-6">
+                  <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                    {corporateInfo.map((item) => (
+                      <div
+                        className="flex flex-col gap-1 min-w-0"
+                        key={item.label}
+                      >
+                        <p className="text-xs text-gray-400 whitespace-nowrap">
+                          {item.label}
+                        </p>
+                        <Text
+                          variant="span"
+                          className="wrap-break-word overflow-hidden"
+                        >
+                          {item.value}
+                        </Text>
+                      </div>
+                    ))}
+                    <div className="flex flex-col gap-1 min-w-0">
+                      <p className="text-xs text-gray-400 whitespace-nowrap">
+                        Status
+                      </p>
+                      <Text variant="span" className="capitalize">
+                        {corporateData?.status || '-'}
+                      </Text>
+                    </div>
+                  </section>
+                </TabsContent>
 
-              <Text variant="h5" weight="medium" className="mt-6">
-                Business Information
-              </Text>
-              <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-                {businessInfo.map((item) => (
-                  <div className="flex flex-col gap-1 min-w-0" key={item.label}>
-                    <p className="text-xs text-gray-400 whitespace-nowrap">
-                      {item.label}
-                    </p>
-                    <Text
-                      variant="span"
-                      className="wrap-break-word overflow-hidden"
-                    >
-                      {item.value}
-                    </Text>
+                <TabsContent value="business" className="mt-6">
+                  <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                    {businessInfo.map((item) => (
+                      <div
+                        className="flex flex-col gap-1 min-w-0"
+                        key={item.label}
+                      >
+                        <p className="text-xs text-gray-400 whitespace-nowrap">
+                          {item.label}
+                        </p>
+                        <Text
+                          variant="span"
+                          className="wrap-break-word overflow-hidden"
+                        >
+                          {item.value}
+                        </Text>
+                      </div>
+                    ))}
+                  </section>
+                </TabsContent>
+
+                <TabsContent value="documents" className="mt-6">
+                  <div className="border border-gray-200 rounded-lg">
+                    <div className="flex justify-between items-center bg-[#FAFAFA] p-3">
+                      <h2 className="text-gray-500 font-medium">
+                        Business Documents
+                      </h2>
+                      <Tag
+                        value={
+                          corporateData?.status === 'approved'
+                            ? 'Verified'
+                            : corporateData?.status === 'rejected'
+                              ? 'Rejected'
+                              : 'Pending'
+                        }
+                        variant={getStatusVariant(
+                          corporateData?.status || 'pending'
+                        )}
+                      />
+                    </div>
+
+                    <div className="space-y-5 p-3">
+                      {requiredDocumentTypes.map((docType) => {
+                        const documents = documentGroups[docType] || [];
+                        const document = documents[0]; // Get first document of this type
+
+                        return (
+                          <div
+                            key={docType}
+                            className="text-sm flex justify-between items-center"
+                          >
+                            <Text className="capitalize text-sm text-gray-400">
+                              {formatDocumentType(docType)}:
+                            </Text>
+
+                            <div className="flex items-center gap-2">
+                              {document?.file_url ? (
+                                <button
+                                  onClick={() => handleViewDocument(document)}
+                                  className="flex gap-1 items-center hover:opacity-80 transition-opacity text-blue-500"
+                                >
+                                  <CustomIcon
+                                    name="FileText"
+                                    width={24}
+                                    height={24}
+                                  />
+                                  <Text className="text-primary-600 text-sm">
+                                    View Document
+                                  </Text>
+                                </button>
+                              ) : (
+                                <Text className="text-gray-400 text-sm">
+                                  No document uploaded
+                                </Text>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+
+                      {/* Additional business information if available */}
+                      {businessDocuments.length > 0 &&
+                        businessDocuments[0]?.business_industry && (
+                          <div className="text-sm flex justify-between items-center pt-3 border-t border-gray-200">
+                            <Text className="capitalize text-sm text-gray-400">
+                              Business Industry:
+                            </Text>
+                            <Text className="text-primary-800 capitalize">
+                              {businessDocuments[0].business_industry}
+                            </Text>
+                          </div>
+                        )}
+
+                      {businessDocuments.length > 0 &&
+                        businessDocuments[0]
+                          ?.employer_identification_number && (
+                          <div className="text-sm flex justify-between items-center">
+                            <Text className="capitalize text-sm text-gray-400">
+                              Employer Identification Number:
+                            </Text>
+                            <Text className="text-primary-800">
+                              {
+                                businessDocuments[0]
+                                  .employer_identification_number
+                              }
+                            </Text>
+                          </div>
+                        )}
+                    </div>
                   </div>
-                ))}
-              </section>
+                </TabsContent>
+              </Tabs>
             </div>
           </Profile>
         )}
       </div>
 
-      {kycModal.modalState === MODALS.CORPORATE_MANAGEMENT.CHILDREN.KYC && (
-        <ViewKYC corporate={corporateDetails} />
-      )}
       {activateModal.modalState ===
         MODALS.CORPORATE_MANAGEMENT.CHILDREN.ACTIVATE && <ActivateCorporate />}
 
       {suspendModal.modalState ===
         MODALS.CORPORATE_MANAGEMENT.CHILDREN.DEACTIVATE && <SuspendCorporate />}
 
-      {kycModal.modalState ===
+      {documentModal.modalState ===
         MODALS.CORPORATE_MANAGEMENT.CHILDREN.VIEW_KYC_DOCUMENT && (
         <ViewKycDocument />
-      )}
-
-      {businessInfoModal.modalState ===
-        MODALS.CORPORATE_MANAGEMENT.CHILDREN.VIEW_BUSINESS_INFORMATION && (
-        <ViewBusinessInformation />
       )}
     </>
   );

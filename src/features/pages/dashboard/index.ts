@@ -11,3 +11,4 @@ export * from './profile';
 export * from './tickets';
 export * from './payment';
 export * from './payments';
+export * from './superAdminInvitations';

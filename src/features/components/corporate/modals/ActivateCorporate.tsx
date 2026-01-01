@@ -86,8 +86,9 @@ export function ActivateCorporate() {
             </Button>
             <Button
               variant="secondary"
+              className="bg-green-500! text-white! grow"
               loading={activateMutation.isPending}
-              className="grow"
+              disabled={activateMutation.isPending}
             >
               Activate
             </Button>
