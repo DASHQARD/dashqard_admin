@@ -1,4 +1,4 @@
-import { Button, Modal, Text, CustomIcon } from '@/components';
+import { Button, Modal, Text } from '@/components';
 import { usePersistedModalState } from '@/hooks';
 import { MODALS } from '@/utils/constants';
 import { superAdminInvitationsManagementMutations } from '@/features/hooks/superAdminInvitationsManagement';
@@ -50,7 +50,9 @@ export function DeleteSuperAdminInvitation() {
           Are you sure you want to <span className="text-red-500">delete</span>{' '}
           the corporate onboarding invitation for{' '}
           <strong>
-            {modal.modalData?.user_email || modal.modalData?.user_fullname || 'this invitation'}
+            {modal.modalData?.email ||
+              modal.modalData?.phone_number ||
+              'this invitation'}
           </strong>
           ? This action cannot be undone.
         </Text>
@@ -76,4 +78,3 @@ export function DeleteSuperAdminInvitation() {
     </Modal>
   );
 }
-

@@ -1,9 +1,4 @@
-import {
-  deleteMethod,
-  getList,
-  patchMethod,
-  postMethod,
-} from '@/services';
+import { deleteMethod, patchMethod, postMethod } from '@/services';
 import { axiosClient } from '@/libs/axios';
 import { getQueryString } from '@/utils/helpers';
 
@@ -31,9 +26,7 @@ export const createSuperAdminInvitation = async (data: {
   return await postMethod(`${commonUrl}/create-super-admin`, data);
 };
 
-export const deleteSuperAdminInvitation = async (
-  id: string
-): Promise<any> => {
+export const deleteSuperAdminInvitation = async (id: string): Promise<any> => {
   return await deleteMethod(`${commonUrl}/super-admin-invitation/${id}`);
 };
 
@@ -47,4 +40,3 @@ export const updateSuperAdminInvitationStatus = async (data: {
     data
   );
 };
-

@@ -193,7 +193,6 @@ export const DEFAULT_QUERY = {
   limit: 10,
   search: '',
   status: '',
-  date: '',
   role: '',
   type: '',
   tier: '',

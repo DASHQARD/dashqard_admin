@@ -15,9 +15,6 @@ export function useSuperAdminInvitationsManagementBase() {
     if (query.limit) params.limit = query.limit;
     if (query.status) params.status = query.status;
     if (query.search) params.search = query.search;
-    if (query.dateFrom) params.dateFrom = query.dateFrom;
-    if (query.dateTo) params.dateTo = query.dateTo;
-    if (query.after) params.after = query.after;
     return params;
   }, [query]);
 
@@ -45,4 +42,3 @@ export function useSuperAdminInvitationsManagementBase() {
     pagination: data?.pagination,
   };
 }
-
