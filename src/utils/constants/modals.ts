@@ -128,6 +128,14 @@ export const MODALS = {
       DELETE: 'delete-payment',
     },
   },
+  VENDOR_PAYMENT_MANAGEMENT: {
+    PARAM_NAME: 'vendor-payment-management-modal',
+    CHILDREN: {
+      VIEW: 'view-vendor-payment',
+      PROCESS: 'process-vendor-payment',
+      DOWNLOAD_INVOICE: 'download-invoice',
+    },
+  },
   SUPER_ADMIN_INVITATIONS_MANAGEMENT: {
     PARAM_NAME: 'super-admin-invitations-management-modal',
     CHILDREN: {

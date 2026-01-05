@@ -33,6 +33,12 @@ export const ADMIN_NAV_ITEMS = [
             icon: 'bi:shop',
             permission: 'requests:view',
           },
+          {
+            path: ROUTES.IN_APP.ADMIN.VENDOR_PAYMENTS,
+            label: 'Vendor Payments',
+            icon: 'bi:wallet2',
+            permission: 'payments:view',
+          },
         ],
       },
       {
