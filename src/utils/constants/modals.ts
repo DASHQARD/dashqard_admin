@@ -134,6 +134,7 @@ export const MODALS = {
       VIEW: 'view-vendor-payment',
       PROCESS: 'process-vendor-payment',
       DOWNLOAD_INVOICE: 'download-invoice',
+      PREFERENCES: 'preferences',
     },
   },
   SUPER_ADMIN_INVITATIONS_MANAGEMENT: {

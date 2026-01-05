@@ -10,13 +10,15 @@ import {
   ViewVendorPayment,
   ProcessVendorPayment,
 } from '@/features/components/vendorPayments';
+import { UpdateVendorPaymentPreferences } from '@/features/components/vendorPayments/modals';
 
 // Dummy data for vendor payments
 const dummyVendorPayments = [
   {
     id: '1',
     vendor_name: 'Tech Solutions Ltd',
-    business_name: 'Tech Solutions',
+    payment_frequency: 'Monthly',
+    branch_location: 'Accra, Ghana',
     amount: 15000.0,
     payment_period: 'January 2024',
     status: 'pending',
@@ -25,11 +27,15 @@ const dummyVendorPayments = [
     vendor_id: 'VEN001',
     invoice_number: 'INV-2024-001',
     description: 'Monthly service payment for January 2024',
+    payment_method: 'mobile_money',
+    mobile_money_provider: 'MTN Mobile Money',
+    mobile_money_number: '+233 24 123 4567',
   },
   {
     id: '2',
     vendor_name: 'Global Supplies Inc',
-    business_name: 'Global Supplies',
+    payment_frequency: 'Monthly',
+    branch_location: 'Kumasi, Ghana',
     amount: 25000.5,
     payment_period: 'January 2024',
     status: 'paid',
@@ -38,11 +44,19 @@ const dummyVendorPayments = [
     vendor_id: 'VEN002',
     invoice_number: 'INV-2024-002',
     description: 'Monthly service payment for January 2024',
+    payment_method: 'bank',
+    bank_name: 'Ghana Commercial Bank',
+    bank_branch: 'Kumasi Main Branch',
+    account_name: 'Global Supplies Inc',
+    account_number: '1234567890',
+    swift_code: 'GCBLGHAC',
+    sort_code: '123456',
   },
   {
     id: '3',
     vendor_name: 'Digital Marketing Pro',
-    business_name: 'Digital Marketing Pro',
+    payment_frequency: 'Weekly',
+    branch_location: 'Tema, Ghana',
     amount: 8500.75,
     payment_period: 'February 2024',
     status: 'pending',
@@ -51,11 +65,15 @@ const dummyVendorPayments = [
     vendor_id: 'VEN003',
     invoice_number: 'INV-2024-003',
     description: 'Monthly service payment for February 2024',
+    payment_method: 'mobile_money',
+    mobile_money_provider: 'Vodafone Cash',
+    mobile_money_number: '+233 20 987 6543',
   },
   {
     id: '4',
     vendor_name: 'Logistics Express',
-    business_name: 'Logistics Express',
+    payment_frequency: 'Monthly',
+    branch_location: 'Takoradi, Ghana',
     amount: 32000.0,
     payment_period: 'January 2024',
     status: 'paid',
@@ -64,11 +82,19 @@ const dummyVendorPayments = [
     vendor_id: 'VEN004',
     invoice_number: 'INV-2024-004',
     description: 'Monthly service payment for January 2024',
+    payment_method: 'bank',
+    bank_name: 'Standard Chartered Bank',
+    bank_branch: 'Takoradi Branch',
+    account_name: 'Logistics Express Ltd',
+    account_number: '9876543210',
+    swift_code: 'SCBLGHAC',
+    sort_code: '654321',
   },
   {
     id: '5',
     vendor_name: 'Creative Design Studio',
-    business_name: 'Creative Design Studio',
+    payment_frequency: 'Bi-weekly',
+    branch_location: 'Accra, Ghana',
     amount: 12000.25,
     payment_period: 'February 2024',
     status: 'overdue',
@@ -81,7 +107,8 @@ const dummyVendorPayments = [
   {
     id: '6',
     vendor_name: 'Cloud Services Co',
-    business_name: 'Cloud Services Co',
+    payment_frequency: 'Monthly',
+    branch_location: 'Kumasi, Ghana',
     amount: 45000.0,
     payment_period: 'January 2024',
     status: 'paid',
@@ -94,7 +121,8 @@ const dummyVendorPayments = [
   {
     id: '7',
     vendor_name: 'Security Systems Ltd',
-    business_name: 'Security Systems',
+    payment_frequency: 'Monthly',
+    branch_location: 'Tamale, Ghana',
     amount: 18000.5,
     payment_period: 'February 2024',
     status: 'pending',
@@ -107,7 +135,8 @@ const dummyVendorPayments = [
   {
     id: '8',
     vendor_name: 'Food & Beverage Corp',
-    business_name: 'Food & Beverage Corp',
+    payment_frequency: 'Weekly',
+    branch_location: 'Accra, Ghana',
     amount: 28000.75,
     payment_period: 'January 2024',
     status: 'paid',
@@ -120,7 +149,8 @@ const dummyVendorPayments = [
   {
     id: '9',
     vendor_name: 'Healthcare Solutions',
-    business_name: 'Healthcare Solutions',
+    payment_frequency: 'Monthly',
+    branch_location: 'Kumasi, Ghana',
     amount: 35000.0,
     payment_period: 'February 2024',
     status: 'pending',
@@ -133,7 +163,8 @@ const dummyVendorPayments = [
   {
     id: '10',
     vendor_name: 'Education Services Inc',
-    business_name: 'Education Services',
+    payment_frequency: 'Bi-weekly',
+    branch_location: 'Cape Coast, Ghana',
     amount: 22000.0,
     payment_period: 'January 2024',
     status: 'paid',
@@ -155,19 +186,27 @@ export default function VendorPayments() {
     return dummyVendorPayments.filter(
       (payment) =>
         payment.vendor_name?.toLowerCase().includes(searchLower) ||
-        payment.business_name?.toLowerCase().includes(searchLower) ||
+        payment.payment_frequency?.toLowerCase().includes(searchLower) ||
+        payment.branch_location?.toLowerCase().includes(searchLower) ||
         payment.invoice_number?.toLowerCase().includes(searchLower) ||
         payment.vendor_id?.toLowerCase().includes(searchLower)
     );
   }, [query.search]);
 
-  // Filter by status if provided
+  // Filter by status and payment frequency if provided
+  const paymentFrequency = (query as any).payment_frequency || '';
   const statusFilteredPayments = React.useMemo(() => {
-    if (!query.status) return filteredPayments;
-    return filteredPayments.filter(
-      (payment) => payment.status === query.status
-    );
-  }, [filteredPayments, query.status]);
+    let result = filteredPayments;
+    if (query.status) {
+      result = result.filter((payment) => payment.status === query.status);
+    }
+    if (paymentFrequency) {
+      result = result.filter(
+        (payment) => payment.payment_frequency === paymentFrequency
+      );
+    }
+    return result;
+  }, [filteredPayments, query.status, paymentFrequency]);
 
   // Calculate totals for summary
   const summary = React.useMemo(() => {
@@ -306,7 +345,7 @@ export default function VendorPayments() {
               loading={false}
               query={query}
               setQuery={setQuery}
-              searchPlaceholder="Search by vendor name, business name, invoice number, or vendor ID..."
+              searchPlaceholder="Search by vendor name, payment frequency, branch location, invoice number, or vendor ID..."
               csvHeaders={vendorPaymentListCsvHeaders}
               filterBy={{
                 simpleSelects: [
@@ -319,11 +358,11 @@ export default function VendorPayments() {
                     ],
                   },
                   {
-                    label: 'payment_period',
+                    label: 'payment_frequency',
                     options: [
-                      { label: 'January 2024', value: 'January 2024' },
-                      { label: 'February 2024', value: 'February 2024' },
-                      { label: 'March 2024', value: 'March 2024' },
+                      { label: 'Monthly', value: 'Monthly' },
+                      { label: 'Weekly', value: 'Weekly' },
+                      { label: 'Bi-weekly', value: 'Bi-weekly' },
                     ],
                   },
                 ],
@@ -337,6 +376,7 @@ export default function VendorPayments() {
       {/* Modals */}
       <ViewVendorPayment />
       <ProcessVendorPayment />
+      <UpdateVendorPaymentPreferences />
     </>
   );
 }

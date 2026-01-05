@@ -1,8 +1,8 @@
-import { Dropdown, DateCell, Tag } from '@/components';
+import { Dropdown, DateCell, CurrencyCell, StatusCell } from '@/components';
 import { usePersistedModalState } from '@/hooks';
 import { Icon } from '@/libs';
 import type { CsvHeader, TableCellProps } from '@/types/shared';
-import { MODALS, getStatusVariant } from '@/utils';
+import { MODALS } from '@/utils';
 import { formatCurrency } from '@/utils';
 import { useToast } from '@/hooks/useToast';
 
@@ -17,7 +17,8 @@ VENDOR PAYMENT INVOICE
 Invoice Number: ${paymentData.invoice_number || 'N/A'}
 Vendor ID: ${paymentData.vendor_id || 'N/A'}
 Vendor Name: ${paymentData.vendor_name || 'N/A'}
-Business Name: ${paymentData.business_name || 'N/A'}
+Payment Frequency: ${paymentData.payment_frequency || 'N/A'}
+Branch Location: ${paymentData.branch_location || 'N/A'}
 
 Payment Details:
 ---------------
@@ -53,16 +54,17 @@ export const vendorPaymentListColumns = [
     accessorKey: 'vendor_name',
   },
   {
-    header: 'Business Name',
-    accessorKey: 'business_name',
+    header: 'Payment Frequency',
+    accessorKey: 'payment_frequency',
+  },
+  {
+    header: 'Branch Location',
+    accessorKey: 'branch_location',
   },
   {
     header: 'Payment Amount',
     accessorKey: 'amount',
-    cell: ({ getValue }: { getValue: () => number }) => {
-      const amount = getValue();
-      return <span>{formatCurrency(amount, 'GHS')}</span>;
-    },
+    cell: CurrencyCell,
   },
   {
     header: 'Payment Period',
@@ -71,7 +73,7 @@ export const vendorPaymentListColumns = [
   {
     header: 'Status',
     accessorKey: 'status',
-    cell: VendorPaymentStatusCell,
+    cell: StatusCell,
   },
   {
     header: 'Due Date',
@@ -97,8 +99,12 @@ export const vendorPaymentListCsvHeaders: Array<CsvHeader> = [
     accessor: 'vendor_name',
   },
   {
-    name: 'Business Name',
-    accessor: 'business_name',
+    name: 'Payment Frequency',
+    accessor: 'payment_frequency',
+  },
+  {
+    name: 'Branch Location',
+    accessor: 'branch_location',
   },
   {
     name: 'Payment Amount',
@@ -121,15 +127,6 @@ export const vendorPaymentListCsvHeaders: Array<CsvHeader> = [
     accessor: 'paid_date',
   },
 ];
-
-function VendorPaymentStatusCell({ getValue }: { getValue: () => string }) {
-  const status = getValue();
-  return (
-    <>
-      {status ? <Tag value={status} variant={getStatusVariant(status)} /> : '-'}
-    </>
-  );
-}
 
 export function VendorPaymentActionCell({
   row,
@@ -154,6 +151,15 @@ export function VendorPaymentActionCell({
         });
         modal.openModal(
           MODALS.VENDOR_PAYMENT_MANAGEMENT.CHILDREN.VIEW,
+          row.original
+        );
+      },
+    },
+    {
+      label: 'Update Payment Preferences',
+      onClickFn: () => {
+        modal.openModal(
+          MODALS.VENDOR_PAYMENT_MANAGEMENT.CHILDREN.PREFERENCES,
           row.original
         );
       },

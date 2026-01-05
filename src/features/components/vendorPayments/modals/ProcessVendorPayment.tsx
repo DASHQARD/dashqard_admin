@@ -10,7 +10,8 @@ import { Icon } from '@/libs';
 type VendorPaymentData = {
   id: string;
   vendor_name?: string;
-  business_name?: string;
+  payment_frequency?: string;
+  branch_location?: string;
   amount?: number;
   payment_period?: string;
   status?: string;
@@ -60,7 +61,10 @@ export function ProcessVendorPayment() {
     if (!paymentData) return;
 
     // Validation
-    if (paymentMethod === 'bank' && (!formData.accountNumber || !formData.bankName)) {
+    if (
+      paymentMethod === 'bank' &&
+      (!formData.accountNumber || !formData.bankName)
+    ) {
       toast.error('Please provide account number and bank name');
       return;
     }
@@ -79,10 +83,10 @@ export function ProcessVendorPayment() {
     try {
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1500));
-      
+
       toast.success('Payment processed successfully!');
       modal.closeModal();
-      
+
       // Reset form
       setFormData({
         paymentMethod: 'bank',
@@ -94,10 +98,11 @@ export function ProcessVendorPayment() {
         paymentDate: new Date().toISOString().split('T')[0],
         notes: '',
       });
-      
+
       // In a real app, you would refresh the data here
       // queryClient.invalidateQueries(['vendor-payments']);
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Failed to process payment:', error);
       toast.error('Failed to process payment. Please try again.');
     } finally {
       setIsProcessing(false);
@@ -112,7 +117,9 @@ export function ProcessVendorPayment() {
     <Modal
       panelClass="!w-[700px] min-w-full max-h-[90vh]"
       title="Process Vendor Payout"
-      isOpen={modal.isModalOpen(MODALS.VENDOR_PAYMENT_MANAGEMENT.CHILDREN.PROCESS)}
+      isOpen={modal.isModalOpen(
+        MODALS.VENDOR_PAYMENT_MANAGEMENT.CHILDREN.PROCESS
+      )}
       setIsOpen={(isOpen) => {
         if (!isOpen) {
           modal.closeModal();
@@ -134,17 +141,36 @@ export function ProcessVendorPayment() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-xs text-gray-600 mb-1">Vendor</p>
-                <Text variant="span" weight="semibold" className="text-gray-800">
-                  {paymentData.vendor_name || paymentData.business_name || '-'}
+                <Text
+                  variant="span"
+                  weight="semibold"
+                  className="text-gray-800"
+                >
+                  {paymentData.vendor_name || '-'}
                 </Text>
                 <p className="text-xs text-gray-500 mt-1">
                   ID: {paymentData.vendor_id || '-'}
                 </p>
+                {paymentData.branch_location && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    Location: {paymentData.branch_location}
+                  </p>
+                )}
               </div>
               <div>
                 <p className="text-xs text-gray-600 mb-1">Invoice Number</p>
-                <Text variant="span" weight="semibold" className="text-gray-800">
+                <Text
+                  variant="span"
+                  weight="semibold"
+                  className="text-gray-800"
+                >
                   {paymentData.invoice_number || '-'}
+                </Text>
+              </div>
+              <div>
+                <p className="text-xs text-gray-600 mb-1">Payment Frequency</p>
+                <Text variant="span" weight="normal" className="text-gray-800">
+                  {paymentData.payment_frequency || '-'}
                 </Text>
               </div>
               <div>
@@ -156,13 +182,17 @@ export function ProcessVendorPayment() {
               <div>
                 <p className="text-xs text-gray-600 mb-1">Due Date</p>
                 <Text variant="span" weight="normal" className="text-gray-800">
-                  {paymentData.due_date ? formatDate(paymentData.due_date) : '-'}
+                  {paymentData.due_date
+                    ? formatDate(paymentData.due_date)
+                    : '-'}
                 </Text>
               </div>
               <div className="col-span-2 pt-2 border-t border-blue-200">
                 <p className="text-xs text-gray-600 mb-1">Amount to Pay</p>
                 <Text variant="h4" weight="bold" className="text-blue-700">
-                  {paymentData.amount ? formatCurrency(paymentData.amount, 'GHS') : '-'}
+                  {paymentData.amount
+                    ? formatCurrency(paymentData.amount, 'GHS')
+                    : '-'}
                 </Text>
               </div>
             </div>
@@ -320,4 +350,3 @@ export function ProcessVendorPayment() {
     </Modal>
   );
 }
-
