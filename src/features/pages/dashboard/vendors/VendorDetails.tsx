@@ -1,12 +1,6 @@
 import { useNavigate } from 'react-router';
 
-import {
-  Button,
-  CustomIcon,
-  Loader,
-  Profile,
-  Text,
-} from '@/components';
+import { Button, CustomIcon, Loader, Profile, Text } from '@/components';
 import { usePersistedModalState } from '@/hooks';
 import { MODALS } from '@/utils/constants';
 
@@ -15,6 +9,7 @@ import {
   ActivateVendor,
   SuspendVendor,
 } from '@/features/components/vendors/modals';
+import { ManageVendorPaymentPreferences } from '@/features/components/vendorPayments/modals';
 
 export default function VendorDetails() {
   const navigate = useNavigate();
@@ -25,6 +20,10 @@ export default function VendorDetails() {
 
   const suspendModal = usePersistedModalState({
     paramName: MODALS.VENDOR_MANAGEMENT.CHILDREN.DEACTIVATE,
+  });
+
+  const paymentPreferencesModal = usePersistedModalState({
+    paramName: MODALS.VENDOR_PAYMENT_MANAGEMENT.PARAM_NAME,
   });
 
   const {
@@ -57,6 +56,24 @@ export default function VendorDetails() {
             </h2>
           </div>
           <div className="flex gap-4 items-center">
+            <Button
+              variant="outline"
+              size="medium"
+              className="border-primary-500 text-primary-500"
+              onClick={() =>
+                paymentPreferencesModal.openModal(
+                  MODALS.VENDOR_PAYMENT_MANAGEMENT.CHILDREN.MANAGE_PREFERENCES,
+                  {
+                    id: vendorDetails?.id || vendorDetails?.vendor_id,
+                    vendor_id: vendorDetails?.vendor_id || vendorDetails?.id,
+                    vendor_name: vendorDetails?.vendor_name,
+                  }
+                )
+              }
+            >
+              <CustomIcon name="Settings" width={20} height={20} />
+              Payment Preferences
+            </Button>
             {vendorDetails?.status === 'active' ||
             vendorDetails?.approval_status === 'approved' ? (
               <Button
@@ -68,9 +85,7 @@ export default function VendorDetails() {
                     MODALS.VENDOR_MANAGEMENT.CHILDREN.DEACTIVATE,
                     {
                       vendor_account_id:
-                        vendorDetails?.id ||
-                        vendorDetails?.vendor_id ||
-                        0,
+                        vendorDetails?.id || vendorDetails?.vendor_id || 0,
                     }
                   )
                 }
@@ -88,9 +103,7 @@ export default function VendorDetails() {
                     MODALS.VENDOR_MANAGEMENT.CHILDREN.ACTIVATE,
                     {
                       vendor_account_id:
-                        vendorDetails?.id ||
-                        vendorDetails?.vendor_id ||
-                        0,
+                        vendorDetails?.id || vendorDetails?.vendor_id || 0,
                     }
                   )
                 }
@@ -112,7 +125,9 @@ export default function VendorDetails() {
           <Profile
             name={vendorDetails?.vendor_name || 'N/A'}
             businessName={vendorDetails?.business_name || 'N/A'}
-            status={vendorDetails?.status || vendorDetails?.approval_status || 'N/A'}
+            status={
+              vendorDetails?.status || vendorDetails?.approval_status || 'N/A'
+            }
           >
             <div className="flex flex-col gap-6 w-full">
               <Text variant="h5" weight="medium">
@@ -181,6 +196,11 @@ export default function VendorDetails() {
 
       {suspendModal.modalState ===
         MODALS.VENDOR_MANAGEMENT.CHILDREN.DEACTIVATE && <SuspendVendor />}
+
+      {paymentPreferencesModal.modalState ===
+        MODALS.VENDOR_PAYMENT_MANAGEMENT.CHILDREN.MANAGE_PREFERENCES && (
+        <ManageVendorPaymentPreferences />
+      )}
     </>
   );
 }

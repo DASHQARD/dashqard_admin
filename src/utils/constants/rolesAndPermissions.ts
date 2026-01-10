@@ -13,6 +13,7 @@ export const PERMISSION_CATEGORIES = [
   'corporates',
   'requests',
   'permissions',
+  'vendor_payments',
 ] as const;
 
 // Permission actions from API
@@ -24,6 +25,9 @@ export const PERMISSION_ACTIONS = [
   'delete',
   'get',
   'manage',
+  'update_status',
+  'update_preferences',
+  'get_preferences',
 ] as const;
 
 // Permission modules - updated to match API categories with display-friendly names
@@ -43,6 +47,7 @@ export const PERMISSION_MODULES = [
   'Corporates', // maps to 'corporates' category
   'Requests', // maps to 'requests' category
   'Permissions', // maps to 'permissions' category
+  'Vendor Payments', // maps to 'vendor_payments' category
   // Legacy modules (kept for backward compatibility)
 
   'Notifications',

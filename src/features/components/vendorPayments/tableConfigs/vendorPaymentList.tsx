@@ -1,4 +1,4 @@
-import { Dropdown, DateCell, CurrencyCell, StatusCell } from '@/components';
+import { Dropdown, DateCell, StatusCell } from '@/components';
 import { usePersistedModalState } from '@/hooks';
 import { Icon } from '@/libs';
 import type { CsvHeader, TableCellProps } from '@/types/shared';
@@ -63,8 +63,7 @@ export const vendorPaymentListColumns = [
   },
   {
     header: 'Payment Amount',
-    accessorKey: 'amount',
-    cell: CurrencyCell,
+    accessorKey: 'payment_amount',
   },
   {
     header: 'Payment Period',
@@ -108,7 +107,7 @@ export const vendorPaymentListCsvHeaders: Array<CsvHeader> = [
   },
   {
     name: 'Payment Amount',
-    accessor: 'amount',
+    accessor: 'payment_amount',
   },
   {
     name: 'Payment Period',
@@ -145,12 +144,17 @@ export function VendorPaymentActionCell({
     {
       label: 'View Details',
       onClickFn: () => {
-        console.log('View Details clicked', {
-          modalName: MODALS.VENDOR_PAYMENT_MANAGEMENT.CHILDREN.VIEW,
-          data: row.original,
-        });
         modal.openModal(
           MODALS.VENDOR_PAYMENT_MANAGEMENT.CHILDREN.VIEW,
+          row.original
+        );
+      },
+    },
+    {
+      label: 'Update Payment',
+      onClickFn: () => {
+        modal.openModal(
+          MODALS.VENDOR_PAYMENT_MANAGEMENT.CHILDREN.UPDATE,
           row.original
         );
       },
@@ -180,6 +184,15 @@ export function VendorPaymentActionCell({
     {
       label: 'Download Invoice',
       onClickFn: handleDownload,
+    },
+    {
+      label: 'Delete Payment',
+      onClickFn: () => {
+        modal.openModal(
+          MODALS.VENDOR_PAYMENT_MANAGEMENT.CHILDREN.DELETE,
+          row.original
+        );
+      },
     },
   ];
 

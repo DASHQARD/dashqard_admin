@@ -133,8 +133,11 @@ export const MODALS = {
     CHILDREN: {
       VIEW: 'view-vendor-payment',
       PROCESS: 'process-vendor-payment',
+      UPDATE: 'update-vendor-payment',
+      DELETE: 'delete-vendor-payment',
       DOWNLOAD_INVOICE: 'download-invoice',
       PREFERENCES: 'preferences',
+      MANAGE_PREFERENCES: 'manage-payment-preferences',
     },
   },
   SUPER_ADMIN_INVITATIONS_MANAGEMENT: {

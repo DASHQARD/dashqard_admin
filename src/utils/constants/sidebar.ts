@@ -37,7 +37,7 @@ export const ADMIN_NAV_ITEMS = [
             path: ROUTES.IN_APP.ADMIN.VENDOR_PAYMENTS,
             label: 'Vendor Payments',
             icon: 'bi:wallet2',
-            permission: 'payments:view',
+            permission: 'vendor_payments:get',
           },
         ],
       },
