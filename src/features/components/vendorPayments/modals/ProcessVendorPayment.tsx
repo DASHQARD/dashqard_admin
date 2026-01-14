@@ -69,8 +69,6 @@ export function ProcessVendorPayment() {
       payment_method: 'bank',
       bank_code: '',
       account_number: '',
-      mobile_money_number: '',
-      mobile_money_provider: 'mtn',
       payment_date: new Date().toISOString().split('T')[0],
       notes: '',
     },
@@ -82,7 +80,7 @@ export function ProcessVendorPayment() {
   const selectedBankCode = form.watch('bank_code');
   const selectedBankName = React.useMemo(() => {
     if (!selectedBankCode || !banks.length) return '';
-    const bank = banks.find((b) => b.value === selectedBankCode);
+    const bank = banks.find((b: any) => b.value === selectedBankCode);
     return bank ? bank.name : '';
   }, [selectedBankCode, banks]);
 
@@ -92,11 +90,8 @@ export function ProcessVendorPayment() {
       const today = new Date().toISOString().split('T')[0];
       const formData: any = {
         payment_method: paymentData.payment_method || 'bank',
-        bank_name: '',
         bank_code: '',
         account_number: '',
-        mobile_money_number: '',
-        mobile_money_provider: 'mtn',
         payment_date: today,
         notes: paymentData.notes || '',
       };
@@ -296,7 +291,6 @@ export function ProcessVendorPayment() {
                         value: bank.value,
                       }))}
                       placeholder="Select bank"
-                      error={form.formState.errors.bank_code?.message}
                     />
                     {selectedBankName && (
                       <p className="mt-1 text-sm text-gray-600">
@@ -311,7 +305,6 @@ export function ProcessVendorPayment() {
                   label="Account Number"
                   {...form.register('account_number')}
                   placeholder="Enter account number"
-                  error={form.formState.errors.account_number?.message}
                 />
               </div>
             </div>
@@ -334,7 +327,6 @@ export function ProcessVendorPayment() {
                       { label: 'Vodafone Cash', value: 'vodafone' },
                       { label: 'AirtelTigo Money', value: 'airtel' }, // Fixed value to match enum
                     ]}
-                    error={form.formState.errors.mobile_money_provider?.message}
                   />
                 )}
               />
@@ -342,7 +334,6 @@ export function ProcessVendorPayment() {
                 <Input
                   label="Mobile Money Number"
                   {...form.register('mobile_money_number')}
-                  error={form.formState.errors.mobile_money_number?.message}
                   placeholder="Enter mobile money number"
                 />
               </div>
