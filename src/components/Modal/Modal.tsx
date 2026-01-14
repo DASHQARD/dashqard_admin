@@ -1,28 +1,34 @@
-import React from 'react'
+import React from 'react';
 
-import * as Dialog from '@radix-ui/react-dialog'
-import { AnimatePresence, motion } from 'framer-motion'
+import * as Dialog from '@radix-ui/react-dialog';
+import { AnimatePresence, motion } from 'framer-motion';
 
-import { cn, Icon } from '@/libs'
+import { cn, Icon } from '@/libs';
 
-import { Text } from '../Text'
+import { Text } from '../Text';
 
 type Props = Readonly<{
-  children: React.ReactNode
-  showClose?: boolean
-  isOpen: boolean
-  setIsOpen: (o: boolean) => void
-  position?: 'center' | 'side'
-  title?: string
-  panelWrapperClass?: string
-  titleBarClass?: string
-  titleClass?: string
-  panelClass?: string
-  overflowHidden?: boolean
-}>
+  children: React.ReactNode;
+  showClose?: boolean;
+  isOpen: boolean;
+  setIsOpen: (o: boolean) => void;
+  position?: 'center' | 'side';
+  title?: string;
+  panelWrapperClass?: string;
+  titleBarClass?: string;
+  titleClass?: string;
+  panelClass?: string;
+  overflowHidden?: boolean;
+}>;
 
 export function Modal(props: Props) {
-  const { children, isOpen = false, setIsOpen, showClose, position = 'center' } = props
+  const {
+    children,
+    isOpen = false,
+    setIsOpen,
+    showClose,
+    position = 'center',
+  } = props;
 
   return (
     <AnimatePresence>
@@ -56,10 +62,10 @@ export function Modal(props: Props) {
                   className={cn(
                     props.panelClass,
                     { 'overflow-hidden!': props.overflowHidden },
-                    'pointer-events-auto! relative mx-auto my-20 w-[430px] min-w-[200px] max-w-[90vw] rounded-[20px] bg-white shadow-xl',
+                    'pointer-events-auto! relative mx-auto my-20 w-[430px] min-w-[200px] max-w-[90vw] rounded-[20px] bg-white shadow-xl'
                   )}
                   onClick={(e) => {
-                    e.stopPropagation()
+                    e.stopPropagation();
                   }}
                 >
                   {showClose ? (
@@ -99,7 +105,7 @@ export function Modal(props: Props) {
                   className={cn(
                     props.panelClass,
                     'pointer-events-auto! absolute right-4 mx-auto grid h-[calc(100dvh-32px)] w-[398px] min-w-[200px] max-w-[90vw] grid-rows-1 overflow-hidden rounded-lg bg-white text-left shadow-xl',
-                    { 'grid-rows-[max-content_1fr]!': !!props.title },
+                    { 'grid-rows-[max-content_1fr]!': !!props.title }
                   )}
                   // onClick={(e) => {
                   //   e.stopPropagation();
@@ -110,7 +116,7 @@ export function Modal(props: Props) {
                     <div
                       className={cn(
                         'border-b border-b-gray-100 flex items-center justify-between px-6 py-4',
-                        props.titleBarClass,
+                        props.titleBarClass
                       )}
                     >
                       <Dialog.Title asChild>
@@ -122,12 +128,13 @@ export function Modal(props: Props) {
                         </Text>
                       </Dialog.Title>
 
-                      <button
-                        className="text-xl bg-gray-100 w-8 h-8 grid place-items-center rounded-full text-gray-400 hover:bg-gray-200 hover:text-gray-500"
-                        onClick={() => setIsOpen(false)}
-                      >
-                        <Icon icon="ic:round-close" />
-                      </button>
+                      <Dialog.Close asChild>
+                        <button
+                          className="text-xl bg-gray-100 w-8 h-8 grid place-items-center rounded-full text-gray-400 hover:bg-gray-200 hover:text-gray-500"
+                        >
+                          <Icon icon="ic:round-close" />
+                        </button>
+                      </Dialog.Close>
                     </div>
                   ) : null}
                   <Dialog.Description asChild>
@@ -140,5 +147,5 @@ export function Modal(props: Props) {
         </Dialog.Portal>
       </Dialog.Root>
     </AnimatePresence>
-  )
+  );
 }

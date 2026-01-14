@@ -159,6 +159,15 @@ export function ProcessVendorPayment() {
     setTimeout(() => form.reset(), 0);
   }, [modal, form]);
 
+  const handleSetIsOpen = React.useCallback(
+    (isOpen: boolean) => {
+      if (!isOpen) {
+        handleClose();
+      }
+    },
+    [handleClose]
+  );
+
   if (!paymentData) return null;
 
   return (
@@ -166,11 +175,7 @@ export function ProcessVendorPayment() {
       panelClass="!w-[700px] min-w-full max-h-[90vh]"
       title="Process Vendor Payout"
       isOpen={isOpen}
-      setIsOpen={(isOpen) => {
-        if (!isOpen) {
-          handleClose();
-        }
-      }}
+      setIsOpen={handleSetIsOpen}
       position="center"
     >
       <form

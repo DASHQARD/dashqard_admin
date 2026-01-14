@@ -32,7 +32,6 @@ export function useVendorManagementBase() {
   const { useGetVendors } = vendorManagementQueries();
   const { data, isLoading: isLoadingVendorsList } = useGetVendors();
 
-  console.log('data inside', data);
   const { data: vendorDetails, isLoading: isLoadingVendorDetails } =
     useVendorDetails(params?.vendorId || '');
 
@@ -122,10 +121,7 @@ export function useVendorManagementBase() {
         userToCheck?.isSuperAdmin)
     ) {
       const vendorId =
-        vendor.vendor_account_id ||
-        vendor.vendor_id ||
-        vendor.id ||
-        '';
+        vendor.vendor_account_id || vendor.vendor_id || vendor.id || '';
       actions.push({
         label: 'View',
         onClickFn: () => {
@@ -161,8 +157,16 @@ export function useVendorManagementBase() {
       });
     }
 
-    // Activate option
+    // Determine vendor status - check both status and approval_status fields
+    const vendorStatus =
+      vendor.status || vendor.approval_status || vendor.vendor_status || '';
+    const isVendorActive =
+      vendorStatus?.toLowerCase() === 'active' ||
+      vendorStatus?.toLowerCase() === 'approved';
+
+    // Activate option - only show if vendor is NOT active
     if (
+      !isVendorActive &&
       option?.hasActivate &&
       (permissionsToCheck.some(
         (p) =>
@@ -181,8 +185,9 @@ export function useVendorManagementBase() {
       });
     }
 
-    // Deactivate option
+    // Deactivate option - only show if vendor IS active
     if (
+      isVendorActive &&
       option?.hasDeactivate &&
       (permissionsToCheck.some(
         (p) =>

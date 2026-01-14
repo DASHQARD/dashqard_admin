@@ -4,6 +4,7 @@ import { MODALS } from '@/utils/constants';
 import { formatDate, getStatusVariant, formatCurrency } from '@/utils/helpers';
 import type { VendorPaymentData } from '@/types';
 import { Icon } from '@/libs';
+import { useCallback } from 'react';
 
 export function ViewVendorPayment() {
   const modal = usePersistedModalState<VendorPaymentData>({
@@ -11,6 +12,15 @@ export function ViewVendorPayment() {
   });
 
   const modalData = modal.modalData;
+
+  const handleSetIsOpen = useCallback(
+    (isOpen: boolean) => {
+      if (!isOpen) {
+        modal.closeModal();
+      }
+    },
+    [modal]
+  );
 
   const paymentInfo = [
     {
@@ -180,7 +190,7 @@ export function ViewVendorPayment() {
       panelClass="!w-[750px] min-w-full max-h-[90vh]"
       title="Vendor Payment Details"
       isOpen={modal.isModalOpen(MODALS.VENDOR_PAYMENT_MANAGEMENT.CHILDREN.VIEW)}
-      setIsOpen={modal.closeModal}
+      setIsOpen={handleSetIsOpen}
       position="side"
       showClose={true}
     >
@@ -215,7 +225,7 @@ export function ViewVendorPayment() {
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto pb-6 space-y-8">
           {/* Payment Summary Card */}
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6">
+          <div className="bg-linear-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6">
             <div className="flex items-center justify-between">
               <div>
                 <Text

@@ -1,6 +1,6 @@
 import { PaginatedTable, Text } from '@/components';
 import { Icon } from '@/libs';
-import { formatCurrency } from '@/utils';
+import { formatCurrency, OPTIONS } from '@/utils';
 import {
   vendorPaymentListColumns,
   vendorPaymentListCsvHeaders,
@@ -18,21 +18,19 @@ export default function VendorPayments() {
   const {
     query,
     setQuery,
-    vendorPaymentsList,
+    vendorPaymentList,
     isLoadingVendorPayments,
-    totalCount,
-    summary,
+    summaryData,
+    // getVendorPaymentOptions,
   } = useVendorPaymentsManagementBase();
 
   return (
     <>
       <div className="lg:py-10">
         <div className="flex flex-col gap-8">
-          <div className="flex items-center justify-between">
-            <Text variant="h2" weight="semibold" className="text-primary-900">
-              Vendor Payments
-            </Text>
-          </div>
+          <Text variant="h2" weight="semibold" className="text-primary-900">
+            Vendor Payments
+          </Text>
 
           {/* Summary Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -41,10 +39,10 @@ export default function VendorPayments() {
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Total Pending</p>
                   <p className="text-2xl font-semibold text-orange-600">
-                    {summary.pendingCount}
+                    {summaryData?.pending_count}
                   </p>
                   <p className="text-xs text-gray-500 mt-1">
-                    {formatCurrency(summary.totalPending, 'GHS')}
+                    {formatCurrency(summaryData?.total_pending, 'GHS')}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
@@ -61,10 +59,10 @@ export default function VendorPayments() {
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Total Paid</p>
                   <p className="text-2xl font-semibold text-green-600">
-                    {summary.paidCount}
+                    {summaryData?.paid_count}
                   </p>
                   <p className="text-xs text-gray-500 mt-1">
-                    {formatCurrency(summary.totalPaid, 'GHS')}
+                    {formatCurrency(summaryData?.total_paid, 'GHS')}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
@@ -81,10 +79,10 @@ export default function VendorPayments() {
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Overdue</p>
                   <p className="text-2xl font-semibold text-red-600">
-                    {summary.overdueCount}
+                    {summaryData?.overdue_count}
                   </p>
                   <p className="text-xs text-gray-500 mt-1">
-                    {formatCurrency(summary.totalOverdue, 'GHS')}
+                    {formatCurrency(summaryData?.total_overdue, 'GHS')}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
@@ -101,12 +99,12 @@ export default function VendorPayments() {
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Grand Total</p>
                   <p className="text-2xl font-semibold text-blue-600">
-                    {summary.pendingCount +
-                      summary.paidCount +
-                      summary.overdueCount}
+                    {summaryData?.pending_count +
+                      summaryData?.paid_count +
+                      summaryData?.overdue_count}
                   </p>
                   <p className="text-xs text-gray-500 mt-1">
-                    {formatCurrency(summary.grandTotal, 'GHS')}
+                    {formatCurrency(summaryData?.grand_total, 'GHS')}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
@@ -128,8 +126,8 @@ export default function VendorPayments() {
             <PaginatedTable
               filterWrapperClassName="lg:absolute lg:top-0 lg:right-[2px]"
               columns={vendorPaymentListColumns}
-              data={vendorPaymentsList || []}
-              total={totalCount}
+              data={vendorPaymentList || []}
+              total={vendorPaymentList?.total}
               loading={isLoadingVendorPayments}
               query={query}
               setQuery={setQuery}
@@ -138,21 +136,12 @@ export default function VendorPayments() {
               filterBy={{
                 simpleSelects: [
                   {
-                    label: 'status',
-                    options: [
-                      { label: 'Pending', value: 'pending' },
-                      { label: 'Paid', value: 'paid' },
-                      { label: 'Overdue', value: 'overdue' },
-                    ],
+                    label: 'VENDOR_PAYMENT_STATUS',
+                    options: OPTIONS.VENDOR_PAYMENT_STATUS,
                   },
                   {
-                    label: 'payment_frequency',
-                    options: [
-                      { label: 'Daily', value: 'daily' },
-                      { label: 'Weekly', value: 'weekly' },
-                      { label: 'Bi-weekly', value: 'bi-weekly' },
-                      { label: 'Monthly', value: 'monthly' },
-                    ],
+                    label: 'VENDOR_PAYMENT_FREQUENCY',
+                    options: OPTIONS.VENDOR_PAYMENT_FREQUENCY,
                   },
                 ],
               }}

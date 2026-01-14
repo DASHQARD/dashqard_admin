@@ -1,10 +1,6 @@
-import { Dropdown, NameCell, StatusCell } from '@/components';
-import { useAdminManagementBase } from '@/features/hooks';
-import { useContentGuard, usePersistedModalState } from '@/hooks';
-import { Icon } from '@/libs';
-import { useAuthStore } from '@/stores';
-import type { CsvHeader, TableCellProps } from '@/types/shared';
-import { MODALS } from '@/utils/constants';
+import { NameCell, StatusCell } from '@/components';
+import type { CsvHeader } from '@/types/shared';
+import { AdminActionCell } from './AdminActionCell';
 
 export const adminListColumns = [
   {
@@ -59,38 +55,3 @@ export const adminListCsvHeaders: Array<CsvHeader> = [
     accessor: 'created_at',
   },
 ];
-
-export function AdminActionCell({ row }: TableCellProps<{ id: string }>) {
-  const modal = usePersistedModalState({
-    paramName: MODALS.ADMIN.ROOT,
-  });
-
-  const { getAdminOptions } = useAdminManagementBase();
-  const { userPermissions = [] } = useContentGuard();
-  const user = useAuthStore().user;
-
-  return (
-    <Dropdown
-      actions={getAdminOptions({
-        modal,
-        admin: row.original as any,
-        option: {
-          hasView: true,
-          hasDeactivate: true,
-          hasActivate: true,
-          hasUpdate: true,
-        },
-        loginUser: user!,
-        userPermissions,
-      })}
-    >
-      <button
-        type="button"
-        className="btn rounded-lg no-print"
-        aria-label="View actions"
-      >
-        <Icon icon="hugeicons:more-vertical" width={24} height={24} />
-      </button>
-    </Dropdown>
-  );
-}

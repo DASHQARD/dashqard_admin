@@ -1,6 +1,7 @@
-import { CustomIcon, DateCell, Dropdown, StatusCell } from '@/components';
-import type { CsvHeader, TableCellProps } from '@/types';
+import { DateCell, StatusCell } from '@/components';
+import type { CsvHeader } from '@/types';
 import { formatCurrency, formatDate } from '@/utils';
+import { ActionCell } from './ActionCell';
 
 export const customerListColumns = [
   {
@@ -58,22 +59,3 @@ export const customerListCsvHeaders: Array<CsvHeader> = [
     accessor: 'status',
   },
 ];
-
-function ActionCell(_props: TableCellProps<{ id: string }>) {
-  // TODO: Implement when customer management actions are ready
-  // const { getSavingsOptions } = useCustomersManagementBase();
-
-  return (
-    <Dropdown
-      actions={[]}
-    >
-      <button
-        type="button"
-        className="btn rounded-lg no-print"
-        aria-label="View actions"
-      >
-        <CustomIcon name="MoreVertical" width={24} height={24} />
-      </button>
-    </Dropdown>
-  );
-}

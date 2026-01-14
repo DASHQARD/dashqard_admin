@@ -129,7 +129,7 @@ export const MODALS = {
     },
   },
   VENDOR_PAYMENT_MANAGEMENT: {
-    PARAM_NAME: 'vendor-payment-management-modal',
+    PARAM_NAME: 'vendor-payment-modal',
     CHILDREN: {
       VIEW: 'view-vendor-payment',
       CREATE: 'create-vendor-payment',

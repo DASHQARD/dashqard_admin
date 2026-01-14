@@ -15,7 +15,7 @@ type ToggleCustomerStatusSchemaType = z.infer<
 
 export function ActivateCorporate() {
   const modal = usePersistedModalState<{ id: string }>({
-    paramName: MODALS.CORPORATE_MANAGEMENT.CHILDREN.ACTIVATE,
+    paramName: MODALS.CORPORATE_MANAGEMENT.PARAM_NAME,
   });
   const { useUpdateCorporateStatus } = corporateManagementMutations();
   const activateMutation = useUpdateCorporateStatus();

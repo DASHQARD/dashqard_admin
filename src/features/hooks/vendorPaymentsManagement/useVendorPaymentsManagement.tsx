@@ -1,71 +1,243 @@
-import { useReducerSpread } from '@/hooks';
-import { DEFAULT_QUERY } from '@/utils';
+import {
+  useContentGuard,
+  usePersistedModalState,
+  useReducerSpread,
+} from '@/hooks';
+import { DEFAULT_QUERY, MODALS } from '@/utils';
 import { vendorPaymentsManagementQueries } from './vendorPaymentsQueries';
-import React from 'react';
+import { useAuthStore } from '@/stores';
 
 export function useVendorPaymentsManagementBase() {
   const [query, setQuery] = useReducerSpread(DEFAULT_QUERY);
 
   const { useGetVendorPayments, useGetVendorPaymentsSummary } =
     vendorPaymentsManagementQueries();
-
-  const { data, isLoading: isLoadingVendorPayments } = useGetVendorPayments();
+  const { userPermissions = [] } = useContentGuard();
+  const user = useAuthStore().user;
+  const { data: vendorPaymentList, isLoading: isLoadingVendorPayments } =
+    useGetVendorPayments();
 
   const { data: summaryData, isLoading: isLoadingSummary } =
     useGetVendorPaymentsSummary();
 
-  const vendorPaymentsList = React.useMemo(() => {
-    if (!data) return [];
-    // Response structure: { data: [...], pagination: {...} }
-    return Array.isArray(data) ? data : Array.isArray(data) ? data : [];
-  }, [data]);
+  const vendorInfo = [
+    {
+      label: 'Vendor Name',
+      value: vendorPaymentList?.vendor_name || '-',
+    },
+    {
+      label: 'Vendor ID',
+      value: vendorPaymentList?.vendor_id || '-',
+    },
+    {
+      label: 'Vendor GVID',
+      value: vendorPaymentList?.vendor_gvid || '-',
+    },
+    {
+      label: 'Branch Location',
+      value: vendorPaymentList?.branch_location || '-',
+    },
+    {
+      label: 'Created At',
+      value: vendorPaymentList?.created_at || '-',
+    },
+    {
+      label: 'Updated At',
+      value: vendorPaymentList?.updated_at || '-',
+    },
+    {
+      label: 'Description',
+      value: vendorPaymentList?.description || '-',
+    },
+    {
+      label: 'Due Date',
+      value: vendorPaymentList?.due_date || '-',
+    },
+    {
+      label: 'Paid Date',
+      value: vendorPaymentList?.paid_date || '-',
+    },
+    {
+      label: 'Payment Amount',
+      value: vendorPaymentList?.payment_amount || '-',
+    },
+    {
+      label: 'Payment Frequency',
+      value: vendorPaymentList?.payment_frequency || '-',
+    },
+    {
+      label: 'Payment Period',
+      value: vendorPaymentList?.payment_period || '-',
+    },
+    {
+      label: 'Status',
+      value: vendorPaymentList?.status || '-',
+    },
+    {
+      label: 'Transaction Reference',
+      value: vendorPaymentList?.transaction_reference || '-',
+    },
+    {
+      label: 'Notes',
+      value: vendorPaymentList?.notes || '-',
+    },
+  ];
 
-  const totalCount = React.useMemo(() => {
-    // For cursor-based pagination, we might not have total count
-    // Use the length of current data + pagination info if available
-    if (data?.pagination?.total !== undefined) {
-      return data.pagination.total;
-    }
-    return vendorPaymentsList.length;
-  }, [vendorPaymentsList, data?.pagination]);
-
-  // Use server-side summary data if available, otherwise fallback to empty values
-  const summary = React.useMemo(() => {
-    if (summaryData) {
-      // API response structure: { data: { pending_count, paid_count, overdue_count, total_pending, total_paid, total_overdue, grand_total } }
-      const data = summaryData;
-
-      return {
-        totalPending: Number(data.total_pending) || 0,
-        totalPaid: Number(data.total_paid) || 0,
-        totalOverdue: Number(data.total_overdue) || 0,
-        grandTotal: Number(data.grand_total) || 0,
-        pendingCount: Number(data.pending_count) || 0,
-        paidCount: Number(data.paid_count) || 0,
-        overdueCount: Number(data.overdue_count) || 0,
-      };
-    }
-
-    // Fallback to empty values while loading
-    return {
-      totalPending: 0,
-      totalPaid: 0,
-      totalOverdue: 0,
-      grandTotal: 0,
-      pendingCount: 0,
-      paidCount: 0,
-      overdueCount: 0,
+  function getVendorPaymentOptions({
+    modal: modalInstance,
+    vendorPayment: vendorPaymentData,
+    option,
+    loginUser,
+    userPermissions: providedPermissions,
+  }: {
+    modal: ReturnType<typeof usePersistedModalState>;
+    vendorPayment: any;
+    option: {
+      hasView?: boolean;
+      hasUpdate?: boolean;
+      hasDelete?: boolean;
+      hasActivate?: boolean;
+      hasDeactivate?: boolean;
+      hasProcess?: boolean;
+      hasDownloadInvoice?: boolean;
+      hasUpdatePreferences?: boolean;
     };
-  }, [summaryData]);
+    loginUser: any;
+    userPermissions: string[];
+  }) {
+    if (!vendorPaymentData) return [];
+
+    const actions = [];
+    const permissionsToCheck = providedPermissions || userPermissions;
+    const userToCheck = loginUser || user;
+
+    if (
+      option?.hasView &&
+      (permissionsToCheck.some(
+        (p) =>
+          p.toLowerCase().includes('vendor_payments:get') ||
+          p.toLowerCase().includes('vendor payments management view')
+      ) ||
+        userToCheck?.isSuperAdmin)
+    ) {
+      actions.push({
+        label: 'View Details',
+        onClickFn: () =>
+          modalInstance.openModal(
+            MODALS.VENDOR_PAYMENT_MANAGEMENT.CHILDREN.VIEW,
+            vendorPaymentData
+          ),
+      });
+    }
+    if (
+      option?.hasUpdate &&
+      (permissionsToCheck.some(
+        (p) =>
+          p.toLowerCase().includes('vendor_payments:update_status') ||
+          p.toLowerCase().includes('vendor payments management update')
+      ) ||
+        userToCheck?.isSuperAdmin)
+    ) {
+      actions.push({
+        label: 'Update Payment',
+        onClickFn: () =>
+          modalInstance.openModal(
+            MODALS.VENDOR_PAYMENT_MANAGEMENT.CHILDREN.UPDATE,
+            vendorPaymentData
+          ),
+      });
+    }
+
+    if (
+      option?.hasDelete &&
+      (permissionsToCheck.some(
+        (p) =>
+          p.toLowerCase().includes('vendor_payments:delete') ||
+          p.toLowerCase().includes('vendor payments management delete')
+      ) ||
+        userToCheck?.isSuperAdmin)
+    ) {
+      actions.push({
+        label: 'Delete Payment',
+        onClickFn: () =>
+          modalInstance.openModal(
+            MODALS.VENDOR_PAYMENT_MANAGEMENT.CHILDREN.DELETE,
+            vendorPaymentData
+          ),
+      });
+    }
+
+    if (
+      option?.hasProcess &&
+      (permissionsToCheck.some(
+        (p) =>
+          p.toLowerCase().includes('vendor_payments:process') ||
+          p.toLowerCase().includes('vendor payments management process')
+      ) ||
+        userToCheck?.isSuperAdmin)
+    ) {
+      actions.push({
+        label: 'Process Payment',
+        onClickFn: () =>
+          modalInstance.openModal(
+            MODALS.VENDOR_PAYMENT_MANAGEMENT.CHILDREN.CREATE,
+            vendorPaymentData
+          ),
+      });
+    }
+
+    if (
+      option?.hasDownloadInvoice &&
+      (permissionsToCheck.some(
+        (p) =>
+          p.toLowerCase().includes('vendor_payments:create') ||
+          p
+            .toLowerCase()
+            .includes('vendor payments management download invoice')
+      ) ||
+        userToCheck?.isSuperAdmin)
+    ) {
+      actions.push({
+        label: 'Download Invoice',
+        onClickFn: () =>
+          modalInstance.openModal(
+            MODALS.VENDOR_PAYMENT_MANAGEMENT.CHILDREN.DOWNLOAD_INVOICE,
+            vendorPaymentData
+          ),
+      });
+    }
+
+    if (
+      option?.hasUpdatePreferences &&
+      (permissionsToCheck.some(
+        (p) =>
+          p.toLowerCase().includes('vendor_payments:update_preferences') ||
+          p
+            .toLowerCase()
+            .includes('vendor payments management update preferences')
+      ) ||
+        userToCheck?.isSuperAdmin)
+    ) {
+      actions.push({
+        label: 'Update Payment Preferences',
+        onClickFn: () =>
+          modalInstance.openModal(
+            MODALS.VENDOR_PAYMENT_MANAGEMENT.CHILDREN.PREFERENCES,
+            vendorPaymentData
+          ),
+      });
+    }
+    return actions;
+  }
 
   return {
     query,
     setQuery,
-    vendorPaymentsList,
+    vendorPaymentList,
     isLoadingVendorPayments,
     isLoadingSummary,
-    totalCount,
-    pagination: data?.pagination,
-    summary,
+    summaryData,
+    getVendorPaymentOptions,
+    vendorInfo,
   };
 }

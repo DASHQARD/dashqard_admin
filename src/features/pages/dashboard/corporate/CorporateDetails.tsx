@@ -37,11 +37,11 @@ export default function CorporateDetails() {
   });
 
   const activateModal = usePersistedModalState({
-    paramName: MODALS.CORPORATE_MANAGEMENT.CHILDREN.ACTIVATE,
+    paramName: MODALS.CORPORATE_MANAGEMENT.PARAM_NAME,
   });
 
   const suspendModal = usePersistedModalState({
-    paramName: MODALS.CORPORATE_MANAGEMENT.CHILDREN.DEACTIVATE,
+    paramName: MODALS.CORPORATE_MANAGEMENT.PARAM_NAME,
   });
 
   const {

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import type { SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Combobox, Input, Modal, Text } from '@/components';
@@ -53,7 +53,7 @@ export function UpdateVendorPayment() {
   useEffect(() => {
     if (modal.modalData) {
       const data = modal.modalData;
-      
+
       // Helper to format date for datetime-local input (YYYY-MM-DDTHH:mm)
       const formatForDateTimeLocal = (dateString?: string | null): string => {
         if (!dateString) return '';
@@ -84,7 +84,8 @@ export function UpdateVendorPayment() {
         payment_period: data.payment_period || '',
       });
     }
-  }, [modal.modalData, form]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [modal.modalData]);
 
   const onSubmit: SubmitHandler<UpdateVendorPaymentSchemaType> = (data) => {
     if (!modal.modalData?.id) return;
@@ -127,6 +128,16 @@ export function UpdateVendorPayment() {
     { label: 'Overdue', value: 'overdue' },
   ];
 
+  const handleSetIsOpen = useCallback(
+    (isOpen: boolean) => {
+      if (!isOpen) {
+        modal.closeModal();
+        form.reset();
+      }
+    },
+    [modal, form]
+  );
+
   return (
     <Modal
       panelClass="!w-[680px]"
@@ -134,12 +145,7 @@ export function UpdateVendorPayment() {
       isOpen={modal.isModalOpen(
         MODALS.VENDOR_PAYMENT_MANAGEMENT.CHILDREN.UPDATE
       )}
-      setIsOpen={(isOpen) => {
-        if (!isOpen) {
-          modal.closeModal();
-          form.reset();
-        }
-      }}
+      setIsOpen={handleSetIsOpen}
       position="side"
       showClose={true}
     >
@@ -280,7 +286,9 @@ export function UpdateVendorPayment() {
               variant="secondary"
               disabled={updatePaymentMutation.isPending}
             >
-              {updatePaymentMutation.isPending ? 'Updating...' : 'Update Payment'}
+              {updatePaymentMutation.isPending
+                ? 'Updating...'
+                : 'Update Payment'}
             </Button>
           </div>
         </div>
@@ -288,4 +296,3 @@ export function UpdateVendorPayment() {
     </Modal>
   );
 }
-

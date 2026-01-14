@@ -27,7 +27,6 @@ export const OPTIONS = {
   SAVINGS_STATUS: ['pending', 'ongoing', 'completed'],
   USER_TYPE: ['individual', 'agent', 'merchant'],
   TRANSACTION_TYPE: ['credit', 'debit'],
-  CUSTOMER_TIER: ['1', '2', '3'],
-  MERCHANT_TIER: ['M1', 'M2', 'M3'],
-  ACCOUNT_TIER: ['1', '2', '3', 'A1', 'A2', 'A3', 'M1', 'M2', 'M3'],
+  VENDOR_PAYMENT_STATUS: ['pending', 'paid', 'overdue'],
+  VENDOR_PAYMENT_FREQUENCY: ['daily', 'weekly', 'monthly', 'bi-weekly'],
 };

@@ -2,6 +2,7 @@ import { Button, CustomIcon, Modal, Text } from '@/components';
 import { usePersistedModalState } from '@/hooks';
 import { MODALS } from '@/utils/constants';
 import { vendorPaymentsManagementMutations } from '@/features/hooks/vendorPaymentsManagement';
+import { useCallback } from 'react';
 
 type VendorPaymentData = {
   id: number | string;
@@ -20,6 +21,15 @@ export function DeleteVendorPayment() {
 
   const payment = modal.modalData;
 
+  const handleSetIsOpen = useCallback(
+    (isOpen: boolean) => {
+      if (!isOpen) {
+        modal.closeModal();
+      }
+    },
+    [modal]
+  );
+
   const handleDelete = () => {
     if (!payment?.id) return;
 
@@ -37,11 +47,7 @@ export function DeleteVendorPayment() {
       isOpen={modal.isModalOpen(
         MODALS.VENDOR_PAYMENT_MANAGEMENT.CHILDREN.DELETE
       )}
-      setIsOpen={(isOpen) => {
-        if (!isOpen) {
-          modal.closeModal();
-        }
-      }}
+      setIsOpen={handleSetIsOpen}
       position="center"
       showClose={true}
     >
@@ -101,4 +107,3 @@ export function DeleteVendorPayment() {
     </Modal>
   );
 }
-

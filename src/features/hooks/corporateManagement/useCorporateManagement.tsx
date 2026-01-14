@@ -200,27 +200,36 @@ export function useCorporateManagementBase() {
     }
 
     // Edit option
-    if (
-      option?.hasUpdate &&
-      (permissionsToCheck.some(
-        (p) =>
-          p.toLowerCase().includes('corporates:manage') ||
-          p.toLowerCase().includes('corporate management edit')
-      ) ||
-        userToCheck?.isSuperAdmin)
-    ) {
-      actions.push({
-        label: 'Edit',
-        onClickFn: () =>
-          modalInstance.openModal(
-            MODALS.CORPORATE_MANAGEMENT.CHILDREN.EDIT,
-            corporate
-          ),
-      });
-    }
+    // if (
+    //   option?.hasUpdate &&
+    //   (permissionsToCheck.some(
+    //     (p) =>
+    //       p.toLowerCase().includes('corporates:manage') ||
+    //       p.toLowerCase().includes('corporate management edit')
+    //   ) ||
+    //     userToCheck?.isSuperAdmin)
+    // ) {
+    //   actions.push({
+    //     label: 'Edit',
+    //     onClickFn: () =>
+    //       modalInstance.openModal(
+    //         MODALS.CORPORATE_MANAGEMENT.CHILDREN.EDIT,
+    //         corporate
+    //       ),
+    //   });
+    // }
 
-    // Activate option
+    // Determine corporate status - check status field
+    const corporateStatus = corporate.status || corporate.approval_status || '';
+    const statusLower = corporateStatus?.toLowerCase() || '';
+    const isCorporateActive =
+      statusLower === 'active' ||
+      statusLower === 'approved' ||
+      statusLower === 'verified';
+
+    // Activate option - only show if corporate is NOT active (suspended or pending)
     if (
+      !isCorporateActive &&
       option?.hasActivate &&
       (permissionsToCheck.some(
         (p) =>
@@ -239,8 +248,9 @@ export function useCorporateManagementBase() {
       });
     }
 
-    // Deactivate option
+    // Deactivate option - only show if corporate IS active (verified or approved)
     if (
+      isCorporateActive &&
       option?.hasDeactivate &&
       (permissionsToCheck.some(
         (p) =>

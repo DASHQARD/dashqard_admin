@@ -3,8 +3,11 @@ import { PaginatedTable, Text } from '@/components';
 import { OPTIONS } from '@/utils/constants/filter';
 
 import {
+  ActivateCorporate,
   corporateListColumns,
   corporateListCsvHeaders,
+  SuspendCorporate,
+  ViewKycDocument,
 } from '@/features/components/corporate';
 import { useCorporateManagementBase } from '@/features/hooks/corporateManagement';
 
@@ -50,6 +53,10 @@ export default function Corporates() {
           </div>
         </div>
       </div>
+
+      <ActivateCorporate />
+      <SuspendCorporate />
+      <ViewKycDocument />
     </>
   );
 }

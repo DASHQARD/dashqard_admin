@@ -150,16 +150,21 @@ export function UpdateVendorPaymentPreferences() {
     });
   };
 
+  const handleSetIsOpen = React.useCallback(
+    (isOpen: boolean) => {
+      if (!isOpen) {
+        modal.closeModal();
+      }
+    },
+    [modal]
+  );
+
   return (
     <Modal
       title="Update Vendor Payment Preferences"
       position="side"
       isOpen={isOpen}
-      setIsOpen={(isOpen) => {
-        if (!isOpen) {
-          modal.closeModal();
-        }
-      }}
+      setIsOpen={handleSetIsOpen}
       panelClass="!w-[864px]"
       showClose={true}
     >
