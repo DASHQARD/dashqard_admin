@@ -2,136 +2,189 @@ import React from 'react';
 import { Button, Modal, Text, Input, Combobox } from '@/components';
 import { usePersistedModalState } from '@/hooks';
 import { MODALS } from '@/utils/constants';
-import { formatCurrency } from '@/utils';
-import { formatDate } from '@/utils/helpers';
 import { useToast } from '@/hooks/useToast';
-import { Icon } from '@/libs';
+import {
+  vendorPaymentsManagementMutations,
+  vendorPaymentsManagementQueries,
+} from '@/features/hooks/vendorPaymentsManagement';
+import { Controller, type SubmitHandler } from 'react-hook-form';
+import { Icon, useCustomForm } from '@/libs';
+import { formatCurrency, formatDate } from '@/utils';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { PaymentFormSchema } from '@/utils/schemas/payment';
 
 type VendorPaymentData = {
-  id: string;
-  vendor_name?: string;
-  payment_frequency?: string;
-  branch_location?: string;
-  amount?: number;
-  payment_period?: string;
-  status?: string;
-  due_date?: string;
-  paid_date?: string | null;
-  vendor_id?: string;
-  invoice_number?: string;
-  description?: string;
-};
-
-type PaymentFormData = {
-  paymentMethod: string;
-  accountNumber: string;
-  bankName: string;
-  mobileMoneyNumber: string;
-  mobileMoneyProvider: string;
-  transactionReference: string;
-  paymentDate: string;
-  notes: string;
+  branch_id: number;
+  branch_location: string;
+  created_at: string;
+  description: string;
+  due_date: string;
+  id: number;
+  invoice_number: string;
+  notes: string | null;
+  paid_date: string | null;
+  payment_amount: string | number;
+  payment_frequency: string;
+  payment_method: string | null;
+  payment_period: string;
+  status: string;
+  updated_at: string;
+  vendor_gvid: string;
+  vendor_id: number;
+  vendor_name: string;
+  vendor_user_id: number;
 };
 
 export function ProcessVendorPayment() {
   const modal = usePersistedModalState<VendorPaymentData>({
     paramName: MODALS.VENDOR_PAYMENT_MANAGEMENT.PARAM_NAME,
   });
+
+  const isOpen = modal.isModalOpen(
+    MODALS.VENDOR_PAYMENT_MANAGEMENT.CHILDREN.CREATE
+  );
+
+  const { useProcessVendorPayment } = vendorPaymentsManagementMutations();
+  const { mutateAsync: processVendorPaymentMutation, isPending: isProcessing } =
+    useProcessVendorPayment();
+
+  const { useGetBanks } = vendorPaymentsManagementQueries();
+  const { data: banksData } = useGetBanks();
+
+  const banks = React.useMemo(() => {
+    if (!banksData) return [];
+    return banksData.map((bank: any) => ({
+      label: bank.name, // Display name
+      value: bank.code, // Use code as value
+      name: bank.name, // Store name separately
+    }));
+  }, [banksData]);
+
   const toast = useToast();
-  const [isProcessing, setIsProcessing] = React.useState(false);
-  const [paymentMethod, setPaymentMethod] = React.useState('bank');
-  const [formData, setFormData] = React.useState<PaymentFormData>({
-    paymentMethod: 'bank',
-    accountNumber: '',
-    bankName: '',
-    mobileMoneyNumber: '',
-    mobileMoneyProvider: 'mtn',
-    transactionReference: '',
-    paymentDate: new Date().toISOString().split('T')[0],
-    notes: '',
+
+  const form = useCustomForm({
+    resolver: zodResolver(PaymentFormSchema),
+    defaultValues: {
+      payment_method: 'bank',
+      bank_code: '',
+      account_number: '',
+      mobile_money_number: '',
+      mobile_money_provider: 'mtn',
+      payment_date: new Date().toISOString().split('T')[0],
+      notes: '',
+    },
   });
 
   const paymentData = modal.modalData;
 
-  const handleInputChange = (field: keyof PaymentFormData, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
+  // Get selected bank name for display
+  const selectedBankCode = form.watch('bank_code');
+  const selectedBankName = React.useMemo(() => {
+    if (!selectedBankCode || !banks.length) return '';
+    const bank = banks.find((b) => b.value === selectedBankCode);
+    return bank ? bank.name : '';
+  }, [selectedBankCode, banks]);
 
-  const handleProcessPayment = async () => {
+  // Reset form when modal opens/closes or paymentData changes
+  React.useEffect(() => {
+    if (isOpen && paymentData) {
+      const today = new Date().toISOString().split('T')[0];
+      const formData: any = {
+        payment_method: paymentData.payment_method || 'bank',
+        bank_name: '',
+        bank_code: '',
+        account_number: '',
+        mobile_money_number: '',
+        mobile_money_provider: 'mtn',
+        payment_date: today,
+        notes: paymentData.notes || '',
+      };
+
+      form.reset(formData);
+    }
+  }, [isOpen, paymentData?.id]);
+
+  const onSubmit: SubmitHandler<z.infer<typeof PaymentFormSchema>> = (data) => {
     if (!paymentData) return;
 
-    // Validation
-    if (
-      paymentMethod === 'bank' &&
-      (!formData.accountNumber || !formData.bankName)
-    ) {
-      toast.error('Please provide account number and bank name');
-      return;
+    let payload:
+      | {
+          id: number;
+          payment_method: 'bank';
+          bank_code: string;
+          account_number: string;
+          payment_date: string;
+          notes: string;
+        }
+      | {
+          id: number;
+          payment_method: 'mobile_money';
+          mobile_money_number: string;
+          mobile_money_provider: string;
+          payment_date: string;
+          notes: string;
+        };
+
+    if (data.payment_method === 'bank') {
+      payload = {
+        id: Number(paymentData.id),
+        payment_method: 'bank',
+        bank_code: data.bank_code,
+        account_number: data.account_number,
+        payment_date: data.payment_date,
+        notes: data.notes || '',
+      };
+    } else {
+      payload = {
+        id: Number(paymentData.id),
+        payment_method: 'mobile_money',
+        mobile_money_number: data.mobile_money_number,
+        mobile_money_provider: data.mobile_money_provider,
+        payment_date: data.payment_date,
+        notes: data.notes || '',
+      };
     }
 
-    if (paymentMethod === 'mobile_money' && !formData.mobileMoneyNumber) {
-      toast.error('Please provide mobile money number');
-      return;
-    }
+    console.log('Submitting payload:', payload);
 
-    if (!formData.transactionReference) {
-      toast.error('Please provide a transaction reference');
-      return;
-    }
-
-    setIsProcessing(true);
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      toast.success('Payment processed successfully!');
-      modal.closeModal();
-
-      // Reset form
-      setFormData({
-        paymentMethod: 'bank',
-        accountNumber: '',
-        bankName: '',
-        mobileMoneyNumber: '',
-        mobileMoneyProvider: 'mtn',
-        transactionReference: '',
-        paymentDate: new Date().toISOString().split('T')[0],
-        notes: '',
-      });
-
-      // In a real app, you would refresh the data here
-      // queryClient.invalidateQueries(['vendor-payments']);
-    } catch (error: any) {
-      console.error('Failed to process payment:', error);
-      toast.error('Failed to process payment. Please try again.');
-    } finally {
-      setIsProcessing(false);
-    }
+    processVendorPaymentMutation(payload as any, {
+      onSuccess: () => {
+        modal.closeModal();
+        form.reset();
+      },
+      onError: (error) => {
+        toast.error(error.message || 'Failed to process payment');
+      },
+    });
   };
 
-  if (!paymentData) {
-    return null;
-  }
+  const handleClose = React.useCallback(() => {
+    modal.closeModal();
+    setTimeout(() => form.reset(), 0);
+  }, [modal, form]);
+
+  if (!paymentData) return null;
 
   return (
     <Modal
       panelClass="!w-[700px] min-w-full max-h-[90vh]"
       title="Process Vendor Payout"
-      isOpen={modal.isModalOpen(
-        MODALS.VENDOR_PAYMENT_MANAGEMENT.CHILDREN.PROCESS
-      )}
+      isOpen={isOpen}
       setIsOpen={(isOpen) => {
         if (!isOpen) {
-          modal.closeModal();
+          handleClose();
         }
       }}
       position="center"
-      showClose={true}
     >
-      <div className="px-6 py-4 max-h-[80vh] overflow-y-auto">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="px-6 py-4 max-h-[80vh] overflow-y-auto"
+      >
         <div className="space-y-6">
           {/* Payment Summary Section */}
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-5 rounded-lg border border-blue-100">
+          <div className="bg-linear-to-r from-blue-50 to-indigo-50 p-5 rounded-lg border border-blue-100">
             <div className="flex items-center gap-2 mb-4">
               <Icon icon="bi:info-circle" className="text-blue-600 text-xl" />
               <Text variant="h6" weight="semibold" className="text-blue-900">
@@ -146,14 +199,14 @@ export function ProcessVendorPayment() {
                   weight="semibold"
                   className="text-gray-800"
                 >
-                  {paymentData.vendor_name || '-'}
+                  {paymentData?.vendor_name || '-'}
                 </Text>
                 <p className="text-xs text-gray-500 mt-1">
-                  ID: {paymentData.vendor_id || '-'}
+                  ID: {paymentData?.vendor_id || '-'}
                 </p>
-                {paymentData.branch_location && (
+                {paymentData?.branch_location && (
                   <p className="text-xs text-gray-500 mt-1">
-                    Location: {paymentData.branch_location}
+                    Location: {paymentData?.branch_location}
                   </p>
                 )}
               </div>
@@ -164,25 +217,25 @@ export function ProcessVendorPayment() {
                   weight="semibold"
                   className="text-gray-800"
                 >
-                  {paymentData.invoice_number || '-'}
+                  {paymentData?.invoice_number || '-'}
                 </Text>
               </div>
               <div>
                 <p className="text-xs text-gray-600 mb-1">Payment Frequency</p>
                 <Text variant="span" weight="normal" className="text-gray-800">
-                  {paymentData.payment_frequency || '-'}
+                  {paymentData?.payment_frequency || '-'}
                 </Text>
               </div>
               <div>
                 <p className="text-xs text-gray-600 mb-1">Payment Period</p>
                 <Text variant="span" weight="normal" className="text-gray-800">
-                  {paymentData.payment_period || '-'}
+                  {paymentData?.payment_period || '-'}
                 </Text>
               </div>
               <div>
                 <p className="text-xs text-gray-600 mb-1">Due Date</p>
                 <Text variant="span" weight="normal" className="text-gray-800">
-                  {paymentData.due_date
+                  {paymentData?.due_date
                     ? formatDate(paymentData.due_date)
                     : '-'}
                 </Text>
@@ -190,8 +243,13 @@ export function ProcessVendorPayment() {
               <div className="col-span-2 pt-2 border-t border-blue-200">
                 <p className="text-xs text-gray-600 mb-1">Amount to Pay</p>
                 <Text variant="h4" weight="bold" className="text-blue-700">
-                  {paymentData.amount
-                    ? formatCurrency(paymentData.amount, 'GHS')
+                  {paymentData?.payment_amount
+                    ? formatCurrency(
+                        typeof paymentData?.payment_amount === 'string'
+                          ? parseFloat(paymentData?.payment_amount)
+                          : paymentData?.payment_amount,
+                        'GHS'
+                      )
                     : '-'}
                 </Text>
               </div>
@@ -199,76 +257,92 @@ export function ProcessVendorPayment() {
           </div>
 
           {/* Payment Method Selection */}
-          <div>
-            <Combobox
-              label="Payment Method"
-              placeholder="Select payment method"
-              value={paymentMethod}
-              onChange={(e: { target: { value: string } }) => {
-                const value = e.target.value;
-                setPaymentMethod(value);
-                handleInputChange('paymentMethod', value);
-              }}
-              options={[
-                { label: 'Bank Transfer', value: 'bank' },
-                { label: 'Mobile Money', value: 'mobile_money' },
-                { label: 'Cash', value: 'cash' },
-                { label: 'Cheque', value: 'cheque' },
-              ]}
-            />
-          </div>
+          <Controller
+            control={form.control}
+            name="payment_method"
+            render={({ field }) => (
+              <Combobox
+                label="Payment Method"
+                placeholder="Select payment method"
+                options={[
+                  { label: 'Bank Transfer', value: 'bank' },
+                  { label: 'Mobile Money', value: 'mobile_money' },
+                ]}
+                value={field.value}
+                onChange={(value: string) => {
+                  field.onChange(value);
+                }}
+                error={form.formState.errors.payment_method?.message}
+              />
+            )}
+          />
 
           {/* Bank Transfer Fields */}
-          {paymentMethod === 'bank' && (
+          {form.watch('payment_method') === 'bank' && (
             <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
-              <div>
-                <Input
-                  label="Bank Name"
-                  value={formData.bankName}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    handleInputChange('bankName', e.target.value)
-                  }
-                  placeholder="Enter bank name"
-                />
-              </div>
+              <Controller
+                control={form.control}
+                name="bank_code"
+                render={({ field }) => (
+                  <div>
+                    <Combobox
+                      label="Bank"
+                      value={field.value}
+                      onChange={(value: string) => {
+                        field.onChange(value);
+                      }}
+                      options={banks.map((bank: any) => ({
+                        label: bank.label,
+                        value: bank.value,
+                      }))}
+                      placeholder="Select bank"
+                      error={form.formState.errors.bank_code?.message}
+                    />
+                    {selectedBankName && (
+                      <p className="mt-1 text-sm text-gray-600">
+                        Selected: {selectedBankName}
+                      </p>
+                    )}
+                  </div>
+                )}
+              />
               <div>
                 <Input
                   label="Account Number"
-                  value={formData.accountNumber}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    handleInputChange('accountNumber', e.target.value)
-                  }
+                  {...form.register('account_number')}
                   placeholder="Enter account number"
+                  error={form.formState.errors.account_number?.message}
                 />
               </div>
             </div>
           )}
 
           {/* Mobile Money Fields */}
-          {paymentMethod === 'mobile_money' && (
+          {form.watch('payment_method') === 'mobile_money' && (
             <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
-              <div>
-                <Combobox
-                  label="Mobile Money Provider"
-                  placeholder="Select provider"
-                  value={formData.mobileMoneyProvider}
-                  onChange={(e: { target: { value: string } }) =>
-                    handleInputChange('mobileMoneyProvider', e.target.value)
-                  }
-                  options={[
-                    { label: 'MTN Mobile Money', value: 'mtn' },
-                    { label: 'Vodafone Cash', value: 'vodafone' },
-                    { label: 'AirtelTigo Money', value: 'airteltigo' },
-                  ]}
-                />
-              </div>
+              <Controller
+                control={form.control}
+                name="mobile_money_provider"
+                render={({ field }) => (
+                  <Combobox
+                    label="Mobile Money Provider"
+                    placeholder="Select provider"
+                    value={field.value}
+                    onChange={(value: string) => field.onChange(value)}
+                    options={[
+                      { label: 'MTN Mobile Money', value: 'mtn' },
+                      { label: 'Vodafone Cash', value: 'vodafone' },
+                      { label: 'AirtelTigo Money', value: 'airtel' }, // Fixed value to match enum
+                    ]}
+                    error={form.formState.errors.mobile_money_provider?.message}
+                  />
+                )}
+              />
               <div>
                 <Input
                   label="Mobile Money Number"
-                  value={formData.mobileMoneyNumber}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    handleInputChange('mobileMoneyNumber', e.target.value)
-                  }
+                  {...form.register('mobile_money_number')}
+                  error={form.formState.errors.mobile_money_number?.message}
                   placeholder="Enter mobile money number"
                 />
               </div>
@@ -279,26 +353,11 @@ export function ProcessVendorPayment() {
           <div className="space-y-4">
             <div>
               <Input
-                label="Transaction Reference"
-                value={formData.transactionReference}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  handleInputChange('transactionReference', e.target.value)
-                }
-                placeholder="Enter transaction reference/ID"
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                This is the reference number from your payment system
-              </p>
-            </div>
-
-            <div>
-              <Input
                 label="Payment Date"
                 type="date"
-                value={formData.paymentDate}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  handleInputChange('paymentDate', e.target.value)
-                }
+                {...form.register('payment_date')}
+                error={form.formState.errors.payment_date?.message}
+                required
               />
             </div>
 
@@ -306,10 +365,8 @@ export function ProcessVendorPayment() {
               <Input
                 label="Notes (Optional)"
                 type="textarea"
-                value={formData.notes}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                  handleInputChange('notes', e.target.value)
-                }
+                {...form.register('notes')}
+                error={form.formState.errors.notes?.message}
                 placeholder="Add any additional notes about this payment"
                 rows={3}
               />
@@ -320,33 +377,25 @@ export function ProcessVendorPayment() {
           <div className="flex gap-3 pt-4 border-t border-gray-200">
             <Button
               variant="outline"
-              onClick={() => modal.closeModal()}
-              disabled={isProcessing}
+              type="button"
+              onClick={handleClose}
               className="flex-1"
             >
               Cancel
             </Button>
             <Button
               variant="primary"
-              onClick={handleProcessPayment}
-              disabled={isProcessing}
+              type="submit"
               className="flex-1"
+              loading={isProcessing}
+              disabled={isProcessing}
             >
-              {isProcessing ? (
-                <>
-                  <Icon icon="bi:arrow-repeat" className="animate-spin mr-2" />
-                  Processing...
-                </>
-              ) : (
-                <>
-                  <Icon icon="bi:check-circle" className="mr-2" />
-                  Process Payout
-                </>
-              )}
+              <Icon icon="bi:check-circle" className="mr-2" />
+              Process Payout
             </Button>
           </div>
         </div>
-      </div>
+      </form>
     </Modal>
   );
 }

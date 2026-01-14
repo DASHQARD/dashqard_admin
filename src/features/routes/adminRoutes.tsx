@@ -7,7 +7,6 @@ import {
   Home,
   Vendors,
   Permissions,
-  Onboarding,
   TransactionLimits,
   Countries,
   Fees,
@@ -17,6 +16,7 @@ import {
   Payments,
   VendorPayments,
   SuperAdminInvitations,
+  AdminOnboarding,
 } from '../pages';
 import VendorDetails from '../pages/dashboard/vendors/VendorDetails';
 import { CorporateRequests, VendorRequests } from '../pages/dashboard/requests';
@@ -29,7 +29,7 @@ export const adminRoutes: RouteObject[] = [
   },
   {
     path: 'onboard',
-    element: <Onboarding />,
+    element: <AdminOnboarding />,
   },
   {
     path: 'customers',

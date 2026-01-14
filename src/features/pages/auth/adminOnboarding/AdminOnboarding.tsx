@@ -19,7 +19,7 @@ const AdminOnboardingFormSchema = z
     path: ['confirm_password'],
   });
 
-export default function Onboarding() {
+export default function AdminOnboarding() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const vtoken = (() => {

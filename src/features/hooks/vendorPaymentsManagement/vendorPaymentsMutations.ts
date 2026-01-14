@@ -4,6 +4,7 @@ import {
   updateVendorPaymentPreferences,
   type UpdateVendorPaymentData,
   type UpdateVendorPaymentPreferencesData,
+  processVendorPayment,
 } from '@/features/services';
 import { useToast } from '@/hooks';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -13,12 +14,19 @@ export function vendorPaymentsManagementMutations() {
     const queryClient = useQueryClient();
     const { error, success } = useToast();
     return useMutation({
-      mutationFn: ({ id, data }: { id: string; data: UpdateVendorPaymentData }) =>
-        updateVendorPayment(id, data),
+      mutationFn: ({
+        id,
+        data,
+      }: {
+        id: string;
+        data: UpdateVendorPaymentData;
+      }) => updateVendorPayment(id, data),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['vendor-payments'] });
         queryClient.invalidateQueries({ queryKey: ['vendor-payment'] });
-        queryClient.invalidateQueries({ queryKey: ['vendor-payments-summary'] });
+        queryClient.invalidateQueries({
+          queryKey: ['vendor-payments-summary'],
+        });
         success('Vendor payment updated successfully');
       },
       onError: (err: any) => {
@@ -35,7 +43,9 @@ export function vendorPaymentsManagementMutations() {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['vendor-payments'] });
         queryClient.invalidateQueries({ queryKey: ['vendor-payment'] });
-        queryClient.invalidateQueries({ queryKey: ['vendor-payments-summary'] });
+        queryClient.invalidateQueries({
+          queryKey: ['vendor-payments-summary'],
+        });
         success('Vendor payment deleted successfully');
       },
       onError: (err: any) => {
@@ -56,7 +66,9 @@ export function vendorPaymentsManagementMutations() {
         data: UpdateVendorPaymentPreferencesData;
       }) => updateVendorPaymentPreferences(vendorId, data),
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['vendor-payment-preferences'] });
+        queryClient.invalidateQueries({
+          queryKey: ['vendor-payment-preferences'],
+        });
         queryClient.invalidateQueries({ queryKey: ['vendor-details'] });
         queryClient.invalidateQueries({ queryKey: ['vendors'] });
         success('Vendor payment preferences updated successfully');
@@ -67,10 +79,29 @@ export function vendorPaymentsManagementMutations() {
     });
   }
 
+  function useProcessVendorPayment() {
+    const queryClient = useQueryClient();
+    const { error, success } = useToast();
+    return useMutation({
+      mutationFn: processVendorPayment,
+      onSuccess: (response: any) => {
+        queryClient.invalidateQueries({ queryKey: ['vendor-payments'] });
+        queryClient.invalidateQueries({ queryKey: ['vendor-payment'] });
+        queryClient.invalidateQueries({
+          queryKey: ['vendor-payments-summary'],
+        });
+        success(response.message || 'Vendor payment processed successfully');
+      },
+      onError: (err: any) => {
+        error(err?.message || 'Failed to process vendor payment');
+      },
+    });
+  }
+
   return {
     useUpdateVendorPayment,
     useDeleteVendorPayment,
     useUpdateVendorPaymentPreferences,
+    useProcessVendorPayment,
   };
 }
-

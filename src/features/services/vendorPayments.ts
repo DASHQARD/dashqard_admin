@@ -1,4 +1,11 @@
-import { getList, getMethod, patchMethod, deleteMethod, putMethod } from '@/services';
+import {
+  getList,
+  getMethod,
+  patchMethod,
+  deleteMethod,
+  putMethod,
+  postMethod,
+} from '@/services';
 
 const commonUrl = '/vendor-payments';
 
@@ -68,11 +75,17 @@ export const deleteVendorPayment = async (id: string): Promise<any> => {
   return response?.data || response;
 };
 
+export const getBanks = async (): Promise<any> => {
+  return await getMethod('payments/banks');
+};
+
 export const getVendorPaymentPreferences = async (
   vendorId: string | number
 ): Promise<any> => {
   try {
-    const response = await getMethod(`/vendors/${vendorId}/payment-preferences`);
+    const response = await getMethod(
+      `/vendors/${vendorId}/payment-preferences`
+    );
     return response?.data || response;
   } catch (error: any) {
     // Handle 404 - preferences not found, return null to allow creation
@@ -98,3 +111,15 @@ export const updateVendorPaymentPreferences = async (
   return response?.data || response;
 };
 
+export const processVendorPayment = async (data: {
+  id: number;
+  payment_method: 'bank' | 'mobile_money';
+  bank_code: string;
+  account_number: string;
+  mobile_money_number: string;
+  mobile_money_provider: 'mtn' | 'vodafone' | 'airtel';
+  payment_date: string;
+  notes: string;
+}): Promise<any> => {
+  return await postMethod(`${commonUrl}/process-payment`, data);
+};

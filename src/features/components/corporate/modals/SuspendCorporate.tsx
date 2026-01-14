@@ -23,7 +23,7 @@ export function SuspendCorporate() {
   const form = useCustomForm({
     resolver: zodResolver(toggleCustomerStatusSchema),
     defaultValues: {
-      status: 'suspend',
+      status: 'suspended',
       reason: ' ',
     },
   });

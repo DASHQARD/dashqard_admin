@@ -1,5 +1,5 @@
-import { z } from 'zod'
-import { getRequiredStringSchema } from './shared'
+import { z } from 'zod';
+import { getRequiredStringSchema } from './shared';
 
 export const PaymentInfoSchema = z
   .object({
@@ -16,26 +16,26 @@ export const PaymentInfoSchema = z
   .refine(
     (data) => {
       if (data.payment_method === 'mobile_money') {
-        return !!(data.mobile_money_provider && data.mobile_money_number)
+        return !!(data.mobile_money_provider && data.mobile_money_number);
       }
-      return true
+      return true;
     },
     {
       message: 'Mobile Money Provider and Mobile Money Number are required',
       path: ['mobile_money_provider'],
-    },
+    }
   )
   .refine(
     (data) => {
       if (data.payment_method === 'mobile_money') {
-        return !!(data.mobile_money_provider && data.mobile_money_number)
+        return !!(data.mobile_money_provider && data.mobile_money_number);
       }
-      return true
+      return true;
     },
     {
       message: 'Mobile Money Provider and Mobile Money Number are required',
       path: ['mobile_money_number'],
-    },
+    }
   )
   .refine(
     (data) => {
@@ -46,13 +46,32 @@ export const PaymentInfoSchema = z
           data.branch &&
           data.account_name &&
           data.sort_swift_code
-        )
+        );
       }
-      return true
+      return true;
     },
     {
       message:
         'All bank details are required (Bank Name, Account Number, Branch, Account Name, Sort/Swift Code)',
       path: ['bank_name'],
-    },
-  )
+    }
+  );
+
+export const PaymentFormSchema = z.discriminatedUnion('payment_method', [
+  z.object({
+    payment_method: z.literal('bank'),
+    bank_code: getRequiredStringSchema('Bank code'),
+    account_number: getRequiredStringSchema('Account number'),
+    bank_name: z.string().optional(),
+    payment_date: getRequiredStringSchema('Payment date'),
+    notes: z.string().optional(),
+  }),
+
+  z.object({
+    payment_method: z.literal('mobile_money'),
+    mobile_money_number: getRequiredStringSchema('Mobile money number'),
+    mobile_money_provider: z.enum(['mtn', 'vodafone', 'airtel']),
+    payment_date: getRequiredStringSchema('Payment date'),
+    notes: z.string().optional(),
+  }),
+]);

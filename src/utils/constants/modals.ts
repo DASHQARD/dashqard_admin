@@ -132,7 +132,7 @@ export const MODALS = {
     PARAM_NAME: 'vendor-payment-management-modal',
     CHILDREN: {
       VIEW: 'view-vendor-payment',
-      PROCESS: 'process-vendor-payment',
+      CREATE: 'create-vendor-payment',
       UPDATE: 'update-vendor-payment',
       DELETE: 'delete-vendor-payment',
       DOWNLOAD_INVOICE: 'download-invoice',

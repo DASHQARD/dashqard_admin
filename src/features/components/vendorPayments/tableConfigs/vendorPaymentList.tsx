@@ -174,7 +174,7 @@ export function VendorPaymentActionCell({
             label: 'Process Payment',
             onClickFn: () => {
               modal.openModal(
-                MODALS.VENDOR_PAYMENT_MANAGEMENT.CHILDREN.PROCESS,
+                MODALS.VENDOR_PAYMENT_MANAGEMENT.CHILDREN.CREATE,
                 row.original
               );
             },

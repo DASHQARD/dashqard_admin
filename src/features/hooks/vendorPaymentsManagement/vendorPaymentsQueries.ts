@@ -5,6 +5,7 @@ import {
   getVendorPaymentPreferences,
   type VendorPaymentsQueryParams,
   type VendorPaymentsSummaryQueryParams,
+  getBanks,
 } from '@/features/services';
 import { useQuery } from '@tanstack/react-query';
 
@@ -13,6 +14,13 @@ export function vendorPaymentsManagementQueries() {
     return useQuery({
       queryKey: ['vendor-payments', query],
       queryFn: () => getVendorPayments(query),
+    });
+  }
+
+  function useGetBanks() {
+    return useQuery({
+      queryKey: ['banks'],
+      queryFn: () => getBanks(),
     });
   }
 
@@ -53,6 +61,7 @@ export function vendorPaymentsManagementQueries() {
 
   return {
     useGetVendorPayments,
+    useGetBanks,
     useGetVendorPaymentsSummary,
     useGetVendorPaymentById,
     useGetVendorPaymentPreferences,
