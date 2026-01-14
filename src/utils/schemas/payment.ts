@@ -57,21 +57,49 @@ export const PaymentInfoSchema = z
     }
   );
 
-export const PaymentFormSchema = z.discriminatedUnion('payment_method', [
-  z.object({
-    payment_method: z.literal('bank'),
-    bank_code: getRequiredStringSchema('Bank code'),
-    account_number: getRequiredStringSchema('Account number'),
-    bank_name: z.string().optional(),
+export const PaymentFormSchema = z
+  .object({
+    payment_method: getRequiredStringSchema('Payment method'),
+    mobile_money_provider: z.string().optional(),
+    mobile_money_number: z.string().optional(),
+    bank_code: z.string().optional(),
+    account_number: z.string().optional(),
     payment_date: getRequiredStringSchema('Payment date'),
     notes: z.string().optional(),
-  }),
-
-  z.object({
-    payment_method: z.literal('mobile_money'),
-    mobile_money_number: getRequiredStringSchema('Mobile money number'),
-    mobile_money_provider: z.enum(['mtn', 'vodafone', 'airtel']),
-    payment_date: getRequiredStringSchema('Payment date'),
-    notes: z.string().optional(),
-  }),
-]);
+  })
+  .refine(
+    (data) => {
+      // Payment method is required
+      return !!data.payment_method;
+    },
+    {
+      message: 'Payment method is required',
+      path: ['payment_method'],
+    }
+  )
+  .refine(
+    (data) => {
+      // If payment_method is mobile_money, provider and number are required
+      if (data.payment_method === 'mobile_money') {
+        return !!(data.mobile_money_provider && data.mobile_money_number);
+      }
+      return true;
+    },
+    {
+      message: 'Mobile Money Provider and Mobile Money Number are required',
+      path: ['mobile_money_provider'],
+    }
+  )
+  .refine(
+    (data) => {
+      // If payment_method is bank, all bank fields are required
+      if (data.payment_method === 'bank') {
+        return !!(data.bank_code && data.account_number);
+      }
+      return true;
+    },
+    {
+      message: 'All bank details are required',
+      path: ['bank_code'],
+    }
+  );

@@ -125,8 +125,8 @@ export function ProcessVendorPayment() {
       payload = {
         id: Number(paymentData.id),
         payment_method: 'bank',
-        bank_code: data.bank_code,
-        account_number: data.account_number,
+        bank_code: data.bank_code || '',
+        account_number: data.account_number || '',
         payment_date: data.payment_date,
         notes: data.notes || '',
       };
@@ -134,8 +134,8 @@ export function ProcessVendorPayment() {
       payload = {
         id: Number(paymentData.id),
         payment_method: 'mobile_money',
-        mobile_money_number: data.mobile_money_number,
-        mobile_money_provider: data.mobile_money_provider,
+        mobile_money_number: data.mobile_money_number || '',
+        mobile_money_provider: data.mobile_money_provider || '',
         payment_date: data.payment_date,
         notes: data.notes || '',
       };
