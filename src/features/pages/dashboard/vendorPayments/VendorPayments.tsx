@@ -21,6 +21,9 @@ export default function VendorPayments() {
     vendorPaymentList,
     isLoadingVendorPayments,
     summaryData,
+    paginationInfo,
+    handleNextPage,
+    handlePreviousPage,
     // getVendorPaymentOptions,
   } = useVendorPaymentsManagementBase();
 
@@ -117,36 +120,45 @@ export default function VendorPayments() {
             </div>
           </div>
 
-          <div className="relative space-y-[37px]">
+          <div className="space-y-[37px]">
             <div className="text-[#0c4b77] py-2 border-b-2 border-[#0c4b77] w-fit">
               <Text variant="h6" weight="medium">
                 Payment Records
               </Text>
             </div>
-            <PaginatedTable
-              filterWrapperClassName="lg:absolute lg:top-0 lg:right-[2px]"
-              columns={vendorPaymentListColumns}
-              data={vendorPaymentList || []}
-              total={vendorPaymentList?.total}
-              loading={isLoadingVendorPayments}
-              query={query}
-              setQuery={setQuery}
-              searchPlaceholder="Search by invoice number, vendor name, or GVID..."
-              csvHeaders={vendorPaymentListCsvHeaders}
-              filterBy={{
-                simpleSelects: [
-                  {
-                    label: 'VENDOR_PAYMENT_STATUS',
-                    options: OPTIONS.VENDOR_PAYMENT_STATUS,
-                  },
-                  {
-                    label: 'VENDOR_PAYMENT_FREQUENCY',
-                    options: OPTIONS.VENDOR_PAYMENT_FREQUENCY,
-                  },
-                ],
-              }}
-              printTitle="Vendor Payments"
-            />
+            <div className="relative lg:pt-16">
+              <PaginatedTable
+                filterWrapperClassName="lg:absolute lg:top-0 lg:right-[2px]"
+                columns={vendorPaymentListColumns}
+                data={vendorPaymentList || []}
+                total={vendorPaymentList?.length}
+                loading={isLoadingVendorPayments}
+                query={query}
+                setQuery={setQuery}
+                searchPlaceholder="Search by invoice number, vendor name, or GVID..."
+                csvHeaders={vendorPaymentListCsvHeaders}
+                filterBy={{
+                  simpleSelects: [
+                    {
+                      label: 'VENDOR_PAYMENT_STATUS',
+                      options: OPTIONS.VENDOR_PAYMENT_STATUS,
+                    },
+                    {
+                      label: 'VENDOR_PAYMENT_FREQUENCY',
+                      options: OPTIONS.VENDOR_PAYMENT_FREQUENCY,
+                    },
+                  ],
+                }}
+                printTitle="Vendor Payments"
+                useCursorPagination={true}
+                hasNextPage={paginationInfo.hasNextPage}
+                hasPreviousPage={paginationInfo.hasPreviousPage}
+                next={paginationInfo.next}
+                previous={paginationInfo.previous}
+                onNextPage={handleNextPage}
+                onPreviousPage={handlePreviousPage}
+              />
+            </div>
           </div>
         </div>
       </div>

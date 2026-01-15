@@ -38,7 +38,8 @@ export const getVendorPayments = async (
   query?: VendorPaymentsQueryParams
 ): Promise<any> => {
   const response = await getList(commonUrl, query);
-  return response?.data || response;
+  // Return full response to preserve pagination info (hasNextPage, next, previous, etc.)
+  return response;
 };
 
 export const getVendorPaymentsSummary = async (
