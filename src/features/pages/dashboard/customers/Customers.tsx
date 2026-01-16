@@ -1,13 +1,29 @@
 import { PaginatedTable, Text } from '@/components';
+import { useSearchParams } from 'react-router-dom';
 
 import { OPTIONS } from '@/utils/constants';
 import { useCustomersManagementBase } from '@/features/hooks';
 import { customerListColumns } from '@/features/components';
 import { UpdateCustomerStatusModal } from './UpdateCustomerStatusModal';
+import { ViewCustomerDetailsModal } from './ViewCustomerDetailsModal';
+import type { Customer } from '@/types/customer';
 
 export default function Customers() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const customerIdForStatus = searchParams.get('manage-status');
+
   const { customers, isLoadingCustomers, query, setQuery } =
     useCustomersManagementBase();
+
+  // Get the specific customer for the status modal
+  const selectedCustomerForStatus =
+    customers?.find((c: Customer) => String(c.id) === customerIdForStatus) ||
+    null;
+
+  const handleCloseStatusModal = () => {
+    searchParams.delete('manage-status');
+    setSearchParams(searchParams);
+  };
 
   return (
     <div className="">
@@ -44,10 +60,11 @@ export default function Customers() {
 
       {/* Modals */}
       <UpdateCustomerStatusModal
-        customer={null}
-        isOpen={false}
-        onClose={() => {}}
+        customer={selectedCustomerForStatus}
+        isOpen={!!customerIdForStatus}
+        onClose={handleCloseStatusModal}
       />
+      <ViewCustomerDetailsModal />
     </div>
   );
 }

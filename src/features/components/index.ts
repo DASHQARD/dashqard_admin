@@ -12,3 +12,4 @@ export * from './countries';
 export * from './tickets';
 export * from './paymentDetails';
 export * from './payments';
+export * from './users';

@@ -61,6 +61,8 @@ export function getStatusVariant(status?: string) {
       return 'warning';
     case 'pending':
       return 'warning';
+    case 'suspended':
+      return 'error';
     case 'failed':
       return 'error';
     case 'inactive':

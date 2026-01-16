@@ -17,6 +17,7 @@ import {
   VendorPayments,
   SuperAdminInvitations,
   AdminOnboarding,
+  Users,
 } from '../pages';
 import VendorDetails from '../pages/dashboard/vendors/VendorDetails';
 import { CorporateRequests, VendorRequests } from '../pages/dashboard/requests';
@@ -34,6 +35,10 @@ export const adminRoutes: RouteObject[] = [
   {
     path: 'customers',
     element: <Customers />,
+  },
+  {
+    path: 'users',
+    element: <Users />,
   },
   {
     path: 'vendors',

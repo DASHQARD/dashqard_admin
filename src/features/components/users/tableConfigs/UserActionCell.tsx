@@ -3,12 +3,12 @@ import { Icon } from '@/libs';
 import { usePersistedModalState } from '@/hooks';
 import type { TableCellProps } from '@/types/shared';
 import { MODALS } from '@/utils/constants';
-import type { Customer } from '@/types/customer';
+import type { User } from '@/types/user';
 import { useNavigate } from 'react-router-dom';
 
-export function ActionCell({ row }: TableCellProps<Customer>) {
+export function UserActionCell({ row }: TableCellProps<User>) {
   const navigate = useNavigate();
-  const customer = row.original;
+  const user = row.original;
   const modal = usePersistedModalState({
     paramName: MODALS.CUSTOMER.ROOT,
   });
@@ -17,13 +17,13 @@ export function ActionCell({ row }: TableCellProps<Customer>) {
     {
       label: 'View Details',
       onClickFn: () => {
-        modal.openModal(MODALS.CUSTOMER.VIEW, customer);
+        modal.openModal(MODALS.CUSTOMER.VIEW, user);
       },
     },
     {
       label: 'Manage Status',
       onClickFn: () => {
-        navigate(`?manage-status=${customer.id}`);
+        navigate(`?manage-status=${user.id}`);
       },
     },
   ];

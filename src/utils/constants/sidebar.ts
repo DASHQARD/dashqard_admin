@@ -19,7 +19,7 @@ export const ADMIN_NAV_ITEMS = [
         path: ROUTES.IN_APP.ADMIN.CUSTOMERS,
         label: 'Customers',
         icon: 'bi:people-fill',
-        permission: 'users:view',
+        permission: 'users:management',
       },
       {
         path: ROUTES.IN_APP.ADMIN.VENDORS,

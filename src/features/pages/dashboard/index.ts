@@ -13,3 +13,4 @@ export * from './payment';
 export * from './payments';
 export * from './vendorPayments';
 export * from './superAdminInvitations';
+export * from './users';

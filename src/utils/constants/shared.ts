@@ -30,6 +30,7 @@ export const ROUTES = {
       },
       HOME: '/admin',
       CUSTOMERS: '/admin/customers',
+      USERS: '/admin/users',
       VENDORS: '/admin/vendors',
       VENDOR_DETAILS: '/admin/vendors/:vendorId',
       CORPORATES: '/admin/corporates',

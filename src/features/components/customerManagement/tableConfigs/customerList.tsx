@@ -1,31 +1,38 @@
 import { DateCell, StatusCell } from '@/components';
 import type { CsvHeader } from '@/types';
-import { formatCurrency, formatDate } from '@/utils';
+import { formatDate } from '@/utils';
 import { ActionCell } from './ActionCell';
 
 export const customerListColumns = [
   {
-    header: 'name',
-    accessorKey: 'group_name',
+    header: 'User ID',
+    accessorKey: 'id',
   },
   {
-    header: 'Total Participants',
-    accessorKey: 'total_participants',
+    header: 'User ID',
+    accessorKey: 'user_id',
   },
   {
-    header: 'Total Contributions',
-    accessorKey: 'total_contributions',
-    transform: (value: number) => formatCurrency(value),
+    header: 'Full Name',
+    accessorKey: 'fullname',
   },
   {
-    header: 'Date Created',
-    accessorKey: 'created_at',
-    cell: DateCell,
+    header: 'Email',
+    accessorKey: 'email',
+  },
+  {
+    header: 'Phone Number',
+    accessorKey: 'phonenumber',
   },
   {
     header: 'Status',
     accessorKey: 'status',
     cell: StatusCell,
+  },
+  {
+    header: 'Created At',
+    accessorKey: 'created_at',
+    cell: DateCell,
   },
   {
     id: 'actions',
@@ -37,25 +44,40 @@ export const customerListColumns = [
 
 export const customerListCsvHeaders: Array<CsvHeader> = [
   {
-    name: 'Group Name',
-    accessor: 'group_name',
+    name: 'Customer ID',
+    accessor: 'id',
   },
   {
-    name: 'Total Participants',
-    accessor: 'num_participants',
+    name: 'User ID',
+    accessor: 'user_id',
   },
   {
-    name: 'Total Contributions',
-    accessor: 'total_contributions',
-    transform: (value: number) => formatCurrency(value),
+    name: 'Full Name',
+    accessor: 'name',
   },
   {
-    name: 'Date Created',
-    accessor: 'created_at',
-    transform: (value) => formatDate(value, 'DD MMM YYYY'),
+    name: 'Email',
+    accessor: 'email',
+  },
+  {
+    name: 'Phone Number',
+    accessor: 'phonenumber',
   },
   {
     name: 'Status',
     accessor: 'status',
+  },
+  {
+    name: 'Created At',
+    accessor: 'created_at',
+    transform: (value: string) => formatDate(value, 'DD MMM YYYY'),
+  },
+  {
+    name: 'Type',
+    accessor: 'type',
+  },
+  {
+    name: 'Description',
+    accessor: 'description',
   },
 ];

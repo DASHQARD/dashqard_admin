@@ -9,3 +9,4 @@ export * from './useRoles';
 export * from './usePermissions';
 export * from './customerManagement';
 export * from './adminManagement';
+export * from './usersManagement';
