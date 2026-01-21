@@ -2,6 +2,7 @@ import { Navigate, type RouteObject } from 'react-router-dom';
 import { CustomErrorBoundary } from '@/components';
 import { AdminLayout, DashboardLayout } from '@/features';
 import { adminRoutes, authRoutes, dashboardRoutes } from '@/features/routes';
+import { AdminOnboarding } from '@/features/pages';
 
 export const routes: RouteObject[] = [
   {
@@ -18,6 +19,10 @@ export const routes: RouteObject[] = [
     element: <DashboardLayout />,
     errorElement: <CustomErrorBoundary />,
     children: dashboardRoutes,
+  },
+  {
+    path: '/admin/onboard',
+    element: <AdminOnboarding />,
   },
   {
     path: '/admin',

@@ -16,7 +16,6 @@ import {
   Payments,
   VendorPayments,
   SuperAdminInvitations,
-  AdminOnboarding,
   Users,
 } from '../pages';
 import VendorDetails from '../pages/dashboard/vendors/VendorDetails';
@@ -27,10 +26,6 @@ export const adminRoutes: RouteObject[] = [
   {
     index: true,
     element: <Home />,
-  },
-  {
-    path: 'onboard',
-    element: <AdminOnboarding />,
   },
   {
     path: 'customers',
