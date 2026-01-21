@@ -1,7 +1,7 @@
 import { useReducerSpread } from '@/hooks';
 import { DEFAULT_QUERY } from '@/utils';
 import { superAdminInvitationsManagementQueries } from './superAdminInvitationsQueries';
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 
 export function useSuperAdminInvitationsManagementBase() {
   const [query, setQuery] = useReducerSpread(DEFAULT_QUERY);
@@ -9,10 +9,16 @@ export function useSuperAdminInvitationsManagementBase() {
   const { useGetSuperAdminInvitations } =
     superAdminInvitationsManagementQueries();
 
-  // Build query params for API
+  // Build query params for API with cursor support
   const queryParams = React.useMemo(() => {
-    const params: Record<string, any> = {};
-    if (query.limit) params.limit = query.limit;
+    const params: Record<string, any> = {
+      limit: query.limit || 10,
+    };
+    const queryWithAfter = query as any;
+    if (queryWithAfter.after) {
+      // Send after as date string (API expects date string format)
+      params.after = queryWithAfter.after;
+    }
     if (query.status) params.status = query.status;
     if (query.search) params.search = query.search;
     return params;
@@ -27,11 +33,44 @@ export function useSuperAdminInvitationsManagementBase() {
     return Array.isArray(data?.data) ? data.data : [];
   }, [data]);
 
-  const totalCount = React.useMemo(() => {
-    // For cursor-based pagination, we might not have total count
-    // Use the length of current data + pagination info
-    return invitationsList.length;
-  }, [invitationsList]);
+  const pagination = React.useMemo(() => {
+    if (!data || Array.isArray(data)) {
+      return {
+        hasNextPage: false,
+        hasPreviousPage: false,
+        next: null,
+        previous: null,
+      };
+    }
+    return {
+      hasNextPage: data.pagination?.hasNextPage ?? false,
+      hasPreviousPage: data.pagination?.hasPreviousPage ?? false,
+      next: data.pagination?.next ?? null,
+      previous: data.pagination?.previous ?? null,
+    };
+  }, [data]);
+
+  const handleNextPage = useCallback(() => {
+    if (pagination?.hasNextPage && pagination?.next) {
+      // Set after as date string (API expects date string format)
+      setQuery({ ...query, after: pagination.next } as any)
+    }
+  }, [pagination, query, setQuery])
+
+  const handleSetAfter = useCallback(
+    (after: string) => {
+      // Set after as date string or empty string to reset
+      setQuery({ ...query, after: after || undefined } as any)
+    },
+    [query, setQuery],
+  )
+
+  const totalCount = useMemo(() => {
+    // For cursor-based pagination, use estimated total
+    return pagination?.hasNextPage
+      ? invitationsList.length + (query.limit || 10)
+      : invitationsList.length;
+  }, [pagination, invitationsList.length, query.limit]);
 
   return {
     query,
@@ -39,6 +78,8 @@ export function useSuperAdminInvitationsManagementBase() {
     invitationsList,
     isLoadingInvitations,
     totalCount,
-    pagination: data?.pagination,
+    pagination,
+    handleNextPage,
+    handleSetAfter,
   };
 }

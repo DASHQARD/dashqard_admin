@@ -78,7 +78,6 @@ export function ManageVendorPaymentPreferences() {
             (data.payment_frequency as
               | 'daily'
               | 'weekly'
-              | 'bi-weekly'
               | 'monthly') || 'monthly',
         };
       }
@@ -226,10 +225,9 @@ export function ManageVendorPaymentPreferences() {
                             onValueChange={(value) => {
                               field.onChange(
                                 value as
-                                  | 'daily'
-                                  | 'weekly'
-                                  | 'bi-weekly'
-                                  | 'monthly'
+                                | 'daily'
+                                | 'weekly'
+                                | 'monthly'
                               );
                             }}
                             className="flex flex-col gap-3"
@@ -250,18 +248,6 @@ export function ManageVendorPaymentPreferences() {
                                 className="flex-1 cursor-pointer text-gray-900"
                               >
                                 Weekly
-                              </label>
-                            </div>
-                            <div className="flex items-center gap-3">
-                              <RadioGroupItem
-                                value="bi-weekly"
-                                id="bi-weekly"
-                              />
-                              <label
-                                htmlFor="bi-weekly"
-                                className="flex-1 cursor-pointer text-gray-900"
-                              >
-                                Bi-weekly
                               </label>
                             </div>
                             <div className="flex items-center gap-3">

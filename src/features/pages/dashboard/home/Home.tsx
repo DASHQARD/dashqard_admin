@@ -1,18 +1,9 @@
 import { LoaderGif } from '@/assets/gifs';
 import { Icon } from '@/libs';
-import React from 'react';
 
 export default function Home() {
   const isLoading = false;
-  const [selectedPeriod, setSelectedPeriod] = React.useState('30');
 
-  const handlePeriodChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedPeriod(e.target.value);
-    // In a real app, you would call an API with the selected period here
-    console.log('Refreshing data for period:', e.target.value, 'days');
-  };
-
-  // Mock data - replace with actual API calls
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-GH', {
       style: 'currency',
@@ -21,6 +12,7 @@ export default function Home() {
     }).format(amount);
   };
 
+  // Mock data - replace with actual API calls
   const metrics = {
     totalUsers: 1250,
     totalTransactions: 5432,
@@ -67,24 +59,12 @@ export default function Home() {
           <h5 className="text-xl font-semibold text-[#495057] m-0">
             Key Performance Metrics
           </h5>
-          <div>
-            <select
-              value={selectedPeriod}
-              onChange={handlePeriodChange}
-              className="border border-[#e9ecef] rounded-md py-2 px-3 text-sm bg-white text-[#495057] cursor-pointer focus:border-[#402D87] focus:outline-none focus:ring-2 focus:ring-[#402D87]/25"
-            >
-              <option value="7">Last 7 days</option>
-              <option value="30">Last 30 days</option>
-              <option value="90">Last 3 months</option>
-              <option value="365">Last year</option>
-            </select>
-          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Total Users */}
           <div className="bg-white rounded-xl p-6 shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-[#f1f3f4] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.1)] flex items-center gap-5">
-            <div className="w-16 h-16 rounded-xl bg-linear-to-br from-[#402D87] to-[#2d1a72] flex items-center justify-center text-white text-3xl shrink-0">
+            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[#402D87] to-[#2d1a72] flex items-center justify-center text-white text-3xl shrink-0">
               <Icon icon="bi:people-fill" />
             </div>
             <div className="flex-1">
@@ -99,7 +79,7 @@ export default function Home() {
 
           {/* Total Transactions */}
           <div className="bg-white rounded-xl p-6 shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-[#f1f3f4] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.1)] flex items-center gap-5">
-            <div className="w-16 h-16 rounded-xl bg-linear-to-br from-[#402D87] to-[#2d1a72] flex items-center justify-center text-white text-3xl shrink-0">
+            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[#402D87] to-[#2d1a72] flex items-center justify-center text-white text-3xl shrink-0">
               <Icon icon="bi:receipt" />
             </div>
             <div className="flex-1">
@@ -114,11 +94,11 @@ export default function Home() {
 
           {/* Total Revenue */}
           <div className="bg-white rounded-xl p-6 shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-[#f1f3f4] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.1)] flex items-center gap-5">
-            <div className="w-16 h-16 rounded-xl bg-linear-to-br from-[#402D87] to-[#2d1a72] flex items-center justify-center text-white text-3xl shrink-0">
+            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[#402D87] to-[#2d1a72] flex items-center justify-center text-white text-3xl shrink-0">
               <Icon icon="bi:currency-dollar" />
             </div>
-            <div className="flex-1">
-              <div className="text-2xl font-bold mb-1 leading-none text-[#402D87]">
+            <div className="flex-1 min-w-0">
+              <div className="text-2xl font-bold mb-1 leading-none text-[#402D87] truncate">
                 {formatCurrency(metrics.totalRevenue)}
               </div>
               <div className="text-sm text-[#6c757d] mb-2 font-medium">
@@ -129,7 +109,7 @@ export default function Home() {
 
           {/* Pending Approvals */}
           <div className="bg-white rounded-xl p-6 shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-[#f1f3f4] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.1)] flex items-center gap-5">
-            <div className="w-16 h-16 rounded-xl bg-linear-to-br from-[#402D87] to-[#2d1a72] flex items-center justify-center text-white text-3xl shrink-0">
+            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[#402D87] to-[#2d1a72] flex items-center justify-center text-white text-3xl shrink-0">
               <Icon icon="bi:clock-history" />
             </div>
             <div className="flex-1">

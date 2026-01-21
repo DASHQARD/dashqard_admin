@@ -12,8 +12,15 @@ import {
 import { useVendorManagementBase } from '@/features/hooks/vendorManagement';
 
 export default function Vendors() {
-  const { query, setQuery, vendorsList, isLoadingVendorsList } =
-    useVendorManagementBase();
+  const {
+    query,
+    setQuery,
+    vendorsList,
+    isLoadingVendorsList,
+    pagination,
+    handleNextPage,
+    handleSetAfter,
+  } = useVendorManagementBase();
 
   return (
     <>
@@ -38,7 +45,7 @@ export default function Vendors() {
               loading={isLoadingVendorsList}
               query={query}
               setQuery={setQuery}
-              searchPlaceholder="Search by vendor name or location..."
+              searchPlaceholder="Search by vendor name..."
               csvHeaders={vendorListCsvHeaders}
               filterBy={{
                 simpleSelects: [
@@ -47,8 +54,25 @@ export default function Vendors() {
                     options: OPTIONS.VENDOR_MANAGEMENT_STATUS,
                   },
                 ],
+                date: [{ queryKey: 'dateFrom' }, { queryKey: 'dateTo' }],
               }}
               printTitle="Vendors"
+              hasNextPage={pagination?.hasNextPage}
+              hasPreviousPage={pagination?.hasPreviousPage}
+              currentAfter={(query as any).after ? String((query as any).after) : undefined}
+              previousCursor={pagination?.previous || null}
+              onNextPage={handleNextPage}
+              onPreviousPage={() => {
+                // Handle previous page
+                const queryWithAfter = query as any;
+                if (queryWithAfter.after && pagination?.previous) {
+                  handleSetAfter(pagination.previous);
+                } else {
+                  // Reset to first page
+                  handleSetAfter('');
+                }
+              }}
+              onSetAfter={handleSetAfter}
             />
           </div>
         </div>

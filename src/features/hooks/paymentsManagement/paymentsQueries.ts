@@ -56,10 +56,10 @@ export function paymentsManagementQueries() {
     });
   }
 
-  function useGetPaymentsList() {
+  function useGetPaymentsList(queryParams?: Record<string, any>) {
     return useQuery({
-      queryKey: ['payments'],
-      queryFn: () => getPaymentsList(),
+      queryKey: ['payments', queryParams],
+      queryFn: () => getPaymentsList(queryParams),
     });
   }
 

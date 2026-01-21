@@ -6,36 +6,41 @@ import {
 import { DEFAULT_QUERY, MODALS } from '@/utils';
 import { vendorPaymentsManagementQueries } from './vendorPaymentsQueries';
 import { useAuthStore } from '@/stores';
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 
 export function useVendorPaymentsManagementBase() {
   const [query, setQuery] = useReducerSpread(DEFAULT_QUERY);
-  const [cursorHistory, setCursorHistory] = React.useState<string[]>([]);
-  const latestNextCursor = React.useRef<string | null>(null);
 
   const { useGetVendorPayments, useGetVendorPaymentsSummary } =
     vendorPaymentsManagementQueries();
   const { userPermissions = [] } = useContentGuard();
   const user = useAuthStore().user;
 
-  // Map query to API format (convert page to after cursor)
+
+  // Build query params for API with cursor support
   const apiQuery = React.useMemo(() => {
-    const { page, limit, search, ...rest } = query as any;
     const apiParams: any = {
-      limit: limit || 10,
-      ...(search && { search }),
-      ...rest,
-    };
-
-    // For cursor pagination, use 'after' from cursor history
-    // cursorHistory stores the 'next' cursor for each page
-    const currentPage = page || 1;
-    if (currentPage > 1 && cursorHistory[currentPage - 2]) {
-      apiParams.after = cursorHistory[currentPage - 2];
+      limit: query.limit || 10,
     }
-
-    return apiParams;
-  }, [query, cursorHistory]);
+    const queryWithAfter = query as any;
+    if (queryWithAfter.after) {
+      // Send after as date string (API expects date string format)
+      apiParams.after = queryWithAfter.after;
+    }
+    if (query.search) {
+      apiParams.search = query.search
+    }
+    // Handle filter fields
+    const statusField = (query as any).status || (query as any).VENDOR_PAYMENT_STATUS;
+    if (statusField) {
+      apiParams.status = statusField
+    }
+    const frequencyField = (query as any).payment_frequency || (query as any).VENDOR_PAYMENT_FREQUENCY;
+    if (frequencyField) {
+      apiParams.payment_frequency = frequencyField
+    }
+    return apiParams
+  }, [query])
 
   const { data: vendorPaymentsResponse, isLoading: isLoadingVendorPayments } =
     useGetVendorPayments(apiQuery);
@@ -71,78 +76,44 @@ export function useVendorPaymentsManagementBase() {
       };
     }
     // Extract pagination info from response object
-    const next = vendorPaymentsResponse.next ?? null;
-    // Store the latest next cursor in ref for use in handleNextPage
-    latestNextCursor.current = next;
+    // Pagination info is nested in the pagination property
+    const pagination = vendorPaymentsResponse.pagination;
     return {
-      hasNextPage: vendorPaymentsResponse.hasNextPage ?? false,
-      hasPreviousPage: vendorPaymentsResponse.hasPreviousPage ?? false,
-      next,
-      previous: vendorPaymentsResponse.previous ?? null,
+      hasNextPage: pagination?.hasNextPage ?? false,
+      hasPreviousPage: pagination?.hasPreviousPage ?? false,
+      next: pagination?.next ?? null,
+      previous: pagination?.previous ?? null,
     };
   }, [vendorPaymentsResponse]);
 
   // Handle next page
-  const handleNextPage = React.useCallback(() => {
-    const currentNextCursor = latestNextCursor.current;
-    const currentPage = (query as any).page || 1;
-    
-    if (!currentNextCursor) {
-      console.warn('No next cursor available');
-      return;
+  const handleNextPage = useCallback(() => {
+    if (paginationInfo?.hasNextPage && paginationInfo?.next) {
+      // Set after as date string (API expects date string format)
+      setQuery({ ...query, after: paginationInfo.next } as any)
     }
+  }, [paginationInfo, query, setQuery])
 
-    console.log('Navigating to next page:', {
-      currentPage,
-      nextCursor: currentNextCursor,
-    });
-
-    // Store the 'next' cursor for the current page (this will be used as 'after' for next page)
-    setCursorHistory((prevHistory) => {
-      const newHistory = [...prevHistory];
-      // Pad array if needed
-      while (newHistory.length < currentPage) {
-        newHistory.push('');
-      }
-      newHistory[currentPage - 1] = currentNextCursor;
-      console.log('Updated cursor history:', newHistory);
-      return newHistory;
-    });
-    
-    // Update query with new page number
-    const newPage = currentPage + 1;
-    console.log('Setting page to:', newPage);
-    setQuery({ ...query, page: newPage } as any);
-  }, [query, setQuery]);
+  // Handle set after (for previous page)
+  const handleSetAfter = useCallback(
+    (after: string) => {
+      // Set after as date string or empty string to reset
+      setQuery({ ...query, after: after || undefined } as any)
+    },
+    [query, setQuery],
+  )
 
   // Handle previous page
-  const handlePreviousPage = React.useCallback(() => {
-    const currentPage = (query as any).page || 1;
-    if (currentPage > 1) {
-      setQuery({ ...query, page: currentPage - 1 } as any);
+  const handlePreviousPage = useCallback(() => {
+    // Handle previous page using handleSetAfter
+    const queryWithAfter = query as any;
+    if (queryWithAfter.after && paginationInfo?.previous) {
+      handleSetAfter(paginationInfo.previous);
+    } else {
+      // Reset to first page
+      handleSetAfter('');
     }
-  }, [query, setQuery]);
-
-  // Reset cursor history when search or filters change
-  const prevSearch = React.useRef(query.search);
-  const prevStatus = React.useRef((query as any).VENDOR_PAYMENT_STATUS);
-  const prevFrequency = React.useRef((query as any).VENDOR_PAYMENT_FREQUENCY);
-
-  React.useEffect(() => {
-    const searchChanged = prevSearch.current !== query.search;
-    const statusChanged = prevStatus.current !== (query as any).VENDOR_PAYMENT_STATUS;
-    const frequencyChanged = prevFrequency.current !== (query as any).VENDOR_PAYMENT_FREQUENCY;
-
-    if (searchChanged || statusChanged || frequencyChanged) {
-      setCursorHistory([]);
-      latestNextCursor.current = null;
-      setQuery({ ...query, page: 1 } as any);
-      prevSearch.current = query.search;
-      prevStatus.current = (query as any).VENDOR_PAYMENT_STATUS;
-      prevFrequency.current = (query as any).VENDOR_PAYMENT_FREQUENCY;
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query.search, (query as any).VENDOR_PAYMENT_STATUS, (query as any).VENDOR_PAYMENT_FREQUENCY]);
+  }, [query, paginationInfo, handleSetAfter]);
 
   const { data: summaryData, isLoading: isLoadingSummary } =
     useGetVendorPaymentsSummary();
@@ -357,10 +328,18 @@ export function useVendorPaymentsManagementBase() {
     return actions;
   }
 
+  // Calculate estimated total for display
+  const estimatedTotal = useMemo(() => {
+    const paymentsArray = Array.isArray(vendorPaymentList) ? vendorPaymentList : [];
+    return paginationInfo?.hasNextPage
+      ? paymentsArray.length + (query.limit || 10)
+      : paymentsArray.length
+  }, [paginationInfo, vendorPaymentList, query.limit])
+
   return {
     query,
     setQuery,
-    vendorPaymentList,
+    vendorPaymentList: Array.isArray(vendorPaymentList) ? vendorPaymentList : [],
     isLoadingVendorPayments,
     isLoadingSummary,
     summaryData,
@@ -370,5 +349,7 @@ export function useVendorPaymentsManagementBase() {
     paginationInfo,
     handleNextPage,
     handlePreviousPage,
+    handleSetAfter,
+    estimatedTotal,
   };
 }

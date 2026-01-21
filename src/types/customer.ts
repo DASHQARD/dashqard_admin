@@ -17,7 +17,9 @@ export type CustomersListResponse = {
   pagination: {
     limit: number;
     hasNextPage: boolean;
+    hasPreviousPage: boolean;
     next: string | null;
+    previous: string | null;
   };
   url: string;
 };

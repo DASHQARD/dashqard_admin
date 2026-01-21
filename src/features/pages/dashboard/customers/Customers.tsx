@@ -12,8 +12,15 @@ export default function Customers() {
   const [searchParams, setSearchParams] = useSearchParams();
   const customerIdForStatus = searchParams.get('manage-status');
 
-  const { customers, isLoadingCustomers, query, setQuery } =
-    useCustomersManagementBase();
+  const {
+    customers,
+    isLoadingCustomers,
+    query,
+    setQuery,
+    pagination,
+    handleNextPage,
+    handleSetAfter,
+  } = useCustomersManagementBase();
 
   // Get the specific customer for the status modal
   const selectedCustomerForStatus =
@@ -46,14 +53,27 @@ export default function Customers() {
             csvHeaders={[]}
             filterBy={{
               simpleSelects: [
-                { label: 'status', options: OPTIONS.TRANSACTION_STATUS },
-                {
-                  label: 'direction',
-                  options: OPTIONS.TRANSACTION_TYPE,
-                },
+                { label: 'status', options: OPTIONS.CUSTOMER_MANAGEMENT_STATUS },
               ],
+              date: [{ queryKey: 'dateFrom' }, { queryKey: 'dateTo' }],
             }}
             noSearch
+            hasNextPage={pagination?.hasNextPage}
+            hasPreviousPage={pagination?.hasPreviousPage}
+            currentAfter={(query as any).after ? String((query as any).after) : undefined}
+            previousCursor={pagination?.previous || null}
+            onNextPage={handleNextPage}
+            onPreviousPage={() => {
+              // Handle previous page
+              const queryWithAfter = query as any;
+              if (queryWithAfter.after && pagination?.previous) {
+                handleSetAfter(pagination.previous);
+              } else {
+                // Reset to first page
+                handleSetAfter('');
+              }
+            }}
+            onSetAfter={handleSetAfter}
           />
         </div>
       </section>

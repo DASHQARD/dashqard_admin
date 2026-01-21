@@ -2,10 +2,10 @@ import { getVendorsList, getVendorDetails, getVendorQrCode } from '@/features/se
 import { useQuery } from '@tanstack/react-query';
 
 export function vendorManagementQueries() {
-  function useGetVendors() {
+  function useGetVendors(queryParams?: Record<string, any>) {
     return useQuery({
-      queryKey: ['vendors'],
-      queryFn: () => getVendorsList(),
+      queryKey: ['vendors', queryParams],
+      queryFn: () => getVendorsList(queryParams),
     });
   }
 

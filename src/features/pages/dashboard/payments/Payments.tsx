@@ -8,10 +8,18 @@ import {
   DeletePayment,
 } from '@/features/components/payments';
 import { usePaymentsManagementBase } from '@/features/hooks/paymentsManagement';
+import { OPTIONS } from '@/utils/constants';
 
 export default function Payments() {
-  const { paymentsList, isLoadingPayments, query, setQuery } =
-    usePaymentsManagementBase();
+  const {
+    paymentsList,
+    isLoadingPayments,
+    query,
+    setQuery,
+    pagination,
+    handleNextPage,
+    handleSetAfter,
+  } = usePaymentsManagementBase();
 
   return (
     <>
@@ -42,16 +50,29 @@ export default function Payments() {
                 simpleSelects: [
                   {
                     label: 'status',
-                    options: [
-                      { label: 'Pending', value: 'pending' },
-                      { label: 'Success', value: 'success' },
-                      { label: 'Failed', value: 'failed' },
-                      { label: 'Cancelled', value: 'cancelled' },
-                    ],
+                    options: OPTIONS.PAYMENT_STATUS,
                   },
                 ],
+                date: [{ queryKey: 'dateFrom' }, { queryKey: 'dateTo' }],
               }}
               printTitle="Payments"
+              hasNextPage={pagination?.hasNextPage}
+              hasPreviousPage={pagination?.hasPreviousPage}
+              currentAfter={(query as any).after ? String((query as any).after) : undefined}
+              previousCursor={pagination?.previous || null}
+              onNextPage={handleNextPage}
+              onPreviousPage={() => {
+                // Handle previous page
+                const queryWithAfter = query as any;
+                if (queryWithAfter.after && pagination?.previous) {
+                  handleSetAfter(pagination.previous);
+                } else {
+                  // Reset to first page
+                  handleSetAfter('');
+                }
+              }}
+              onSetAfter={handleSetAfter}
+              noSearch
             />
           </div>
         </div>

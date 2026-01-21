@@ -5,7 +5,7 @@ import { DEFAULT_QUERY, MODALS } from '@/utils';
 import { requestManagementQueries } from './requestsQueries';
 import { useSearch } from '@/hooks/useSearch';
 import { useAuthStore } from '@/stores';
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { usePersistedModalState } from '@/hooks';
 
 export function useRequestManagementBase() {
@@ -18,62 +18,78 @@ export function useRequestManagementBase() {
 
   React.useEffect(() => {
     if (state?.searchQuery) {
-      setQuery({ ...query, page: 1, search: state.searchQuery.trim() });
+      setQuery({ ...query, search: state.searchQuery.trim() });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setQuery, state?.searchQuery]);
 
   const { useGetRequestCorporates } = requestManagementQueries();
+
+  const paramsForApi = useMemo(() => {
+    const apiParams: any = {
+      limit: query.limit || 10,
+    }
+    const queryWithAfter = query as any;
+    if (queryWithAfter.after) {
+      // Send after as date string (API expects date string format)
+      apiParams.after = queryWithAfter.after;
+    }
+    if (query.search) {
+      apiParams.search = query.search
+    }
+    if (query.status) {
+      apiParams.status = query.status
+    }
+    return apiParams
+  }, [query])
+
   const {
-    data: allRequestsList,
+    data: allRequestsResponse,
     isLoading: isLoadingRequestCorporatesList,
-  } = useGetRequestCorporates();
+  } = useGetRequestCorporates(paramsForApi);
+
+  // Extract data from response
+  const allRequestsList = React.useMemo(() => {
+    if (!allRequestsResponse) return null;
+    // Response is the full object with data array and pagination info
+    if (Array.isArray(allRequestsResponse)) {
+      return allRequestsResponse;
+    }
+    return allRequestsResponse.data || [];
+  }, [allRequestsResponse]);
+
+  const pagination = React.useMemo(() => {
+    if (!allRequestsResponse || Array.isArray(allRequestsResponse)) {
+      return {
+        hasNextPage: false,
+        hasPreviousPage: false,
+        next: null,
+        previous: null,
+      };
+    }
+    return {
+      hasNextPage: allRequestsResponse.pagination?.hasNextPage ?? false,
+      hasPreviousPage: allRequestsResponse.pagination?.hasPreviousPage ?? false,
+      next: allRequestsResponse.pagination?.next ?? null,
+      previous: allRequestsResponse.pagination?.previous ?? null,
+    };
+  }, [allRequestsResponse]);
 
   // Filter corporate requests (user_type includes "corporate")
   const requestCorporatesList = React.useMemo(() => {
     if (!allRequestsList || !Array.isArray(allRequestsList)) return [];
-    let filtered = allRequestsList.filter((request: any) =>
+    return allRequestsList.filter((request: any) =>
       request.user_type?.toLowerCase().includes('corporate')
     );
-    
-    // Apply client-side search filtering
-    if (query.search) {
-      const searchLower = query.search.toLowerCase();
-      filtered = filtered.filter((request: any) => {
-        return (
-          request.name?.toLowerCase().includes(searchLower) ||
-          request.request_id?.toLowerCase().includes(searchLower) ||
-          request.type?.toLowerCase().includes(searchLower) ||
-          request.description?.toLowerCase().includes(searchLower)
-        );
-      });
-    }
-    
-    return filtered;
-  }, [allRequestsList, query.search]);
+  }, [allRequestsList]);
 
   // Filter vendor requests (user_type === "vendor")
   const requestVendorsList = React.useMemo(() => {
     if (!allRequestsList || !Array.isArray(allRequestsList)) return [];
-    let filtered = allRequestsList.filter(
+    return allRequestsList.filter(
       (request: any) => request.user_type?.toLowerCase() === 'vendor'
     );
-    
-    // Apply client-side search filtering
-    if (query.search) {
-      const searchLower = query.search.toLowerCase();
-      filtered = filtered.filter((request: any) => {
-        return (
-          request.name?.toLowerCase().includes(searchLower) ||
-          request.request_id?.toLowerCase().includes(searchLower) ||
-          request.type?.toLowerCase().includes(searchLower) ||
-          request.description?.toLowerCase().includes(searchLower)
-        );
-      });
-    }
-    
-    return filtered;
-  }, [allRequestsList, query.search]);
+  }, [allRequestsList]);
 
   function getRequestCorporateOptions({
     modal: modalInstance,
@@ -307,6 +323,29 @@ export function useRequestManagementBase() {
     return actions;
   }
 
+  const handleNextPage = useCallback(() => {
+    if (pagination?.hasNextPage && pagination?.next) {
+      // Set after as date string (API expects date string format)
+      setQuery({ ...query, after: pagination.next } as any)
+    }
+  }, [pagination, query, setQuery])
+
+  const handleSetAfter = useCallback(
+    (after: string) => {
+      // Set after as date string or empty string to reset
+      setQuery({ ...query, after: after || undefined } as any)
+    },
+    [query, setQuery],
+  )
+
+  // Calculate estimated total for display
+  const estimatedTotal = useMemo(() => {
+    const totalLength = (requestCorporatesList?.length || 0) + (requestVendorsList?.length || 0);
+    return pagination?.hasNextPage
+      ? totalLength + (query.limit || 10)
+      : totalLength
+  }, [pagination, requestCorporatesList?.length, requestVendorsList?.length, query.limit])
+
   return {
     query,
     requestCorporatesList,
@@ -315,5 +354,9 @@ export function useRequestManagementBase() {
     getRequestVendorOptions,
     isLoadingRequestCorporatesList,
     setQuery,
+    pagination,
+    handleNextPage,
+    handleSetAfter,
+    estimatedTotal,
   };
 }

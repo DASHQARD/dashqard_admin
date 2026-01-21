@@ -191,10 +191,12 @@ export const MODAL_NAMES = {
 };
 
 export const DEFAULT_QUERY = {
-  page: 1,
   limit: 10,
-  search: '',
+  after: '',
   status: '',
+  search: '',
+  dateFrom: '',
+  dateTo: '',
   role: '',
   type: '',
   tier: '',

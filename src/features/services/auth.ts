@@ -11,6 +11,7 @@ import type {
 } from '@/types/customer';
 import { getList, getMethod, postMethod } from '@/services/requests';
 import { ROUTES } from '@/utils/constants/shared';
+import { getQueryString } from '@/utils/helpers';
 
 const adminLogin = async (data: {
   email: string;
@@ -44,7 +45,14 @@ const updateVendorStatus = async (
 };
 
 const getCustomers = async (query?: Record<string, any>): Promise<any> => {
-  return await getList('/users/all', query);
+  const queryString = getQueryString(query);
+  const fullUrl = queryString
+    ? `/users/all?${queryString}`
+    : `/users/all`;
+  const response = await axiosClient.get(fullUrl);
+  // Axios interceptor already returns response.data, so response here is the API response body
+  // which has { data: [...], pagination: {...}, status: ..., etc }
+  return response;
 };
 
 const updateCustomerStatus = async (

@@ -3,26 +3,42 @@ import type { CsvHeader } from '@/types';
 import { formatDate } from '@/utils';
 import { ActionCell } from './ActionCell';
 
+// Helper function to format nullable values
+const formatValue = (value: any) => {
+  if (value === null || value === undefined || value === '') {
+    return 'N/A';
+  }
+  return value;
+};
+
 export const customerListColumns = [
   {
     header: 'User ID',
-    accessorKey: 'id',
-  },
-  {
-    header: 'User ID',
     accessorKey: 'user_id',
+    cell: ({ getValue }: { getValue: () => any }) => (
+      <div>{formatValue(getValue())}</div>
+    ),
   },
   {
     header: 'Full Name',
     accessorKey: 'fullname',
+    cell: ({ getValue }: { getValue: () => any }) => (
+      <div>{formatValue(getValue())}</div>
+    ),
   },
   {
     header: 'Email',
     accessorKey: 'email',
+    cell: ({ getValue }: { getValue: () => any }) => (
+      <div>{formatValue(getValue())}</div>
+    ),
   },
   {
     header: 'Phone Number',
     accessorKey: 'phonenumber',
+    cell: ({ getValue }: { getValue: () => any }) => (
+      <div>{formatValue(getValue())}</div>
+    ),
   },
   {
     header: 'Status',
@@ -43,10 +59,6 @@ export const customerListColumns = [
 ];
 
 export const customerListCsvHeaders: Array<CsvHeader> = [
-  {
-    name: 'Customer ID',
-    accessor: 'id',
-  },
   {
     name: 'User ID',
     accessor: 'user_id',

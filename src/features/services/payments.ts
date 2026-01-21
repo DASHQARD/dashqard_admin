@@ -1,4 +1,6 @@
 import { deleteMethod, getMethod, getList, patchMethod } from '@/services';
+import { axiosClient } from '@/libs/axios';
+import { getQueryString } from '@/utils/helpers';
 
 const commonUrl = '/payments';
 
@@ -38,9 +40,15 @@ export const getPaymentById = async (id: string): Promise<any> => {
   return response?.data || response;
 };
 
-export const getPaymentsList = async (): Promise<any> => {
-  const response = await getList(commonUrl);
-  return response?.data || response;
+export const getPaymentsList = async (query?: Record<string, any>): Promise<any> => {
+  const queryString = getQueryString(query);
+  const fullUrl = queryString
+    ? `${commonUrl}?${queryString}`
+    : `${commonUrl}`;
+  const response = await axiosClient.get(fullUrl);
+  // Axios interceptor already returns response.data, so response here is the API response body
+  // which has { data: [...], pagination: {...}, status: ..., etc }
+  return response;
 };
 
 export const deletePayment = async (id: string): Promise<any> => {

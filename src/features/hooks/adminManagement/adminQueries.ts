@@ -3,10 +3,10 @@ import { getAdminInfo } from '@/features/services/admins';
 import { useQuery } from '@tanstack/react-query';
 
 export function adminManagementQueries() {
-  function useGetAdmins() {
+  function useGetAdmins(queryParams?: Record<string, any>) {
     return useQuery({
-      queryKey: ['admins'],
-      queryFn: () => getAllAdmins(),
+      queryKey: ['admins', queryParams],
+      queryFn: () => getAllAdmins(queryParams),
     });
   }
 

@@ -1,59 +1,74 @@
-import React from 'react';
+import React from 'react'
 
-import { type ColumnDef } from '@tanstack/react-table';
+import { type ColumnDef } from '@tanstack/react-table'
+import dayjs from 'dayjs'
 
-import EmptyStateImage from '@/assets/images/empty-state.png';
-import { cn } from '@/libs';
-import type { CsvHeader, DropdownOption, QueryType } from '@/types';
-import { generateAndDownloadCsv, getQueryString } from '@/utils/helpers';
+import EmptyStateImage from '@/assets/images/empty-state.png'
+import { cn } from '@/libs'
+import type { CsvHeader, DropdownOption, QueryType } from '@/types'
+import { generateAndDownloadCsv, getQueryString } from '@/utils/helpers'
 
-import { Button } from '../Button';
-import { Dropdown } from '../Dropdown';
-import { EmptyState } from '../EmptyState';
-import { Loader } from '../Loader';
-import { Pagination } from '../Pagination';
-import { PrintView } from '../PrintView';
-import { DebouncedSearch } from '../SearchBox';
-import { Text } from '../Text';
-import { Table } from './Table';
+import { Button } from '../Button'
+import { DateRangeFilter } from '../DateInput'
+import { Dropdown } from '../Dropdown'
+import { EmptyState } from '../EmptyState'
+import { Loader } from '../Loader'
+import { Pagination } from '../Pagination'
+import { PrintView } from '../PrintView'
+import { DebouncedSearch } from '../SearchBox'
+import { Text } from '../Text'
+import { Table } from './Table'
 
-type DateOmits = 'page' | 'limit' | 'search';
+type DateOmits = 'page' | 'limit' | 'search'
 type FilterType = {
   simpleSelects?: Array<{
-    label: string;
-    options: string[] | DropdownOption[];
-  }>;
+    label: string
+    options: string[] | DropdownOption[]
+  }>
   date?:
-    | Array<keyof Omit<QueryType, DateOmits>>
-    | Array<{ queryKey: keyof Omit<QueryType, DateOmits>; label?: string }>;
-};
+  | Array<keyof Omit<QueryType, DateOmits>>
+  | Array<{ queryKey: keyof Omit<QueryType, DateOmits>; label?: string }>
+}
 
 type Props = Readonly<{
-  columns: ColumnDef<any, any>[];
-  data?: Record<string, any>[];
-  loading: boolean;
-  total?: number;
-  query: QueryType;
-  setQuery: React.Dispatch<QueryType>;
-  searchPlaceholder?: string;
-  className?: string;
-  buttonGroup?: React.ReactNode;
-  printTitle?: string;
-  csvHeaders?: CsvHeader[];
-  filterBy?: FilterType;
-  noSearch?: boolean;
-  noExport?: boolean;
-  onRowClick?: (rowData: Record<string, any>) => void;
-  filterWrapperClassName?: string;
-  // Cursor pagination props
-  hasNextPage?: boolean;
-  hasPreviousPage?: boolean;
-  next?: string | null;
-  previous?: string | null;
-  onNextPage?: () => void;
-  onPreviousPage?: () => void;
-  useCursorPagination?: boolean;
-}>;
+  columns: ColumnDef<any, any>[]
+  data?: Record<string, any>[]
+  loading: boolean
+  total?: number
+  query: QueryType
+  setQuery: React.Dispatch<QueryType>
+  searchPlaceholder?: string
+  className?: string
+  buttonGroup?: React.ReactNode
+  printTitle?: string
+  csvHeaders?: CsvHeader[]
+  filterBy?: FilterType
+  noSearch?: boolean
+  noExport?: boolean
+  onRowClick?: (rowData: Record<string, any>) => void
+  filterWrapperClassName?: string
+  enableRowSelection?: boolean
+  getRowId?: (row: any) => string
+  rowSelection?: Record<string, boolean>
+  onRowSelectionChange?: (
+    updater: Record<string, boolean> | ((old: Record<string, boolean>) => Record<string, boolean>),
+  ) => void
+  onNextPage?: () => void
+  onPreviousPage?: () => void
+  hasNextPage?: boolean
+  hasPreviousPage?: boolean
+  // For cursor-based pagination
+  currentAfter?: string
+  previousCursor?: string | null
+  onSetAfter?: (after: string) => void
+}>
+
+// Helper to remove page from query object
+const removePageFromQuery = (query: QueryType): Omit<QueryType, 'page'> => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { page, ...queryWithoutPage } = query as QueryType & { page?: number }
+  return queryWithoutPage
+}
 
 export function PaginatedTable({
   data,
@@ -72,118 +87,102 @@ export function PaginatedTable({
   noExport,
   onRowClick,
   filterWrapperClassName,
-  hasNextPage,
-  hasPreviousPage,
-  next,
-  previous,
+  enableRowSelection,
+  getRowId,
+  rowSelection,
+  onRowSelectionChange,
   onNextPage,
   onPreviousPage,
-  useCursorPagination = false,
+  hasNextPage,
+  hasPreviousPage,
+  currentAfter,
+  previousCursor,
+  onSetAfter,
 }: Props) {
-  const memoisedColumns = React.useMemo(() => columns, [columns]);
-  const memoisedData = React.useMemo(() => data ?? [], [data]);
+  const memoisedColumns = React.useMemo(() => columns, [columns])
+  const memoisedData = React.useMemo(() => data ?? [], [data])
 
-  function onSearch(search: string) {
-    if (useCursorPagination) {
-      // For cursor pagination, reset to first page
-      // The hook will handle resetting cursor history
-      setQuery({ ...query, page: 1, search: search.trim() } as QueryType);
-    } else {
-      setQuery({ ...query, page: 1, search: search.trim() });
-    }
-  }
-  function onPageChange(page: number) {
-    setQuery({ ...query, page });
-  }
+  // Get date filter config to determine query keys
+  const dateFilterConfig = React.useMemo(() => {
+    if (!filterBy?.date || filterBy.date.length === 0) return null
 
-  function handleNextPage() {
-    if (useCursorPagination && onNextPage) {
-      onNextPage();
-    } else {
-      const currentPage = Number(query.page) || 1;
-      const totalPages = total
-        ? Math.ceil(total / Number(query.limit || 10))
-        : 1;
-      if (currentPage < totalPages) {
-        onPageChange(currentPage + 1);
-      }
-    }
-  }
+    const config = filterBy.date.find((dateFilter) => {
+      const dateConfig = typeof dateFilter === 'string' ? { queryKey: dateFilter } : dateFilter
+      const key = dateConfig.queryKey as string
+      return (
+        key === 'date' ||
+        key === 'date_from' ||
+        key === 'date_to' ||
+        key === 'dateFrom' ||
+        key === 'dateTo' ||
+        key === 'startDate' ||
+        key === 'endDate' ||
+        key.toLowerCase().includes('date')
+      )
+    })
 
-  function handlePreviousPage() {
-    if (useCursorPagination && onPreviousPage) {
-      onPreviousPage();
-    } else {
-      const currentPage = Number(query.page) || 1;
-      if (currentPage > 1) {
-        onPageChange(currentPage - 1);
-      }
-    }
-  }
+    if (!config) return null
 
-  // Calculate pagination info
-  const paginationInfo = React.useMemo(() => {
-    if (useCursorPagination) {
-      return {
-        hasNextPage: hasNextPage ?? false,
-        hasPreviousPage: hasPreviousPage ?? false,
-        next: next ?? null,
-        previous: previous ?? null,
-      };
-    } else {
-      // Calculate from page-based pagination
-      const currentPage = Number(query.page) || 1;
-      const pageLimit = Number(query.limit) || 10;
-      const totalPages = total ? Math.ceil(total / pageLimit) : 1;
-      return {
-        hasNextPage: currentPage < totalPages,
-        hasPreviousPage: currentPage > 1,
-        next: null,
-        previous: null,
-      };
-    }
-  }, [
-    useCursorPagination,
-    hasNextPage,
-    hasPreviousPage,
-    next,
-    previous,
-    query.page,
-    query.limit,
-    total,
-  ]);
+    return typeof config === 'string' ? { queryKey: config, label: 'Date range' } : config
+  }, [filterBy])
 
-  function onPageSizeChange(limit: number) {
-    setQuery({ ...query, page: 1, limit });
-  }
+  // Parse dateFrom and dateTo from query
+  const startDate = React.useMemo(() => {
+    const start = query.dateFrom
+    if (!start) return null
+    const parsed = dayjs(start)
+    return parsed.isValid() ? parsed.toDate() : null
+  }, [query.dateFrom])
+
+  const endDate = React.useMemo(() => {
+    const end = query.dateTo
+    if (!end) return null
+    const parsed = dayjs(end)
+    return parsed.isValid() ? parsed.toDate() : null
+  }, [query.dateTo])
+
+  // Handle date range change - use dateFrom and dateTo to match QueryType
+  const handleDateRangeChange = React.useCallback(
+    (dates: [Date | null, Date | null]) => {
+      const [start, end] = dates
+      const queryWithoutPage = removePageFromQuery(query)
+      setQuery({
+        ...queryWithoutPage,
+        page: 1,
+        dateFrom: start ? dayjs(start).format('YYYY-MM-DD') : '',
+        dateTo: end ? dayjs(end).format('YYYY-MM-DD') : '',
+      } as QueryType)
+    },
+    [query, setQuery],
+  )
 
   const actions = [
     ...(csvHeaders
       ? [
-          {
-            label: 'Export as CSV',
-            onClickFn: () => {
-              setExportPending('csv');
-              setPreviousLimit(query.limit);
-              onPageSizeChange(Number(total));
-            },
+        {
+          label: 'Export as CSV',
+          onClickFn: () => {
+            setExportPending('csv')
+            setPreviousLimit(query.limit)
+            const queryWithoutPage = removePageFromQuery(query)
+            setQuery({ ...queryWithoutPage, limit: Number(total) } as QueryType)
           },
-        ]
+        },
+      ]
       : []),
     {
       label: 'Export as PDF',
       onClickFn: () => {
-        setExportPending('pdf');
-        setPreviousLimit(query.limit);
-        onPageSizeChange(Number(total));
+        setExportPending('pdf')
+        setPreviousLimit(query.limit)
+        const queryWithoutPage = removePageFromQuery(query)
+        setQuery({ ...queryWithoutPage, limit: Number(total) } as QueryType)
       },
     },
-  ];
+  ]
 
-  const [exportPending, setExportPending] = React.useState<
-    'csv' | 'pdf' | null
-  >(null);
-  const [previousLimit, setPreviousLimit] = React.useState<number | null>(null);
+  const [exportPending, setExportPending] = React.useState<'csv' | 'pdf' | null>(null)
+  const [previousLimit, setPreviousLimit] = React.useState<number | null>(null)
 
   // Watch for data changes and export when ready
   React.useEffect(() => {
@@ -192,69 +191,55 @@ export function PaginatedTable({
     // 2. Data is loaded (not loading)
     // 3. Query limit has been updated to total (indicating fetch with new limit)
     // 4. Data length matches total (all records fetched)
-    if (
-      exportPending &&
-      !loading &&
-      data &&
-      query.limit === total &&
-      data.length === total
-    ) {
+    if (exportPending && !loading && data && query.limit === total && data.length === total) {
       if (exportPending === 'csv') {
+        const queryWithoutPage = removePageFromQuery(query)
         generateAndDownloadCsv({
           data: data ?? [],
           fileName:
-            printTitle ??
-            `Afri-transfer${printTitle ?? ''}-${getQueryString(query)}`,
+            printTitle ?? `Afri-transfer${printTitle ?? ''}-${getQueryString(queryWithoutPage)}`,
           headers: csvHeaders ?? [],
-        });
+        })
       } else if (exportPending === 'pdf') {
-        globalThis.print();
+        globalThis.print()
       }
 
       // Reset the limit to previous value after export
       if (previousLimit !== null) {
-        setQuery({ ...query, limit: previousLimit });
+        const queryWithoutPage = removePageFromQuery(query)
+        setQuery({ ...queryWithoutPage, limit: previousLimit } as QueryType)
       }
 
-      setExportPending(null);
-      setPreviousLimit(null);
+      setExportPending(null)
+      setPreviousLimit(null)
     }
-  }, [
-    data,
-    total,
-    exportPending,
-    loading,
-    query,
-    printTitle,
-    csvHeaders,
-    previousLimit,
-    setQuery,
-  ]);
+  }, [data, total, exportPending, loading, query, printTitle, csvHeaders, previousLimit, setQuery])
 
   return (
     <div className={cn('grid gap-4', className)}>
-      <div
-        className={`flex flex-wrap justify-end items-center gap-2 ${filterWrapperClassName}`}
-      >
+      <div className={`flex flex-wrap justify-end items-center gap-2 ${filterWrapperClassName}`}>
         {noSearch ? null : (
           <DebouncedSearch
             value={query.search}
-            onChange={onSearch}
+            onChange={(value) => {
+              const queryWithoutPage = removePageFromQuery(query)
+              setQuery({ ...queryWithoutPage, search: value } as QueryType)
+            }}
             placeholder={searchPlaceholder ?? 'Search...'}
             className="md:w-[343px]"
           />
         )}
         {filterBy?.simpleSelects?.map((item) => {
-          const selectedValue = query[item.label as keyof QueryType];
+          const selectedValue = query[item.label as keyof QueryType]
           const selectedOption = item.options.find(
-            (x) => (typeof x === 'string' ? x : x.value) === selectedValue
-          );
+            (x) => (typeof x === 'string' ? x : x.value) === selectedValue,
+          )
           const displayText =
             selectedValue && selectedOption
               ? typeof selectedOption === 'string'
                 ? selectedOption
                 : selectedOption.label
-              : `Filter by ${item.label === 'direction' ? 'transaction type' : item.label}`;
+              : `Filter by ${item.label === 'direction' ? 'transaction type' : item.label}`
 
           return (
             <Dropdown
@@ -266,16 +251,16 @@ export function PaginatedTable({
                   label: 'All',
                   value: '',
                 },
-                ...item.options.map((x) =>
-                  typeof x === 'string' ? { label: x, value: x } : x
-                ),
+                ...item.options.map((x) => (typeof x === 'string' ? { label: x, value: x } : x)),
               ].map((option) => ({
                 label: option.label,
-                onClickFn: () =>
+                onClickFn: () => {
+                  const queryWithoutPage = removePageFromQuery(query)
                   setQuery({
-                    ...query,
+                    ...queryWithoutPage,
                     [item.label]: option.value,
-                  }),
+                  } as QueryType)
+                },
               }))}
             >
               <Button
@@ -288,8 +273,20 @@ export function PaginatedTable({
                 {displayText}
               </Button>
             </Dropdown>
-          );
+          )
         })}
+
+        {/* Date range filters */}
+        {dateFilterConfig && (
+          <DateRangeFilter
+            key="date-range-filter"
+            startDate={startDate}
+            endDate={endDate}
+            onChange={handleDateRangeChange}
+            placeholder={dateFilterConfig.label || 'Date range'}
+            format="DD-MM-YYYY"
+          />
+        )}
 
         {/* other filters here */}
         {buttonGroup}
@@ -313,7 +310,7 @@ export function PaginatedTable({
 
       {loading ? (
         <div className="w-full h-80 grid place-items-center">
-          <div>
+          <div className="w-full">
             <Loader />
           </div>
         </div>
@@ -327,6 +324,10 @@ export function PaginatedTable({
               columns={memoisedColumns as any}
               data={memoisedData}
               onRowClick={onRowClick}
+              enableRowSelection={enableRowSelection}
+              getRowId={getRowId}
+              rowSelection={rowSelection}
+              onRowSelectionChange={onRowSelectionChange}
             />
 
             {memoisedData?.length ? null : (
@@ -339,18 +340,20 @@ export function PaginatedTable({
 
             <div className="no-print mt-5">
               <Pagination
-                limit={Number(query.limit) || 10}
-                hasNextPage={paginationInfo.hasNextPage}
-                hasPreviousPage={paginationInfo.hasPreviousPage}
-                next={paginationInfo.next}
-                previous={paginationInfo.previous}
-                onNext={handleNextPage}
-                onPrevious={handlePreviousPage}
+                total={Number(total)}
+                limit={Number(query.limit)}
+                onNextPage={onNextPage}
+                onPreviousPage={onPreviousPage}
+                hasNextPage={hasNextPage}
+                hasPreviousPage={hasPreviousPage}
+                currentAfter={currentAfter}
+                previousCursor={previousCursor}
+                onSetAfter={onSetAfter}
               />
             </div>
           </div>
         </PrintView>
       )}
     </div>
-  );
+  )
 }

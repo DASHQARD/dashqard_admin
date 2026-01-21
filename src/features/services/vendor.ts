@@ -1,9 +1,18 @@
 import { getList, patchMethod } from '@/services';
+import { axiosClient } from '@/libs/axios';
+import { getQueryString } from '@/utils/helpers';
 
 const commonUrl = '/vendor-management';
 
-export const getVendorsList = async (): Promise<any> => {
-  return await getList(`${commonUrl}/admin/vendors`);
+export const getVendorsList = async (params?: Record<string, any>): Promise<any> => {
+  const queryString = getQueryString(params);
+  const fullUrl = queryString
+    ? `${commonUrl}/admin/vendors?${queryString}`
+    : `${commonUrl}/admin/vendors`;
+  const response = await axiosClient.get(fullUrl);
+  // Axios interceptor already returns response.data, so response here is the API response body
+  // which has { data: [...], pagination: {...}, status: ..., etc }
+  return response;
 };
 
 export const getVendorDetails = async (id: string | number): Promise<any> => {

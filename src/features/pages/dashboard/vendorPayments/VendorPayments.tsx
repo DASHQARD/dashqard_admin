@@ -24,6 +24,7 @@ export default function VendorPayments() {
     paginationInfo,
     handleNextPage,
     handlePreviousPage,
+    handleSetAfter,
     // getVendorPaymentOptions,
   } = useVendorPaymentsManagementBase();
 
@@ -140,23 +141,23 @@ export default function VendorPayments() {
                 filterBy={{
                   simpleSelects: [
                     {
-                      label: 'VENDOR_PAYMENT_STATUS',
+                      label: 'status',
                       options: OPTIONS.VENDOR_PAYMENT_STATUS,
                     },
                     {
-                      label: 'VENDOR_PAYMENT_FREQUENCY',
+                      label: 'payment_frequency',
                       options: OPTIONS.VENDOR_PAYMENT_FREQUENCY,
                     },
                   ],
                 }}
                 printTitle="Vendor Payments"
-                useCursorPagination={true}
                 hasNextPage={paginationInfo.hasNextPage}
                 hasPreviousPage={paginationInfo.hasPreviousPage}
-                next={paginationInfo.next}
-                previous={paginationInfo.previous}
+                currentAfter={(query as any).after ? String((query as any).after) : undefined}
+                previousCursor={paginationInfo.previous || null}
                 onNextPage={handleNextPage}
                 onPreviousPage={handlePreviousPage}
+                onSetAfter={handleSetAfter}
               />
             </div>
           </div>

@@ -1,7 +1,7 @@
 import { Button, PaginatedTable, Text } from '@/components';
 import { useSuperAdminInvitationsManagementBase } from '@/features/hooks/superAdminInvitationsManagement';
 import { usePersistedModalState } from '@/hooks';
-import { MODALS } from '@/utils/constants';
+import { MODALS, OPTIONS } from '@/utils/constants';
 import {
   invitationListColumns,
   invitationListCsvHeaders,
@@ -17,6 +17,9 @@ export default function SuperAdminInvitations() {
     invitationsList,
     isLoadingInvitations,
     totalCount,
+    pagination,
+    handleNextPage,
+    handleSetAfter,
   } = useSuperAdminInvitationsManagementBase();
 
   const modal = usePersistedModalState({
@@ -67,16 +70,27 @@ export default function SuperAdminInvitations() {
                 simpleSelects: [
                   {
                     label: 'status',
-                    options: [
-                      { label: 'Pending', value: 'pending' },
-                      { label: 'Accepted', value: 'accepted' },
-                      { label: 'Rejected', value: 'rejected' },
-                      { label: 'Expired', value: 'expired' },
-                    ],
+                    options: OPTIONS.SUPER_ADMIN_INVITATIONS_STATUS,
                   },
                 ],
               }}
               printTitle="Corporate Onboarding Invitations"
+              hasNextPage={pagination?.hasNextPage}
+              hasPreviousPage={pagination?.hasPreviousPage}
+              currentAfter={(query as any).after ? String((query as any).after) : undefined}
+              previousCursor={pagination?.previous || null}
+              onNextPage={handleNextPage}
+              onPreviousPage={() => {
+                // Handle previous page
+                const queryWithAfter = query as any;
+                if (queryWithAfter.after && pagination?.previous) {
+                  handleSetAfter(pagination.previous);
+                } else {
+                  // Reset to first page
+                  handleSetAfter('');
+                }
+              }}
+              onSetAfter={handleSetAfter}
             />
           </div>
         </div>

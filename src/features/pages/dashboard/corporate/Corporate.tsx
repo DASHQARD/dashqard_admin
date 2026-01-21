@@ -12,8 +12,15 @@ import {
 import { useCorporateManagementBase } from '@/features/hooks/corporateManagement';
 
 export default function Corporates() {
-  const { corporatesList, isLoadingCorporatesList, query, setQuery } =
-    useCorporateManagementBase();
+  const {
+    corporatesList,
+    isLoadingCorporatesList,
+    query,
+    setQuery,
+    pagination,
+    handleNextPage,
+    handleSetAfter,
+  } = useCorporateManagementBase();
 
   return (
     <>
@@ -49,6 +56,22 @@ export default function Corporates() {
                 ],
               }}
               printTitle="Corporates"
+              hasNextPage={pagination?.hasNextPage}
+              hasPreviousPage={pagination?.hasPreviousPage}
+              currentAfter={(query as any).after ? String((query as any).after) : undefined}
+              previousCursor={pagination?.previous || null}
+              onNextPage={handleNextPage}
+              onPreviousPage={() => {
+                // Handle previous page
+                const queryWithAfter = query as any;
+                if (queryWithAfter.after && pagination?.previous) {
+                  handleSetAfter(pagination.previous);
+                } else {
+                  // Reset to first page
+                  handleSetAfter('');
+                }
+              }}
+              onSetAfter={handleSetAfter}
             />
           </div>
         </div>

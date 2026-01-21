@@ -79,6 +79,7 @@ export default function Corporates() {
                     options: OPTIONS.CORPORATE_MANAGEMENT_STATUS,
                   },
                 ],
+                date: [{ queryKey: 'dateFrom' }, { queryKey: 'dateTo' }],
               }}
               printTitle="Corporates"
             />
@@ -88,20 +89,20 @@ export default function Corporates() {
 
       {modal.modalState ===
         MODALS.REQUEST_CORPORATE_MANAGEMENT.CHILDREN.VIEW && (
-        <ViewRequestDetails />
-      )}
+          <ViewRequestDetails />
+        )}
       {modal.modalState ===
         MODALS.REQUEST_CORPORATE_MANAGEMENT.CHILDREN.APPROVE && (
-        <ApproveRequestStatus />
-      )}
+          <ApproveRequestStatus />
+        )}
       {modal.modalState ===
         MODALS.REQUEST_CORPORATE_MANAGEMENT.CHILDREN.REJECT && (
-        <RejectRequestStatus />
-      )}
+          <RejectRequestStatus />
+        )}
       {modal.modalState ===
         MODALS.REQUEST_CORPORATE_MANAGEMENT.CHILDREN.DELETE && (
-        <DeleteRequest />
-      )}
+          <DeleteRequest />
+        )}
     </>
   );
 }

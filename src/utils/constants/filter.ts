@@ -4,8 +4,9 @@ export const ADMIN_TYPES = [
 ];
 
 export const OPTIONS = {
+  CUSTOMER_MANAGEMENT_STATUS: ['active', 'suspended', 'inactive', 'pending', 'verified'],
   CORPORATE_MANAGEMENT_STATUS: ['active', 'deactivated', 'inactive'],
-  VENDOR_MANAGEMENT_STATUS: ['active', 'deactivated', 'inactive'],
+  VENDOR_MANAGEMENT_STATUS: ['active', 'suspended', 'inactive'],
   ADMIN_STATUS: ['active', 'deactivated', 'pending'],
   AGENT_STATUS: ['active', 'deactivated', 'inactive'],
   AGENT_TIER: ['A1', 'A2', 'A3'],
@@ -28,5 +29,7 @@ export const OPTIONS = {
   USER_TYPE: ['individual', 'agent', 'merchant'],
   TRANSACTION_TYPE: ['credit', 'debit'],
   VENDOR_PAYMENT_STATUS: ['pending', 'paid', 'overdue'],
-  VENDOR_PAYMENT_FREQUENCY: ['daily', 'weekly', 'monthly', 'bi-weekly'],
+  VENDOR_PAYMENT_FREQUENCY: ['daily', 'weekly', 'monthly'],
+  SUPER_ADMIN_INVITATIONS_STATUS: ['pending', 'accepted'],
+  PAYMENT_STATUS: ['pending', 'paid'],
 };

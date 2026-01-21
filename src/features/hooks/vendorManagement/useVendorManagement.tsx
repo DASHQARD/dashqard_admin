@@ -11,7 +11,7 @@ import { useVendorDetails } from '../useVendorDetails';
 import { useParams } from 'react-router';
 import { useSearch } from '@/hooks/useSearch';
 import { useAuthStore } from '@/stores';
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 
 export function useVendorManagementBase() {
   const { state } = useSearch();
@@ -24,23 +24,44 @@ export function useVendorManagementBase() {
 
   React.useEffect(() => {
     if (state?.searchQuery) {
-      setQuery({ ...query, page: 1, search: state.searchQuery.trim() });
+      setQuery({ ...query, search: state.searchQuery.trim() });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setQuery, state?.searchQuery]);
 
   const { useGetVendors } = vendorManagementQueries();
-  const { data, isLoading: isLoadingVendorsList } = useGetVendors();
+
+  const paramsForApi = useMemo(() => {
+    const apiParams: any = {
+      limit: query.limit || 10,
+    }
+    const queryWithAfter = query as any;
+    if (queryWithAfter.after) {
+      // Send after as date string (API expects date string format)
+      apiParams.after = queryWithAfter.after;
+    }
+    if (query.search) {
+      apiParams.search = query.search
+    }
+    if (query.status) {
+      apiParams.status = query.status
+    }
+    return apiParams
+  }, [query])
+
+  const { data, isLoading: isLoadingVendorsList } = useGetVendors(paramsForApi);
 
   const { data: vendorDetails, isLoading: isLoadingVendorDetails } =
     useVendorDetails(params?.vendorId || '');
 
   const vendorsList = React.useMemo(() => {
-    if (!data) return [];
-    return data.filter((vendor: any) =>
+    if (!data?.data) return [];
+    return data.data.filter((vendor: any) =>
       vendor.vendor_user_type?.toLowerCase().includes('vendor')
     );
   }, [data]);
+
+  const pagination = data?.pagination;
 
   console.log('vendorDetails inside', vendorsList);
   const vendorInfo = React.useMemo(() => {
@@ -227,6 +248,28 @@ export function useVendorManagementBase() {
     return actions;
   }
 
+  const handleNextPage = useCallback(() => {
+    if (pagination?.hasNextPage && pagination?.next) {
+      // Set after as date string (API expects date string format)
+      setQuery({ ...query, after: pagination.next } as any)
+    }
+  }, [pagination, query, setQuery])
+
+  const handleSetAfter = useCallback(
+    (after: string) => {
+      // Set after as date string or empty string to reset
+      setQuery({ ...query, after: after || undefined } as any)
+    },
+    [query, setQuery],
+  )
+
+  // Calculate estimated total for display
+  const estimatedTotal = useMemo(() => {
+    return pagination?.hasNextPage
+      ? vendorsList.length + (query.limit || 10)
+      : vendorsList.length
+  }, [pagination, vendorsList.length, query.limit])
+
   return {
     query,
     vendorsList,
@@ -236,5 +279,9 @@ export function useVendorManagementBase() {
     isLoadingVendorsList,
     isLoadingVendorDetails,
     setQuery,
+    pagination,
+    handleNextPage,
+    handleSetAfter,
+    estimatedTotal,
   };
 }

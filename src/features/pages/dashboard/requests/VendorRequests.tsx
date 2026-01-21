@@ -37,6 +37,8 @@ export default function VendorRequests() {
     setQuery,
   } = useRequestManagementBase();
 
+
+
   return (
     <>
       <div className="lg:py-10">
@@ -69,8 +71,30 @@ export default function VendorRequests() {
                     options: OPTIONS.VENDOR_MANAGEMENT_STATUS,
                   },
                 ],
+                date: [{ queryKey: 'dateFrom' }, { queryKey: 'dateTo' }],
               }}
               printTitle="Vendor Requests"
+              hasNextPage={false}
+              hasPreviousPage={false}
+              currentAfter={(query as any).after ? String((query as any).after) : undefined}
+              previousCursor={null}
+              onNextPage={() => {
+                // Pagination will be implemented when hook supports it
+              }}
+              onPreviousPage={() => {
+                // Pagination will be implemented when hook supports it
+              }}
+              onSetAfter={(after: string) => {
+                // Pagination will be implemented when hook supports it
+                const queryWithAfter = query as any;
+                if (after) {
+                  setQuery({ ...query, after } as any);
+                } else {
+                  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                  const { after: _, ...rest } = queryWithAfter;
+                  setQuery(rest);
+                }
+              }}
             />
           </div>
         </div>
@@ -81,16 +105,16 @@ export default function VendorRequests() {
       )}
       {modal.modalState ===
         MODALS.REQUEST_VENDOR_MANAGEMENT.CHILDREN.APPROVE && (
-        <ApproveVendorRequestStatus />
-      )}
+          <ApproveVendorRequestStatus />
+        )}
       {modal.modalState ===
         MODALS.REQUEST_VENDOR_MANAGEMENT.CHILDREN.REJECT && (
-        <RejectVendorRequestStatus />
-      )}
+          <RejectVendorRequestStatus />
+        )}
       {modal.modalState ===
         MODALS.REQUEST_VENDOR_MANAGEMENT.CHILDREN.DELETE && (
-        <DeleteVendorRequest />
-      )}
+          <DeleteVendorRequest />
+        )}
     </>
   );
 }

@@ -53,6 +53,27 @@ export default function Countries() {
               searchPlaceholder="Search by country name, code, or currency..."
               csvHeaders={countryListCsvHeaders}
               printTitle="Countries"
+              hasNextPage={false}
+              hasPreviousPage={false}
+              currentAfter={(query as any).after ? String((query as any).after) : undefined}
+              previousCursor={null}
+              onNextPage={() => {
+                // Pagination will be implemented when hook supports it
+              }}
+              onPreviousPage={() => {
+                // Pagination will be implemented when hook supports it
+              }}
+              onSetAfter={(afterParam: string) => {
+                // Pagination will be implemented when hook supports it
+                const queryWithAfter = query as any;
+                if (afterParam) {
+                  setQuery({ ...query, after: afterParam } as any);
+                } else {
+                  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                  const { after, ...rest } = queryWithAfter;
+                  setQuery(rest);
+                }
+              }}
             />
           </div>
         </div>

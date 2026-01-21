@@ -8,11 +8,20 @@ import {
 } from '@/services';
 import type { Admin as AdminType } from '@/types/admin';
 import { ROUTES } from '@/utils/constants';
+import { axiosClient } from '@/libs/axios';
+import { getQueryString } from '@/utils/helpers';
 
 export const getAllAdmins = async (
   query?: Record<string, any>
 ): Promise<any> => {
-  return await getList(`admins`, query);
+  const queryString = getQueryString(query);
+  const fullUrl = queryString
+    ? `/admins?${queryString}`
+    : `/admins`;
+  const response = await axiosClient.get(fullUrl);
+  // Axios interceptor already returns response.data, so response here is the API response body
+  // which has { data: [...], pagination: {...}, status: ..., etc }
+  return response;
 };
 
 export const getAllArchivedAdmins = async (

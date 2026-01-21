@@ -1,12 +1,18 @@
-import { deleteMethod, getList, getMethod, patchMethod } from '@/services';
+import { deleteMethod, getMethod, patchMethod } from '@/services';
+import { axiosClient } from '@/libs/axios';
+import { getQueryString } from '@/utils/helpers';
 
 const commonUrl = '/requests/admin';
 
-export const getRequestCorporatesList = async (): Promise<any> => {
-  const response = await getList(`${commonUrl}`);
-  // Response structure: { status, statusCode, message, data: [...], pagination: {...} }
-  // Extract the data array from the response
-  return response?.data || response;
+export const getRequestCorporatesList = async (params?: Record<string, any>): Promise<any> => {
+  const queryString = getQueryString(params);
+  const fullUrl = queryString
+    ? `${commonUrl}?${queryString}`
+    : `${commonUrl}`;
+  const response = await axiosClient.get(fullUrl);
+  // Axios interceptor already returns response.data, so response here is the API response body
+  // which has { data: [...], pagination: {...}, status: ..., etc }
+  return response;
 };
 
 export const getRequestDetails = async (id: string): Promise<any> => {

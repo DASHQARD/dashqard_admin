@@ -13,8 +13,15 @@ import {
 
 export default function Admins() {
   const navigate = useNavigate();
-  const { adminsList, isLoadingAdminsList, query, setQuery } =
-    useAdminManagementBase();
+  const {
+    adminsList,
+    isLoadingAdminsList,
+    query,
+    setQuery,
+    pagination,
+    handleNextPage,
+    handleSetAfter,
+  } = useAdminManagementBase();
 
   return (
     <>
@@ -45,17 +52,34 @@ export default function Admins() {
               loading={isLoadingAdminsList}
               query={query}
               setQuery={setQuery}
-              searchPlaceholder="Search by corporate name or location..."
+              searchPlaceholder="Search by admin name..."
               csvHeaders={adminListCsvHeaders}
               filterBy={{
                 simpleSelects: [
                   {
                     label: 'status',
-                    options: OPTIONS.CORPORATE_MANAGEMENT_STATUS,
+                    options: OPTIONS.ADMIN_STATUS,
                   },
                 ],
+                date: [{ queryKey: 'dateFrom' }, { queryKey: 'dateTo' }],
               }}
               printTitle="Admins"
+              hasNextPage={pagination?.hasNextPage}
+              hasPreviousPage={pagination?.hasPreviousPage}
+              currentAfter={(query as any).after ? String((query as any).after) : undefined}
+              previousCursor={pagination?.previous || null}
+              onNextPage={handleNextPage}
+              onPreviousPage={() => {
+                // Handle previous page
+                const queryWithAfter = query as any;
+                if (queryWithAfter.after && pagination?.previous) {
+                  handleSetAfter(pagination.previous);
+                } else {
+                  // Reset to first page
+                  handleSetAfter('');
+                }
+              }}
+              onSetAfter={handleSetAfter}
             />
           </div>
         </div>

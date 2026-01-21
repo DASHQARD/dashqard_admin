@@ -3,41 +3,53 @@ import { useContentGuard, useReducerSpread } from '@/hooks';
 import { DEFAULT_QUERY, formatDate, MODALS, ROUTES } from '@/utils';
 
 import { corporateManagementQueries } from './corporateQueries';
-import { useSearch } from '@/hooks/useSearch';
 import { useAuthStore } from '@/stores';
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { usePersistedModalState } from '@/hooks';
-import { useNavigate, useParams } from 'react-router';
+import { useNavigate } from 'react-router';
 
 export function useCorporateManagementBase() {
-  const { state } = useSearch();
-  const params = useParams();
-
   const [query, setQuery] = useReducerSpread(DEFAULT_QUERY);
   const { userPermissions = [] } = useContentGuard();
 
   const user = useAuthStore().user;
 
-  React.useEffect(() => {
-    if (state?.searchQuery) {
-      setQuery({ ...query, page: 1, search: state.searchQuery.trim() });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [setQuery, state?.searchQuery]);
 
   const {
     useGetCorporates,
     useGetCorporateDetails,
     useGetCorporateBusinessDetails,
   } = corporateManagementQueries();
-  const { data, isLoading: isLoadingCorporatesList } = useGetCorporates();
+
+  const params = useMemo(() => {
+    const apiParams: any = {
+      limit: query.limit || 10,
+    }
+    const queryWithAfter = query as any;
+    if (queryWithAfter.after) {
+      // Send after as date string (database expects timestamp/date format)
+      apiParams.after = queryWithAfter.after;
+    }
+    if (query.search) {
+      apiParams.search = query.search
+    }
+    if (query.status) {
+      apiParams.status = query.status
+    }
+    return apiParams
+  }, [query])
+
+  const { data, isLoading: isLoadingCorporatesList } = useGetCorporates(params);
+
 
   const corporatesList = React.useMemo(() => {
-    if (!data) return [];
-    return data.filter((corporate: any) =>
+    if (!data?.data) return [];
+    return data.data.filter((corporate: any) =>
       corporate.user_type?.toLowerCase().includes('corporate')
     );
   }, [data]);
+
+  const pagination = data?.pagination;
   const { data: corporateDetails, isLoading: isLoadingCorporateDetails } =
     useGetCorporateDetails(params?.corporateId || '');
   const {
@@ -272,6 +284,28 @@ export function useCorporateManagementBase() {
     return actions;
   }
 
+  const handleNextPage = useCallback(() => {
+    if (pagination?.hasNextPage && pagination?.next) {
+      // Set after as date string (API expects date string format)
+      setQuery({ ...query, after: pagination.next } as any)
+    }
+  }, [pagination, query, setQuery])
+
+  const handleSetAfter = useCallback(
+    (after: string) => {
+      // Set after as date string or empty string to reset
+      setQuery({ ...query, after: after || undefined } as any)
+    },
+    [query, setQuery],
+  )
+
+  // Calculate estimated total for display
+  const estimatedTotal = useMemo(() => {
+    return pagination?.hasNextPage
+      ? corporatesList.length + (query.limit || 10)
+      : corporatesList.length
+  }, [pagination, corporatesList.length, query.limit])
+
   return {
     query,
     corporatesList,
@@ -284,5 +318,9 @@ export function useCorporateManagementBase() {
     corporateDetails,
     corporateBusinessDetails,
     setQuery,
+    pagination,
+    handleNextPage,
+    handleSetAfter,
+    estimatedTotal,
   };
 }

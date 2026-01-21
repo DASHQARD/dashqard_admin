@@ -6,10 +6,10 @@ import {
 import { useQuery } from '@tanstack/react-query';
 
 export function corporateManagementQueries() {
-  function useGetCorporates() {
+  function useGetCorporates(query?: Record<string, any>) {
     return useQuery({
-      queryKey: ['corporates'],
-      queryFn: () => getCorporatesList(),
+      queryKey: ['corporates', query],
+      queryFn: () => getCorporatesList(query),
     });
   }
 

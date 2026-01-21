@@ -6,6 +6,8 @@ import {
   putMethod,
   postMethod,
 } from '@/services';
+import { axiosClient } from '@/libs/axios';
+import { getQueryString } from '@/utils/helpers';
 
 const commonUrl = '/vendor-payments';
 
@@ -37,8 +39,13 @@ export type VendorPaymentsSummaryQueryParams = {
 export const getVendorPayments = async (
   query?: VendorPaymentsQueryParams
 ): Promise<any> => {
-  const response = await getList(commonUrl, query);
-  // Return full response to preserve pagination info (hasNextPage, next, previous, etc.)
+  const queryString = getQueryString(query);
+  const fullUrl = queryString
+    ? `${commonUrl}?${queryString}`
+    : `${commonUrl}`;
+  const response = await axiosClient.get(fullUrl);
+  // Axios interceptor already returns response.data, so response here is the API response body
+  // which has { data: [...], pagination: {...}, status: ..., etc }
   return response;
 };
 

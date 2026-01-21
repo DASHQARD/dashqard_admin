@@ -5,10 +5,10 @@ import {
 import { useQuery } from '@tanstack/react-query';
 
 export function requestManagementQueries() {
-  function useGetRequestCorporates() {
+  function useGetRequestCorporates(query?: Record<string, any>) {
     return useQuery({
-      queryKey: ['request-corporates'],
-      queryFn: () => getRequestCorporatesList(),
+      queryKey: ['request-corporates', query],
+      queryFn: () => getRequestCorporatesList(query),
     });
   }
 
