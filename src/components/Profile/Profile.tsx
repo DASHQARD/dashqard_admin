@@ -9,6 +9,7 @@ type Props = {
   status: string;
   children: React.ReactNode;
   className?: string;
+  logo?: string;
 };
 
 type PaymentInformationProps = {
@@ -27,6 +28,7 @@ export const Profile = ({
   status,
   children,
   className,
+  logo,
 }: Readonly<Props>) => {
   return (
     <section className={cn('bg-white rounded-xl py-5', className)}>
@@ -34,6 +36,7 @@ export const Profile = ({
         <section className="flex items-center gap-6 flex-col min-w-40">
           <Avatar
             name={name}
+            src={logo}
             size="lg"
             className="rounded-xl flex justify-center items-center"
           />

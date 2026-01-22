@@ -89,6 +89,7 @@ export default function AdminSidebar() {
   const { corporate: corporatePendingCount, vendor: vendorPendingCount } =
     usePendingRequestsCount();
 
+
   // Add badge counts to navigation items
   const navItemsWithBadges = useMemo(() => {
     return ADMIN_NAV_ITEMS.map((section) => ({
@@ -102,21 +103,21 @@ export default function AdminSidebar() {
         const childrenWithBadges =
           'children' in item && item.children
             ? item.children.map((child: any) => {
-                const isVendorRequest =
-                  child.path === ROUTES.IN_APP.ADMIN.REQUESTS.VENDOR_REQUESTS;
-                const isCorporateRequest =
-                  child.path ===
-                  ROUTES.IN_APP.ADMIN.REQUESTS.CORPORATE_REQUESTS;
+              const isVendorRequest =
+                child.path === ROUTES.IN_APP.ADMIN.REQUESTS.VENDOR_REQUESTS;
+              const isCorporateRequest =
+                child.path ===
+                ROUTES.IN_APP.ADMIN.REQUESTS.CORPORATE_REQUESTS;
 
-                return {
-                  ...child,
-                  badgeCount: isVendorRequest
-                    ? vendorPendingCount
-                    : isCorporateRequest
-                      ? corporatePendingCount
-                      : undefined,
-                };
-              })
+              return {
+                ...child,
+                badgeCount: isVendorRequest
+                  ? vendorPendingCount
+                  : isCorporateRequest
+                    ? corporatePendingCount
+                    : undefined,
+              };
+            })
             : undefined;
 
         return {
@@ -125,7 +126,7 @@ export default function AdminSidebar() {
           // Also add badge to parent if it has pending children
           badgeCount:
             (isVendorsItem && vendorPendingCount > 0) ||
-            (isCorporatesItem && corporatePendingCount > 0)
+              (isCorporatesItem && corporatePendingCount > 0)
               ? isVendorsItem
                 ? vendorPendingCount
                 : corporatePendingCount
@@ -238,7 +239,7 @@ export default function AdminSidebar() {
               className={cn(
                 'flex items-center mb-2 rounded-[10px] transition-all duration-200 relative overflow-hidden',
                 !isCollapsed &&
-                  'hover:bg-[rgba(64,45,135,0.04)] hover:translate-x-px',
+                'hover:bg-[rgba(64,45,135,0.04)] hover:translate-x-px',
                 isCollapsed && 'justify-center mb-3'
               )}
             >

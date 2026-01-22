@@ -6,11 +6,12 @@ import { corporateManagementQueries } from './corporateQueries';
 import { useAuthStore } from '@/stores';
 import React, { useCallback, useMemo } from 'react';
 import { usePersistedModalState } from '@/hooks';
-import { useNavigate } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 
 export function useCorporateManagementBase() {
   const [query, setQuery] = useReducerSpread(DEFAULT_QUERY);
   const { userPermissions = [] } = useContentGuard();
+  const paramsForApi = useParams();
 
   const user = useAuthStore().user;
 
@@ -51,7 +52,8 @@ export function useCorporateManagementBase() {
 
   const pagination = data?.pagination;
   const { data: corporateDetails, isLoading: isLoadingCorporateDetails } =
-    useGetCorporateDetails(params?.corporateId || '');
+    useGetCorporateDetails(paramsForApi?.corporateId || '');
+  console.log('corporateDetails', corporateDetails);
   const {
     data: corporateBusinessDetails,
     isLoading: isLoadingCorporateBusinessDetails,
