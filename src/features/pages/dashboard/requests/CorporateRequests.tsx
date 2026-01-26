@@ -14,18 +14,8 @@ import { useRequestManagementBase } from '@/features/hooks/requestManagement ';
 import { MODALS, ROUTES } from '@/utils';
 import { usePersistedModalState } from '@/hooks';
 import { useNavigate } from 'react-router';
+import type { RequestCorporate } from '@/types';
 
-type RequestCorporate = {
-  id: number;
-  request_id: string;
-  name: string;
-  type: string;
-  description: string;
-  status: string;
-  entity_id: string;
-  created_at: string;
-  updated_at: string;
-};
 
 export default function Corporates() {
   const navigate = useNavigate();

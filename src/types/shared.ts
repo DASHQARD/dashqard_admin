@@ -129,3 +129,15 @@ export type CsvHeader = {
   accessor: string;
   transform?: (v: any) => string;
 };
+
+export type RequestCorporate = {
+  id: number;
+  request_id: string;
+  name: string;
+  type: string;
+  description: string;
+  status: string;
+  entity_id: string;
+  created_at: string;
+  updated_at: string;
+};
