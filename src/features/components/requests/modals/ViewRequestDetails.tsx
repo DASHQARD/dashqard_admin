@@ -1,6 +1,7 @@
+import React from 'react';
 import { Button, Modal, Tag, Text } from '@/components';
 import { requestManagementQueries } from '@/features/hooks/requestManagement ';
-import { usePersistedModalState } from '@/hooks';
+import { usePersistedModalState, usePresignedURL } from '@/hooks';
 import { MODALS } from '@/utils/constants';
 import { formatDate, getStatusVariant } from '@/utils/helpers';
 
@@ -15,6 +16,102 @@ export function ViewRequestDetails() {
   const { data: requestCorporateDetails } = useGetRequestCorporateDetails(
     String(requestData?.id || '')
   );
+
+  const { mutateAsync: getPresignedURL } = usePresignedURL();
+  const [logoUrlPresigned, setLogoUrlPresigned] = React.useState<string | null>(null);
+  const [currentLogoPresigned, setCurrentLogoPresigned] = React.useState<string | null>(null);
+
+  // Fetch presigned URL for proposed logo
+  React.useEffect(() => {
+    const logoUrl = requestCorporateDetails?.request_data?.logo_url;
+    if (!logoUrl) {
+      setLogoUrlPresigned(null);
+      return;
+    }
+
+    // If it's already a full HTTP URL, use it directly
+    if (logoUrl.startsWith('http')) {
+      setLogoUrlPresigned(logoUrl);
+      return;
+    }
+
+    let cancelled = false;
+
+    const fetchLogoPresignedUrl = async () => {
+      try {
+        const response = await getPresignedURL(logoUrl);
+        const url =
+          (typeof response === 'string'
+            ? response
+            : typeof response === 'object' && response
+              ? (response as any)?.data || (response as any)?.url
+              : String(response)) || logoUrl;
+        if (!cancelled) {
+          setLogoUrlPresigned(url);
+        }
+      } catch (error) {
+        console.error(
+          `Failed to fetch presigned URL for logo ${logoUrl}:`,
+          error
+        );
+        if (!cancelled) {
+          setLogoUrlPresigned(null);
+        }
+      }
+    };
+
+    fetchLogoPresignedUrl();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [requestCorporateDetails?.request_data?.logo_url, getPresignedURL]);
+
+  // Fetch presigned URL for current logo
+  React.useEffect(() => {
+    const currentLogo = requestCorporateDetails?.request_data?.current_data?.logo;
+    if (!currentLogo || typeof currentLogo !== 'string') {
+      setCurrentLogoPresigned(null);
+      return;
+    }
+
+    // If it's already a full HTTP URL, use it directly
+    if (currentLogo.startsWith('http')) {
+      setCurrentLogoPresigned(currentLogo);
+      return;
+    }
+
+    let cancelled = false;
+
+    const fetchCurrentLogoPresignedUrl = async () => {
+      try {
+        const response = await getPresignedURL(currentLogo);
+        const url =
+          (typeof response === 'string'
+            ? response
+            : typeof response === 'object' && response
+              ? (response as any)?.data || (response as any)?.url
+              : String(response)) || currentLogo;
+        if (!cancelled) {
+          setCurrentLogoPresigned(url);
+        }
+      } catch (error) {
+        console.error(
+          `Failed to fetch presigned URL for current logo ${currentLogo}:`,
+          error
+        );
+        if (!cancelled) {
+          setCurrentLogoPresigned(null);
+        }
+      }
+    };
+
+    fetchCurrentLogoPresignedUrl();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [requestCorporateDetails?.request_data?.current_data?.logo, getPresignedURL]);
 
   return (
     <Modal
@@ -280,12 +377,12 @@ export function ViewRequestDetails() {
               </div>
 
               {/* Logo URL Display - Full Width */}
-              {requestCorporateDetails.request_data.logo_url && (
+              {requestCorporateDetails.request_data.logo_url && logoUrlPresigned && (
                 <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
                   <p className="text-gray-600 text-xs font-medium mb-3">Proposed Logo</p>
                   <div className="flex flex-col gap-2">
                     <img
-                      src={requestCorporateDetails.request_data.logo_url}
+                      src={logoUrlPresigned}
                       alt="Proposed logo"
                       className="w-full max-w-[300px] h-auto rounded-lg border border-gray-200 object-contain"
                       onError={(e) => {
@@ -293,7 +390,7 @@ export function ViewRequestDetails() {
                       }}
                     />
                     <a
-                      href={requestCorporateDetails.request_data.logo_url}
+                      href={logoUrlPresigned}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-600 text-xs hover:underline"
@@ -319,10 +416,10 @@ export function ViewRequestDetails() {
                           <p className="text-gray-400 text-xs capitalize">
                             {key.replace(/_/g, ' ')}
                           </p>
-                          {key === 'logo' && value && typeof value === 'string' ? (
+                          {key === 'logo' && value && typeof value === 'string' && currentLogoPresigned ? (
                             <div className="flex flex-col gap-2">
                               <img
-                                src={value}
+                                src={currentLogoPresigned}
                                 alt="Current logo"
                                 className="w-full max-w-[200px] h-auto rounded-lg border border-gray-200 object-contain"
                                 onError={(e) => {
@@ -330,7 +427,7 @@ export function ViewRequestDetails() {
                                 }}
                               />
                               <a
-                                href={value}
+                                href={currentLogoPresigned}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="text-blue-600 text-xs hover:underline"
@@ -364,7 +461,8 @@ export function ViewRequestDetails() {
                         // If this is a logo update and logo_url exists, show the logo
                         if (
                           key === 'logo' &&
-                          requestCorporateDetails.request_data.logo_url
+                          requestCorporateDetails.request_data.logo_url &&
+                          logoUrlPresigned
                         ) {
                           return (
                             <div key={key} className="flex flex-col gap-1">
@@ -373,7 +471,7 @@ export function ViewRequestDetails() {
                               </p>
                               <div className="flex flex-col gap-2">
                                 <img
-                                  src={requestCorporateDetails.request_data.logo_url}
+                                  src={logoUrlPresigned}
                                   alt="Proposed logo"
                                   className="w-full max-w-[200px] h-auto rounded-lg border border-green-200 object-contain"
                                   onError={(e) => {
@@ -381,7 +479,7 @@ export function ViewRequestDetails() {
                                   }}
                                 />
                                 <a
-                                  href={requestCorporateDetails.request_data.logo_url}
+                                  href={logoUrlPresigned}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="text-green-600 text-xs hover:underline"
