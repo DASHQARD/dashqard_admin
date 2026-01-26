@@ -279,6 +279,31 @@ export function ViewRequestDetails() {
                 )}
               </div>
 
+              {/* Logo URL Display - Full Width */}
+              {requestCorporateDetails.request_data.logo_url && (
+                <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                  <p className="text-gray-600 text-xs font-medium mb-3">Proposed Logo</p>
+                  <div className="flex flex-col gap-2">
+                    <img
+                      src={requestCorporateDetails.request_data.logo_url}
+                      alt="Proposed logo"
+                      className="w-full max-w-[300px] h-auto rounded-lg border border-gray-200 object-contain"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = 'none';
+                      }}
+                    />
+                    <a
+                      href={requestCorporateDetails.request_data.logo_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 text-xs hover:underline"
+                    >
+                      View Full Image
+                    </a>
+                  </div>
+                </div>
+              )}
+
               <div className="grid grid-cols-2 gap-4">
                 {/* Current Data */}
                 {requestCorporateDetails.request_data.current_data && (
@@ -294,11 +319,32 @@ export function ViewRequestDetails() {
                           <p className="text-gray-400 text-xs capitalize">
                             {key.replace(/_/g, ' ')}
                           </p>
-                          <Text variant="span" weight="normal" className="text-gray-800 text-sm">
-                            {key.includes('_at') && typeof value === 'string'
-                              ? formatDate(value, 'DD MMM YYYY, HH:mm')
-                              : String(value || '-')}
-                          </Text>
+                          {key === 'logo' && value && typeof value === 'string' ? (
+                            <div className="flex flex-col gap-2">
+                              <img
+                                src={value}
+                                alt="Current logo"
+                                className="w-full max-w-[200px] h-auto rounded-lg border border-gray-200 object-contain"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).style.display = 'none';
+                                }}
+                              />
+                              <a
+                                href={value}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 text-xs hover:underline"
+                              >
+                                View Full Image
+                              </a>
+                            </div>
+                          ) : (
+                            <Text variant="span" weight="normal" className="text-gray-800 text-sm">
+                              {key.includes('_at') && typeof value === 'string'
+                                ? formatDate(value, 'DD MMM YYYY, HH:mm')
+                                : String(value || '-')}
+                            </Text>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -314,18 +360,51 @@ export function ViewRequestDetails() {
                     <div className="flex flex-col gap-3">
                       {Object.entries(
                         requestCorporateDetails.request_data.proposed_data
-                      ).map(([key, value]) => (
-                        <div key={key} className="flex flex-col gap-1">
-                          <p className="text-gray-400 text-xs capitalize">
-                            {key.replace(/_/g, ' ')}
-                          </p>
-                          <Text variant="span" weight="normal" className="text-gray-800 text-sm">
-                            {key.includes('_at') && typeof value === 'string'
-                              ? formatDate(value, 'DD MMM YYYY, HH:mm')
-                              : String(value || '-')}
-                          </Text>
-                        </div>
-                      ))}
+                      ).map(([key, value]) => {
+                        // If this is a logo update and logo_url exists, show the logo
+                        if (
+                          key === 'logo' &&
+                          requestCorporateDetails.request_data.logo_url
+                        ) {
+                          return (
+                            <div key={key} className="flex flex-col gap-1">
+                              <p className="text-gray-400 text-xs capitalize">
+                                {key.replace(/_/g, ' ')}
+                              </p>
+                              <div className="flex flex-col gap-2">
+                                <img
+                                  src={requestCorporateDetails.request_data.logo_url}
+                                  alt="Proposed logo"
+                                  className="w-full max-w-[200px] h-auto rounded-lg border border-green-200 object-contain"
+                                  onError={(e) => {
+                                    (e.target as HTMLImageElement).style.display = 'none';
+                                  }}
+                                />
+                                <a
+                                  href={requestCorporateDetails.request_data.logo_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-green-600 text-xs hover:underline"
+                                >
+                                  View Full Image
+                                </a>
+                              </div>
+                            </div>
+                          );
+                        }
+                        return (
+                          <div key={key} className="flex flex-col gap-1">
+                            <p className="text-gray-400 text-xs capitalize">
+                              {key.replace(/_/g, ' ')}
+                            </p>
+                            <Text variant="span" weight="normal" className="text-gray-800 text-sm">
+                              {key.includes('_at') && typeof value === 'string'
+                                ? formatDate(value, 'DD MMM YYYY, HH:mm')
+                                : String(value || '-')}
+                            </Text>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
