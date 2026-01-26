@@ -3,12 +3,9 @@ import { requestManagementQueries } from '../requestManagement ';
 
 export function usePendingRequestsCount() {
   const { useGetRequestCorporates } = requestManagementQueries();
-  const { data: allRequestsList } = useGetRequestCorporates();
-
+  const { data: allRequestsResponse } = useGetRequestCorporates();
   const pendingCounts = useMemo(() => {
-    if (!allRequestsList || !Array.isArray(allRequestsList)) {
-      return { corporate: 0, vendor: 0 };
-    }
+    const allRequestsList = allRequestsResponse?.data || []
 
     const corporatePending = allRequestsList.filter(
       (request: any) =>
@@ -26,7 +23,7 @@ export function usePendingRequestsCount() {
       corporate: corporatePending,
       vendor: vendorPending,
     };
-  }, [allRequestsList]);
+  }, [allRequestsResponse]);
 
   return pendingCounts;
 }

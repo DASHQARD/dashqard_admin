@@ -5,6 +5,9 @@ import { usePersistedModalState, usePresignedURL } from '@/hooks';
 import { MODALS } from '@/utils/constants';
 import { formatDate, getStatusVariant } from '@/utils/helpers';
 
+// grouzedezaga - 5315@yopmail.com
+
+
 export function ViewRequestDetails() {
   const modal = usePersistedModalState<{ id: number } | { id: string; status: string }>({
     paramName: MODALS.REQUEST_CORPORATE_MANAGEMENT.PARAM_NAME,
@@ -39,15 +42,21 @@ export function ViewRequestDetails() {
 
     const fetchLogoPresignedUrl = async () => {
       try {
-        const response = await getPresignedURL(logoUrl);
+        // Remove leading slash if present for S3 key format
+        const fileKey = logoUrl.startsWith('/') ? logoUrl.slice(1) : logoUrl;
+        const response = await getPresignedURL(fileKey);
+        console.log('response', response);
         const url =
           (typeof response === 'string'
             ? response
             : typeof response === 'object' && response
               ? (response as any)?.data || (response as any)?.url
-              : String(response)) || logoUrl;
-        if (!cancelled) {
+              : String(response)) || null;
+        if (!cancelled && url) {
           setLogoUrlPresigned(url);
+        } else if (!cancelled) {
+          console.warn(`Invalid presigned URL response for ${logoUrl}`);
+          setLogoUrlPresigned(null);
         }
       } catch (error) {
         console.error(
@@ -85,15 +94,20 @@ export function ViewRequestDetails() {
 
     const fetchCurrentLogoPresignedUrl = async () => {
       try {
-        const response = await getPresignedURL(currentLogo);
+        // Remove leading slash if present for S3 key format
+        const fileKey = currentLogo.startsWith('/') ? currentLogo.slice(1) : currentLogo;
+        const response = await getPresignedURL(fileKey);
         const url =
           (typeof response === 'string'
             ? response
             : typeof response === 'object' && response
               ? (response as any)?.data || (response as any)?.url
-              : String(response)) || currentLogo;
-        if (!cancelled) {
+              : String(response)) || null;
+        if (!cancelled && url) {
           setCurrentLogoPresigned(url);
+        } else if (!cancelled) {
+          console.warn(`Invalid presigned URL response for ${currentLogo}`);
+          setCurrentLogoPresigned(null);
         }
       } catch (error) {
         console.error(
