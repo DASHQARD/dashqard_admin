@@ -73,6 +73,8 @@ export function useVendorDetailsManagementBase() {
   const corporateInfo = React.useMemo(() => {
     if (!vendorDetails) return [];
 
+    const businessInfo = vendorDetails.business_information;
+
     return [
       {
         label: 'Corporate User ID',
@@ -89,6 +91,34 @@ export function useVendorDetailsManagementBase() {
       {
         label: 'Business Name',
         value: vendorDetails.business_name || '-',
+      },
+      {
+        label: 'Business Type',
+        value: businessInfo?.type || '-',
+      },
+      {
+        label: 'Registration Number',
+        value: businessInfo?.registration_number || '-',
+      },
+      {
+        label: 'Street Address',
+        value: businessInfo?.street_address || '-',
+      },
+      {
+        label: 'Digital Address',
+        value: businessInfo?.digital_address || '-',
+      },
+      {
+        label: 'Country',
+        value: businessInfo?.country || businessInfo?.country_code || '-',
+      },
+      {
+        label: 'Business Email',
+        value: businessInfo?.email || '-',
+      },
+      {
+        label: 'Business Phone',
+        value: businessInfo?.phone || '-',
       },
     ];
   }, [vendorDetails]);

@@ -50,6 +50,7 @@ export const MODALS = {
       ACTIVATE: 'activate-vendor',
       DELETE: 'delete-vendor',
       APPROVE: 'approve-vendor',
+      VIEW_KYC_DOCUMENT: 'view-vendor-kyc-document',
     },
   },
   PAYMENT: {

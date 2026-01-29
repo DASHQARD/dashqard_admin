@@ -1,18 +1,34 @@
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 
-import { Button, CustomIcon, Loader, Profile, Text } from '@/components';
-import { usePersistedModalState } from '@/hooks';
+import {
+  Button,
+  CustomIcon,
+  Loader,
+  Profile,
+  Tag,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+  Text,
+} from '@/components';
+import { usePersistedModalState, usePresignedURL } from '@/hooks';
 import { MODALS } from '@/utils/constants';
+import { getStatusVariant } from '@/utils';
 
 import { useVendorDetailsManagementBase } from '@/features/hooks/vendorManagement/useVendorDetailsManagement';
+import { vendorPaymentsManagementQueries } from '@/features/hooks/vendorPaymentsManagement';
 import {
   ActivateVendor,
   SuspendVendor,
+  ViewVendorKycDocument,
 } from '@/features/components/vendors/modals';
 import { ManageVendorPaymentPreferences } from '@/features/components/vendorPayments/modals';
 
 export default function VendorDetails() {
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('vendor');
 
   const activateModal = usePersistedModalState({
     paramName: MODALS.VENDOR_MANAGEMENT.CHILDREN.ACTIVATE,
@@ -26,6 +42,14 @@ export default function VendorDetails() {
     paramName: MODALS.VENDOR_PAYMENT_MANAGEMENT.PARAM_NAME,
   });
 
+  const documentModal = usePersistedModalState<{
+    id: string;
+    file_url: string;
+    verified: boolean;
+  }>({
+    paramName: MODALS.VENDOR_MANAGEMENT.CHILDREN.VIEW_KYC_DOCUMENT,
+  });
+
   const {
     vendorDetails,
     vendorInfo,
@@ -34,9 +58,164 @@ export default function VendorDetails() {
     isLoadingVendorDetails,
   } = useVendorDetailsManagementBase();
 
+  const vendorId = vendorDetails?.id ?? vendorDetails?.vendor_id;
+  const { useGetVendorPaymentPreferences } = vendorPaymentsManagementQueries();
+  const { data: paymentPreferencesData, isLoading: isLoadingPaymentPreferences } =
+    useGetVendorPaymentPreferences(
+      vendorId != null ? String(vendorId) : '',
+      !!vendorId && !isLoadingVendorDetails
+    );
+
+  const paymentPreferences = paymentPreferencesData?.data ?? paymentPreferencesData;
+  const hasPaymentPreferences =
+    paymentPreferences &&
+    typeof paymentPreferences === 'object' &&
+    (paymentPreferences as { id?: number; payment_frequency?: string }).id != null;
+
+  const { mutateAsync: getPresignedURL } = usePresignedURL();
+  const [logoPresignedUrl, setLogoPresignedUrl] = React.useState<
+    string | undefined
+  >(undefined);
+
+  const businessDocuments = React.useMemo(() => {
+    return vendorDetails?.business_documents || [];
+  }, [vendorDetails?.business_documents]);
+
+  const documentGroups = React.useMemo(() => {
+    const groups: Record<string, typeof businessDocuments> = {};
+    businessDocuments.forEach((doc: (typeof businessDocuments)[0]) => {
+      if (!groups[doc.type]) {
+        groups[doc.type] = [];
+      }
+      groups[doc.type].push(doc);
+    });
+    return groups;
+  }, [businessDocuments]);
+
+  const formatDocumentType = (type: string): string => {
+    return type
+      .split('_')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+
+  const handleViewDocument = (document: (typeof businessDocuments)[0]) => {
+    if (!document?.file_url) return;
+
+    const vendorId =
+      vendorDetails?.id || vendorDetails?.vendor_id || '';
+
+    documentModal.openModal(
+      MODALS.VENDOR_MANAGEMENT.CHILDREN.VIEW_KYC_DOCUMENT,
+      {
+        id: String(vendorId),
+        file_url: document.file_url,
+        verified:
+          vendorDetails?.status === 'approved' ||
+          vendorDetails?.approval_status === 'approved',
+      }
+    );
+  };
+
+  React.useEffect(() => {
+    const logoDoc = documentGroups['logo']?.[0];
+    if (!logoDoc?.file_url) {
+      setLogoPresignedUrl(undefined);
+      return;
+    }
+
+    if (logoDoc.file_url.startsWith('http')) {
+      setLogoPresignedUrl(logoDoc.file_url);
+      return;
+    }
+
+    let cancelled = false;
+
+    const fetchLogoPresignedUrl = async () => {
+      try {
+        const response = await getPresignedURL(logoDoc.file_url);
+        const url =
+          (typeof response === 'string'
+            ? response
+            : typeof response === 'object' && response
+              ? (response as any)?.data || (response as any)?.url
+              : String(response)) || logoDoc.file_url;
+        if (!cancelled) {
+          setLogoPresignedUrl(url);
+        }
+      } catch {
+        if (!cancelled) {
+          setLogoPresignedUrl(undefined);
+        }
+      }
+    };
+
+    fetchLogoPresignedUrl();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [documentGroups, getPresignedURL]);
+
+  const requiredDocumentTypes = [
+    'certificate_of_incorporation',
+    'business_license',
+    'articles_of_incorporation',
+    'utility_bill',
+  ];
+
+  const displayStatus =
+    vendorDetails?.status || vendorDetails?.approval_status || 'N/A';
+
+  const showPaymentPreferencesBanner =
+    !isLoadingVendorDetails &&
+    !!vendorDetails &&
+    !isLoadingPaymentPreferences &&
+    !hasPaymentPreferences;
+
   return (
     <>
       <div className="md:py-10 space-y-10">
+        {showPaymentPreferencesBanner && (
+          <div className="rounded-xl border border-amber-200 bg-amber-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 py-4 px-4 sm:px-6">
+            <div className="flex items-start gap-3">
+              <CustomIcon
+                name="InfoSign"
+                width={24}
+                height={24}
+                className="text-amber-600 shrink-0 mt-0.5"
+              />
+              <div>
+                <p className="text-sm font-medium text-amber-900">
+                  Payment preference has not been created
+                </p>
+                <p className="text-sm text-amber-800 mt-0.5">
+                  This vendor does not have a payment schedule set. Set payment
+                  preferences to define how often they receive payments.
+                </p>
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              size="medium"
+              className="border-amber-500 text-amber-700 shrink-0"
+              onClick={() =>
+                paymentPreferencesModal.openModal(
+                  MODALS.VENDOR_PAYMENT_MANAGEMENT.CHILDREN.MANAGE_PREFERENCES,
+                  {
+                    id: vendorDetails?.id || vendorDetails?.vendor_id,
+                    vendor_id: vendorDetails?.vendor_id || vendorDetails?.id,
+                    vendor_name: vendorDetails?.vendor_name,
+                  }
+                )
+              }
+            >
+              <CustomIcon name="Settings" width={20} height={20} />
+              Set payment preferences
+            </Button>
+          </div>
+        )}
+
         <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4">
           <div>
             <button
@@ -125,67 +304,150 @@ export default function VendorDetails() {
           <Profile
             name={vendorDetails?.vendor_name || 'N/A'}
             businessName={vendorDetails?.business_name || 'N/A'}
-            status={
-              vendorDetails?.status || vendorDetails?.approval_status || 'N/A'
-            }
+            status={displayStatus}
+            logo={logoPresignedUrl}
           >
             <div className="flex flex-col gap-6 w-full">
-              <Text variant="h5" weight="medium">
-                Vendor Information
-              </Text>
-              <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-                {vendorInfo.map((item) => (
-                  <div className="flex flex-col gap-1 min-w-0" key={item.label}>
-                    <p className="text-xs text-gray-400 whitespace-nowrap">
-                      {item.label}
-                    </p>
-                    <Text
-                      variant="span"
-                      className="wrap-break-word overflow-hidden capitalize"
-                    >
-                      {item.value}
-                    </Text>
-                  </div>
-                ))}
-              </section>
+              <Tabs value={activeTab} onValueChange={setActiveTab}>
+                <TabsList>
+                  <TabsTrigger value="vendor">Vendor Information</TabsTrigger>
+                  <TabsTrigger value="business">Business Profile</TabsTrigger>
+                  <TabsTrigger value="documents">Documents</TabsTrigger>
+                </TabsList>
 
-              <Text variant="h5" weight="medium" className="mt-6">
-                Corporate Information
-              </Text>
-              <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-                {corporateInfo.map((item) => (
-                  <div className="flex flex-col gap-1 min-w-0" key={item.label}>
-                    <p className="text-xs text-gray-400 whitespace-nowrap">
-                      {item.label}
-                    </p>
-                    <Text
-                      variant="span"
-                      className="wrap-break-word overflow-hidden"
-                    >
-                      {item.value}
-                    </Text>
-                  </div>
-                ))}
-              </section>
+                <TabsContent value="vendor" className="mt-6">
+                  <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                    {vendorInfo.map((item) => (
+                      <div
+                        className="flex flex-col gap-1 min-w-0"
+                        key={item.label}
+                      >
+                        <p className="text-xs text-gray-400 whitespace-nowrap">
+                          {item.label}
+                        </p>
+                        <Text
+                          variant="span"
+                          className="wrap-break-word overflow-hidden capitalize"
+                        >
+                          {item.value}
+                        </Text>
+                      </div>
+                    ))}
+                  </section>
+                </TabsContent>
 
-              <Text variant="h5" weight="medium" className="mt-6">
-                Relationship Information
-              </Text>
-              <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-                {relationshipInfo.map((item) => (
-                  <div className="flex flex-col gap-1 min-w-0" key={item.label}>
-                    <p className="text-xs text-gray-400 whitespace-nowrap">
-                      {item.label}
-                    </p>
-                    <Text
-                      variant="span"
-                      className="wrap-break-word overflow-hidden capitalize"
-                    >
-                      {item.value}
-                    </Text>
+                <TabsContent value="business" className="mt-6">
+                  <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                    {corporateInfo.map((item) => (
+                      <div
+                        className="flex flex-col gap-1 min-w-0"
+                        key={item.label}
+                      >
+                        <p className="text-xs text-gray-400 whitespace-nowrap">
+                          {item.label}
+                        </p>
+                        <Text
+                          variant="span"
+                          className="wrap-break-word overflow-hidden"
+                        >
+                          {item.value}
+                        </Text>
+                      </div>
+                    ))}
+                    {relationshipInfo.map((item) => (
+                      <div
+                        className="flex flex-col gap-1 min-w-0"
+                        key={item.label}
+                      >
+                        <p className="text-xs text-gray-400 whitespace-nowrap">
+                          {item.label}
+                        </p>
+                        <Text
+                          variant="span"
+                          className="wrap-break-word overflow-hidden capitalize"
+                        >
+                          {item.value}
+                        </Text>
+                      </div>
+                    ))}
+                  </section>
+                </TabsContent>
+
+                <TabsContent value="documents" className="mt-6">
+                  <div className="border border-gray-200 rounded-lg">
+                    <div className="flex justify-between items-center bg-[#FAFAFA] p-3">
+                      <h2 className="text-gray-500 font-medium">
+                        Business Documents
+                      </h2>
+                      <Tag
+                        value={
+                          displayStatus === 'approved' || displayStatus === 'active'
+                            ? 'Verified'
+                            : displayStatus === 'rejected'
+                              ? 'Rejected'
+                              : 'Pending'
+                        }
+                        variant={getStatusVariant(displayStatus)}
+                      />
+                    </div>
+
+                    <div className="space-y-5 p-3">
+                      {requiredDocumentTypes.map((docType) => {
+                        const documents = documentGroups[docType] || [];
+                        const document = documents[0];
+
+                        return (
+                          <div
+                            key={docType}
+                            className="text-sm flex justify-between items-center"
+                          >
+                            <Text className="capitalize text-sm text-gray-400">
+                              {formatDocumentType(docType)}:
+                            </Text>
+
+                            <div className="flex items-center gap-2">
+                              {document?.file_url ? (
+                                <button
+                                  onClick={() => handleViewDocument(document)}
+                                  className="flex gap-1 items-center hover:opacity-80 transition-opacity text-blue-500"
+                                >
+                                  <CustomIcon
+                                    name="FileText"
+                                    width={24}
+                                    height={24}
+                                  />
+                                  <Text className="text-primary-600 text-sm">
+                                    View Document
+                                  </Text>
+                                </button>
+                              ) : (
+                                <Text className="text-gray-400 text-sm">
+                                  No document uploaded
+                                </Text>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+
+                      {businessDocuments.length > 0 &&
+                        businessDocuments[0]?.employer_identification_number && (
+                          <div className="text-sm flex justify-between items-center pt-3 border-t border-gray-200">
+                            <Text className="capitalize text-sm text-gray-400">
+                              Employer Identification Number:
+                            </Text>
+                            <Text className="text-primary-800">
+                              {
+                                businessDocuments[0]
+                                  .employer_identification_number
+                              }
+                            </Text>
+                          </div>
+                        )}
+                    </div>
                   </div>
-                ))}
-              </section>
+                </TabsContent>
+              </Tabs>
             </div>
           </Profile>
         )}
@@ -200,6 +462,11 @@ export default function VendorDetails() {
       {paymentPreferencesModal.modalState ===
         MODALS.VENDOR_PAYMENT_MANAGEMENT.CHILDREN.MANAGE_PREFERENCES && (
         <ManageVendorPaymentPreferences />
+      )}
+
+      {documentModal.modalState ===
+        MODALS.VENDOR_MANAGEMENT.CHILDREN.VIEW_KYC_DOCUMENT && (
+        <ViewVendorKycDocument />
       )}
     </>
   );

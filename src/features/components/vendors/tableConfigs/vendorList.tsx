@@ -16,10 +16,6 @@ export const vendorListColumns = [
     accessorKey: 'business_name',
   },
   {
-    header: 'Vendor User Type',
-    accessorKey: 'vendor_user_type',
-  },
-  {
     header: 'Vendor Status',
     accessorKey: 'vendor_status',
     cell: VendorStatusCell,
@@ -40,10 +36,6 @@ export const vendorListCsvHeaders: Array<CsvHeader> = [
   {
     name: 'Business Name',
     accessor: 'business_name',
-  },
-  {
-    name: 'Vendor User Type',
-    accessor: 'vendor_user_type',
   },
   {
     name: 'Vendor Status',
