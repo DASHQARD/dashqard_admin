@@ -7,6 +7,7 @@ import { ADMIN_NAV_ITEMS, ROUTES } from '@/utils/constants';
 import { cn } from '@/libs';
 import { SidebarSection } from './SidebarSection';
 import { usePendingRequestsCount } from '@/features/hooks/requestManagement/usePendingRequestsCount';
+import { useInactiveVendorsCount } from '@/features/hooks/vendorManagement';
 
 export default function AdminSidebar() {
   const location = useLocation();
@@ -89,6 +90,7 @@ export default function AdminSidebar() {
   const { corporate: corporatePendingCount, vendor: vendorPendingCount } =
     usePendingRequestsCount();
 
+  const inactiveVendorsCount = useInactiveVendorsCount();
 
   // Add badge counts to navigation items
   const navItemsWithBadges = useMemo(() => {
@@ -123,18 +125,17 @@ export default function AdminSidebar() {
         return {
           ...item,
           children: childrenWithBadges,
-          // Also add badge to parent if it has pending children
+          // Vendors parent: red count for inactive vendors; Corporates: pending requests
           badgeCount:
-            (isVendorsItem && vendorPendingCount > 0) ||
-              (isCorporatesItem && corporatePendingCount > 0)
-              ? isVendorsItem
-                ? vendorPendingCount
-                : corporatePendingCount
-              : undefined,
+            (isVendorsItem && inactiveVendorsCount > 0)
+              ? inactiveVendorsCount
+              : (isCorporatesItem && corporatePendingCount > 0)
+                ? corporatePendingCount
+                : undefined,
         };
       }),
     }));
-  }, [corporatePendingCount, vendorPendingCount]);
+  }, [corporatePendingCount, vendorPendingCount, inactiveVendorsCount]);
 
   // Auto-expand items if any of their children are active
   useEffect(() => {

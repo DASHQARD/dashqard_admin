@@ -10,7 +10,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "release": "standard-version"
   },
   "dependencies": {
     "@cyntler/react-doc-viewer": "^1.17.1",
@@ -47,6 +48,7 @@
     "react-router-dom": "^7.9.6",
     "react-select": "^5.10.2",
     "react-spring": "^10.0.3",
+    "standard-version": "^9.5.0",
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.17",
     "validator": "^13.15.23",
