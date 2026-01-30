@@ -8,6 +8,7 @@ import { vendorManagementMutations } from '@/features/hooks/vendorManagement';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useCustomForm } from '@/libs';
+import { Controller } from 'react-hook-form';
 
 type VendorData = {
   id?: number;
@@ -15,42 +16,48 @@ type VendorData = {
   vendor_id?: number;
 };
 
+const schema = z.object({
+  vendor_account_id: z.number(),
+  rejection_reason: z.string().optional(),
+});
+
+type FormData = z.infer<typeof schema>;
+
 export function DeactivateVendor() {
   const modal = usePersistedModalState<VendorData>({
     paramName: MODALS.VENDOR_MANAGEMENT.PARAM_NAME,
   });
 
-  const { useUpdateVendorStatus } = vendorManagementMutations();
-  const updateStatusMutation = useUpdateVendorStatus();
+  const { useRejectVendor } = vendorManagementMutations();
+  const rejectVendorMutation = useRejectVendor();
 
   const form = useCustomForm({
-    resolver: zodResolver(
-      z.object({
-        vendor_account_id: z.number(),
-      })
-    ),
+    resolver: zodResolver(schema),
     defaultValues: {
       vendor_account_id: 0,
+      rejection_reason: '',
     },
   });
 
   useEffect(() => {
     if (modal.modalData) {
-      // The vendor_account_id is the id field in the vendor account data
       const vendorAccountId =
         modal.modalData?.vendor_account_id || modal.modalData?.id || 0;
       form.reset({
         vendor_account_id: vendorAccountId,
+        rejection_reason: '',
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [modal.modalData]);
 
-  const onSubmit: SubmitHandler<{ vendor_account_id: number }> = (data) => {
-    updateStatusMutation.mutate(
+  const onSubmit: SubmitHandler<FormData> = (data) => {
+    rejectVendorMutation.mutate(
       {
-        ...data,
-        status: 'inactive',
+        vendor_account_id: data.vendor_account_id,
+        ...(data.rejection_reason?.trim() && {
+          rejection_reason: data.rejection_reason.trim(),
+        }),
       },
       {
         onSuccess: () => {
@@ -82,13 +89,31 @@ export function DeactivateVendor() {
             />
             <div className="flex flex-col gap-1">
               <Text variant="h3" className="text-center font-semibold">
-                Deactivate vendor
+                Reject vendor
               </Text>
               <p className="text-gray-600 text-center text-sm">
-                Are you sure you want to deactivate this vendor? Confirm action
-                below
+                Are you sure you want to reject this vendor? You may provide a
+                reason below.
               </p>
             </div>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-medium text-gray-700">
+              Rejection reason (optional)
+            </label>
+            <Controller
+              name="rejection_reason"
+              control={form.control}
+              render={({ field }) => (
+                <textarea
+                  {...field}
+                  placeholder="Enter reason for rejection..."
+                  className="w-full min-h-[80px] px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  rows={3}
+                />
+              )}
+            />
           </div>
 
           <div className="flex items-center gap-3">
@@ -101,11 +126,12 @@ export function DeactivateVendor() {
               Cancel
             </Button>
             <Button
-              variant="secondary"
-              loading={updateStatusMutation.isPending}
+              type="submit"
+              variant="danger"
+              loading={rejectVendorMutation.isPending}
               className="grow"
             >
-              Deactivate
+              Reject
             </Button>
           </div>
         </div>

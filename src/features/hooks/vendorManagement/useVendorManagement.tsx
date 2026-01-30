@@ -178,12 +178,18 @@ export function useVendorManagementBase() {
       });
     }
 
-    // Determine vendor status - check both status and approval_status fields
+    // Use vendor_status first (matches "Vendor Status" column in table); fallback to status/approval_status
     const vendorStatus =
-      vendor.status || vendor.approval_status || vendor.vendor_status || '';
+      vendor.vendor_status || vendor.status || vendor.approval_status || '';
+    const statusLower = vendorStatus?.toLowerCase() || '';
     const isVendorActive =
-      vendorStatus?.toLowerCase() === 'active' ||
-      vendorStatus?.toLowerCase() === 'approved';
+      statusLower === 'active' ||
+      statusLower === 'approved' ||
+      statusLower === 'verified';
+    const isVendorInactive =
+      statusLower === 'inactive' ||
+      statusLower === 'rejected' ||
+      statusLower === 'pending';
 
     // Activate option - only show if vendor is NOT active
     if (
@@ -206,7 +212,7 @@ export function useVendorManagementBase() {
       });
     }
 
-    // Deactivate option - only show if vendor IS active
+    // Deactivate option - only show if vendor IS verified/active
     if (
       isVendorActive &&
       option?.hasDeactivate &&
@@ -227,14 +233,15 @@ export function useVendorManagementBase() {
       });
     }
 
-    // Approve option
+    // Approve option - only show if vendor is inactive/rejected/pending (never for verified/active)
     if (
-      permissionsToCheck.some(
+      isVendorInactive &&
+      (permissionsToCheck.some(
         (p) =>
           p.toLowerCase().includes('vendors:manage') ||
           p.toLowerCase().includes('vendor management approve')
       ) ||
-      userToCheck?.isSuperAdmin
+        userToCheck?.isSuperAdmin)
     ) {
       actions.push({
         label: 'Approve',

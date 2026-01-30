@@ -18,7 +18,6 @@ export function VendorActionCell({ row }: TableCellProps<{ id: string }>) {
   const { userPermissions = [] } = useContentGuard();
   const user = useAuthStore().user;
 
-  console.log('userPermissions', userPermissions);
 
   return (
     <Dropdown
@@ -28,7 +27,7 @@ export function VendorActionCell({ row }: TableCellProps<{ id: string }>) {
         option: {
           hasView: true,
           hasDeactivate: true,
-          hasActivate: true,
+          // hasActivate: true,
           hasDelete: true,
         },
         loginUser: user!,

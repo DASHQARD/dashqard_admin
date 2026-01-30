@@ -8,6 +8,7 @@ import { cn } from '@/libs';
 import { SidebarSection } from './SidebarSection';
 import { usePendingRequestsCount } from '@/features/hooks/requestManagement/usePendingRequestsCount';
 import { useInactiveVendorsCount } from '@/features/hooks/vendorManagement';
+import { useAdminService } from '@/features/hooks/useAdminService';
 
 export default function AdminSidebar() {
   const location = useLocation();
@@ -15,11 +16,22 @@ export default function AdminSidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
 
-  const userName =
-    (user as any)?.name ||
+  const { useAdminProfile } = useAdminService();
+  const { data: adminProfile } = useAdminProfile();
+
+  const displayName =
+    (adminProfile?.first_name || adminProfile?.last_name
+      ? `${adminProfile?.first_name || ''} ${adminProfile?.last_name || ''}`.trim()
+      : null) ||
     (user as any)?.fullname ||
+    `${(user as any)?.first_name || ''} ${(user as any)?.last_name || ''}`.trim() ||
+    (user as any)?.name ||
     (user as any)?.email?.split('@')[0] ||
     'Admin';
+  const userType =
+    adminProfile?.type ||
+    (user as any)?.type ||
+    'admin';
 
   const toggleSidebar = () => {
     const newState = !isCollapsed;
@@ -180,14 +192,14 @@ export default function AdminSidebar() {
             {!isCollapsed && (
               <div className="flex-1 min-w-0">
                 <h4 className="text-lg font-semibold text-[#2c3e50] m-0 mb-1 whitespace-nowrap overflow-hidden text-ellipsis leading-tight">
-                  {userName}
+                  {displayName}
                 </h4>
-                <div className="flex items-center gap-2 text-xs text-[#6c757d] font-medium bg-[#f8f9fa] px-3 py-1 rounded-full border border-[#e9ecef] w-fit">
+                <div className="flex items-center gap-2 text-xs text-[#6c757d] font-medium bg-[#f8f9fa] px-3 py-1 rounded-full border border-[#e9ecef] w-fit capitalize">
                   <Icon
                     icon="bi:shield-lock"
                     className="text-xs text-[#402D87]"
                   />
-                  <span>Admin Account</span>
+                  <span>{userType.replace(/_/g, ' ')}</span>
                 </div>
               </div>
             )}

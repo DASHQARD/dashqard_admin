@@ -23,6 +23,32 @@ export function vendorManagementMutations() {
     });
   }
 
+  function useRejectVendor() {
+    const queryClient = useQueryClient();
+    const { error, success } = useToast();
+    return useMutation({
+      mutationFn: (data: {
+        vendor_account_id: number;
+        rejection_reason?: string;
+      }) =>
+        approveVendor({
+          vendor_account_id: data.vendor_account_id,
+          approval_status: 'rejected',
+          ...(data.rejection_reason && {
+            rejection_reason: data.rejection_reason,
+          }),
+        }),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['vendors'] });
+        queryClient.invalidateQueries({ queryKey: ['vendor-details'] });
+        success('Vendor rejected successfully');
+      },
+      onError: (err: any) => {
+        error(err?.message || 'Failed to reject vendor');
+      },
+    });
+  }
+
   function useUpdateVendorStatus() {
     const queryClient = useQueryClient();
     const { error, success } = useToast();
@@ -59,6 +85,7 @@ export function vendorManagementMutations() {
 
   return {
     useApproveVendor,
+    useRejectVendor,
     useUpdateVendorStatus,
     useRemoveVendorAdmin,
   };
