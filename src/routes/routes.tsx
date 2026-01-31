@@ -1,35 +1,45 @@
 import { Navigate, type RouteObject } from 'react-router-dom';
 import { CustomErrorBoundary } from '@/components';
-import { AdminLayout, DashboardLayout } from '@/features';
+import { AdminLayout, DashboardLayout, RootLayout } from '@/features';
 import { adminRoutes, authRoutes, dashboardRoutes } from '@/features/routes';
 import { AdminOnboarding } from '@/features/pages';
 
 export const routes: RouteObject[] = [
   {
     path: '/',
-    element: <Navigate to="/auth/login" replace />,
-  },
-  // Explicit route so /admin/onboard is never treated as /admin + missing child
-  {
-    path: '/admin/onboard',
-    element: <AdminOnboarding />,
+    element: <RootLayout />,
     errorElement: <CustomErrorBoundary />,
-  },
-  {
-    path: '/auth',
-    errorElement: <CustomErrorBoundary />,
-    children: authRoutes,
-  },
-  {
-    path: '/dashboard',
-    element: <DashboardLayout />,
-    errorElement: <CustomErrorBoundary />,
-    children: dashboardRoutes,
-  },
-  {
-    path: '/admin',
-    element: <AdminLayout />,
-    errorElement: <CustomErrorBoundary />,
-    children: adminRoutes,
+    children: [
+      {
+        index: true,
+        element: <Navigate to="/auth/login" replace />,
+      },
+      // Must be before "admin" so /admin/onboard matches here, not admin's child routes
+      {
+        path: 'admin/onboard',
+        element: <AdminOnboarding />,
+      },
+      {
+        path: 'admin/onboard/',
+        element: <AdminOnboarding />,
+      },
+      {
+        path: 'auth',
+        errorElement: <CustomErrorBoundary />,
+        children: authRoutes,
+      },
+      {
+        path: 'dashboard',
+        element: <DashboardLayout />,
+        errorElement: <CustomErrorBoundary />,
+        children: dashboardRoutes,
+      },
+      {
+        path: 'admin',
+        element: <AdminLayout />,
+        errorElement: <CustomErrorBoundary />,
+        children: adminRoutes,
+      },
+    ],
   },
 ];
