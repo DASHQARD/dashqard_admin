@@ -9,6 +9,12 @@ export const routes: RouteObject[] = [
     path: '/',
     element: <Navigate to="/auth/login" replace />,
   },
+  // Explicit route so /admin/onboard is never treated as /admin + missing child
+  {
+    path: '/admin/onboard',
+    element: <AdminOnboarding />,
+    errorElement: <CustomErrorBoundary />,
+  },
   {
     path: '/auth',
     errorElement: <CustomErrorBoundary />,
@@ -19,10 +25,6 @@ export const routes: RouteObject[] = [
     element: <DashboardLayout />,
     errorElement: <CustomErrorBoundary />,
     children: dashboardRoutes,
-  },
-  {
-    path: '/admin/onboard',
-    element: <AdminOnboarding />,
   },
   {
     path: '/admin',

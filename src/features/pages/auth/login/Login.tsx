@@ -1,27 +1,18 @@
-import { Link } from 'react-router-dom';
-import CreateAccountMan from '@/assets/images/create-account-man.png';
-import LogoWhite from '@/assets/svgs/logo-white.svg?react';
-import { ROUTES } from '@/utils/constants';
 import { LoginForm } from '@/features/components';
+import { LeftImage } from '@/assets/images';
 
 export default function Login() {
   return (
-    <div className="flex relative min-h-screen overflow-hidden">
-      <div className="bg-primary-500 rounded-tr-[220px] min-w-[623.34px] relative hidden lg:block">
-        <Link
-          to={ROUTES.IN_APP.DASHBOARD.HOME}
-          className="absolute top-[80px] left-1/2 -translate-x-1/2 z-10"
-        >
-          <LogoWhite />
-        </Link>
+    <div className="grid grid-cols-1 lg:grid-cols-2 grid-rows-[40vh_1fr] lg:grid-rows-1 h-screen min-h-screen overflow-hidden">
+      <div className="relative min-h-0 h-full">
         <img
-          src={CreateAccountMan}
-          alt="Create Account Man"
-          className="absolute bottom-0 -right-15 z-10"
+          src={LeftImage}
+          alt="Manage digital gifting with ease"
+          className="h-full w-full object-cover object-[40%_20%]"
         />
       </div>
 
-      <div className="flex-1 flex items-center justify-center">
+      <div className="flex min-h-0 items-center justify-center p-4 sm:p-6 lg:p-8 overflow-auto">
         <LoginForm />
       </div>
     </div>

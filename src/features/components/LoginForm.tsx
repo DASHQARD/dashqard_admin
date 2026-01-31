@@ -1,8 +1,8 @@
 import { Input, Modal, Text } from '@/components';
 import { Button } from '@/components/Button';
 import { Icon } from '@/libs';
-import { ROUTES } from '@/utils/constants';
-import { Link } from 'react-router-dom';
+// import { ROUTES } from '@/utils/constants';
+// import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { LoginSchema } from '@/utils/schemas';
@@ -76,26 +76,14 @@ export default function LoginForm() {
               >
                 Sign In
               </Button>
-              <Link
+              {/* <Link
                 to={ROUTES.IN_APP.AUTH.RESET_PASSWORD}
                 className="text-primary-500 underline  text-sm"
               >
                 Forgot password?
-              </Link>
+              </Link> */}
 
-              <hr className="border-gray-200" />
-
-              <div className="flex items-center gap-2">
-                <p>
-                  Don't have an account?{' '}
-                  <Link
-                    to={ROUTES.IN_APP.AUTH.REGISTER}
-                    className="text-primary-500 underline"
-                  >
-                    Create account
-                  </Link>
-                </p>
-              </div>
+              {/* <hr className="border-gray-200" /> */}
             </section>
           </form>
         </>
