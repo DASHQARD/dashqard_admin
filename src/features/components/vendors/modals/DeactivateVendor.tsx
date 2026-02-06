@@ -3,12 +3,12 @@ import { useEffect } from 'react';
 
 import { Button, CustomIcon, Modal, Text } from '@/components';
 import { usePersistedModalState } from '@/hooks';
+import { useCustomForm } from '@/libs/react-hook-form';
 import { MODALS } from '@/utils/constants';
 import { vendorManagementMutations } from '@/features/hooks/vendorManagement';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { useCustomForm } from '@/libs';
 import { Controller } from 'react-hook-form';
+import { z } from 'zod';
 
 type VendorData = {
   id?: number;
@@ -18,7 +18,7 @@ type VendorData = {
 
 const schema = z.object({
   vendor_account_id: z.number(),
-  rejection_reason: z.string().optional(),
+  rejection_reason: z.string().min(1, 'Rejection reason is required'),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -31,7 +31,7 @@ export function DeactivateVendor() {
   const { useRejectVendor } = vendorManagementMutations();
   const rejectVendorMutation = useRejectVendor();
 
-  const form = useCustomForm({
+  const form = useCustomForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
       vendor_account_id: 0,
@@ -41,8 +41,9 @@ export function DeactivateVendor() {
 
   useEffect(() => {
     if (modal.modalData) {
-      const vendorAccountId =
-        modal.modalData?.vendor_account_id || modal.modalData?.id || 0;
+      const vendorAccountId = Number(
+        modal.modalData?.vendor_account_id ?? modal.modalData?.id ?? modal.modalData?.vendor_id ?? 0
+      );
       form.reset({
         vendor_account_id: vendorAccountId,
         rejection_reason: '',
@@ -55,13 +56,12 @@ export function DeactivateVendor() {
     rejectVendorMutation.mutate(
       {
         vendor_account_id: data.vendor_account_id,
-        ...(data.rejection_reason?.trim() && {
-          rejection_reason: data.rejection_reason.trim(),
-        }),
+        rejection_reason: data.rejection_reason.trim(),
       },
       {
         onSuccess: () => {
           modal.closeModal();
+          form.reset();
         },
       }
     );
@@ -69,20 +69,21 @@ export function DeactivateVendor() {
 
   return (
     <Modal
-      panelClass=" "
+      panelClass="!max-w-md"
       isOpen={modal.isModalOpen(MODALS.VENDOR_MANAGEMENT.CHILDREN.DEACTIVATE)}
       setIsOpen={(isOpen) => {
         if (!isOpen) {
           modal.closeModal();
+          form.reset();
         }
       }}
       position="center"
     >
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        <div className="p-6 flex flex-col gap-12">
+        <div className="p-6 flex flex-col gap-6">
           <div className="flex flex-col gap-4 items-center justify-center">
             <CustomIcon
-              name={'OrangeWarningSign'}
+              name="OrangeWarningSign"
               width={48}
               height={48}
               className="text-error"
@@ -92,7 +93,7 @@ export function DeactivateVendor() {
                 Reject vendor
               </Text>
               <p className="text-gray-600 text-center text-sm">
-                Are you sure you want to reject this vendor? You may provide a
+                Are you sure you want to reject this vendor? You must provide a
                 reason below.
               </p>
             </div>
@@ -100,7 +101,7 @@ export function DeactivateVendor() {
 
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium text-gray-700">
-              Rejection reason (optional)
+              Rejection reason <span className="text-error">*</span>
             </label>
             <Controller
               name="rejection_reason"
@@ -109,18 +110,26 @@ export function DeactivateVendor() {
                 <textarea
                   {...field}
                   placeholder="Enter reason for rejection..."
-                  className="w-full min-h-[80px] px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  rows={3}
+                  className="w-full min-h-[100px] px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-y"
+                  rows={4}
                 />
               )}
             />
+            {form.formState.errors.rejection_reason?.message && (
+              <Text variant="span" className="text-sm text-error">
+                {form.formState.errors.rejection_reason.message}
+              </Text>
+            )}
           </div>
 
           <div className="flex items-center gap-3">
             <Button
               type="button"
-              variant={'outline'}
-              onClick={modal.closeModal}
+              variant="outline"
+              onClick={() => {
+                modal.closeModal();
+                form.reset();
+              }}
               className="grow"
             >
               Cancel
@@ -131,7 +140,7 @@ export function DeactivateVendor() {
               loading={rejectVendorMutation.isPending}
               className="grow"
             >
-              Reject
+              Reject vendor
             </Button>
           </div>
         </div>

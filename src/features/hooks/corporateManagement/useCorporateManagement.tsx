@@ -53,7 +53,6 @@ export function useCorporateManagementBase() {
   const pagination = data?.pagination;
   const { data: corporateDetails, isLoading: isLoadingCorporateDetails } =
     useGetCorporateDetails(paramsForApi?.corporateId || '');
-  console.log('corporateDetails', corporateDetails);
   const {
     data: corporateBusinessDetails,
     isLoading: isLoadingCorporateBusinessDetails,
@@ -67,7 +66,11 @@ export function useCorporateManagementBase() {
     return [
       {
         label: 'User ID',
-        value: details.user_id || details.corporate_id || '-',
+        value: details.user_id || '-',
+      },
+      {
+        label: 'Corporate ID',
+        value: details.corporate_id || '-',
       },
       {
         label: 'Full Name',
@@ -118,6 +121,14 @@ export function useCorporateManagementBase() {
         value: details.onboarding_stage || '-',
       },
       {
+        label: 'Sequence Number',
+        value: details.sequence_number != null ? String(details.sequence_number) : '-',
+      },
+      {
+        label: 'Default Payment Option',
+        value: details.default_payment_option || '-',
+      },
+      {
         label: 'Date Joined',
         value: details.created_at ? formatDate(details.created_at) : '-',
       },
@@ -162,6 +173,12 @@ export function useCorporateManagementBase() {
         label: 'Business Created',
         value: details.business_created_at
           ? formatDate(details.business_created_at)
+          : '-',
+      },
+      {
+        label: 'Business Updated',
+        value: details.business_updated_at
+          ? formatDate(details.business_updated_at)
           : '-',
       },
     ];

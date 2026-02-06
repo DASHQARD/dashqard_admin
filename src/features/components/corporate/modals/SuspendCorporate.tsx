@@ -86,7 +86,7 @@ export function SuspendCorporate() {
             >
               Cancel
             </Button>
-            <Button loading={suspendMutation.isPending} className="grow">
+            <Button variant="danger" loading={suspendMutation.isPending} className="grow">
               Suspend
             </Button>
           </div>

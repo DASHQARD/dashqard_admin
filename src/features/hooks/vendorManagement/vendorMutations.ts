@@ -58,7 +58,7 @@ export function vendorManagementMutations() {
         queryClient.invalidateQueries({ queryKey: ['vendors'] });
         queryClient.invalidateQueries({ queryKey: ['vendor-details'] });
         success(
-          `Vendor ${variables.status === 'active' ? 'activated' : 'deactivated'} successfully`
+          `Vendor ${variables.approval_status === 'approved' ? 'approved' : 'rejected'} successfully`
         );
       },
       onError: (err: any) => {

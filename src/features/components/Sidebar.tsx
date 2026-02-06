@@ -7,7 +7,9 @@ import { ADMIN_NAV_ITEMS, ROUTES } from '@/utils/constants';
 import { cn } from '@/libs';
 import { SidebarSection } from './SidebarSection';
 import { usePendingRequestsCount } from '@/features/hooks/requestManagement/usePendingRequestsCount';
+import { usePendingCustomersCount } from '@/features/hooks/customerManagement';
 import { useInactiveVendorsCount } from '@/features/hooks/vendorManagement';
+import { useOverduePaymentsCount } from '@/features/hooks/vendorPaymentsManagement';
 import { useAdminService } from '@/features/hooks/useAdminService';
 
 export default function AdminSidebar() {
@@ -103,17 +105,20 @@ export default function AdminSidebar() {
     usePendingRequestsCount();
 
   const inactiveVendorsCount = useInactiveVendorsCount();
+  const overduePaymentsCount = useOverduePaymentsCount();
+  const pendingCustomersCount = usePendingCustomersCount();
 
   // Add badge counts to navigation items
   const navItemsWithBadges = useMemo(() => {
     return ADMIN_NAV_ITEMS.map((section) => ({
       ...section,
       items: section.items.map((item) => {
-        // Check if this is the vendors or corporates item
+        // Check if this is the customers, vendors or corporates item
+        const isCustomersItem = item.path === ROUTES.IN_APP.ADMIN.CUSTOMERS;
         const isVendorsItem = item.path === ROUTES.IN_APP.ADMIN.VENDORS;
         const isCorporatesItem = item.path === ROUTES.IN_APP.ADMIN.CORPORATES;
 
-        // Add badge count to children if they are request items
+        // Add badge count to children if they are request items or vendor payments
         const childrenWithBadges =
           'children' in item && item.children
             ? item.children.map((child: any) => {
@@ -122,6 +127,8 @@ export default function AdminSidebar() {
               const isCorporateRequest =
                 child.path ===
                 ROUTES.IN_APP.ADMIN.REQUESTS.CORPORATE_REQUESTS;
+              const isVendorPayments =
+                child.path === ROUTES.IN_APP.ADMIN.VENDOR_PAYMENTS;
 
               return {
                 ...child,
@@ -129,7 +136,9 @@ export default function AdminSidebar() {
                   ? vendorPendingCount
                   : isCorporateRequest
                     ? corporatePendingCount
-                    : undefined,
+                    : isVendorPayments && overduePaymentsCount > 0
+                      ? overduePaymentsCount
+                      : undefined,
               };
             })
             : undefined;
@@ -137,17 +146,25 @@ export default function AdminSidebar() {
         return {
           ...item,
           children: childrenWithBadges,
-          // Vendors parent: red count for inactive vendors; Corporates: pending requests
+          // Customers: pending count; Vendors parent: inactive vendors; Corporates: pending requests
           badgeCount:
-            (isVendorsItem && inactiveVendorsCount > 0)
-              ? inactiveVendorsCount
-              : (isCorporatesItem && corporatePendingCount > 0)
-                ? corporatePendingCount
-                : undefined,
+            (isCustomersItem && pendingCustomersCount > 0)
+              ? pendingCustomersCount
+              : (isVendorsItem && inactiveVendorsCount > 0)
+                ? inactiveVendorsCount
+                : (isCorporatesItem && corporatePendingCount > 0)
+                  ? corporatePendingCount
+                  : undefined,
         };
       }),
     }));
-  }, [corporatePendingCount, vendorPendingCount, inactiveVendorsCount]);
+  }, [
+    corporatePendingCount,
+    vendorPendingCount,
+    inactiveVendorsCount,
+    overduePaymentsCount,
+    pendingCustomersCount,
+  ]);
 
   // Auto-expand items if any of their children are active
   useEffect(() => {

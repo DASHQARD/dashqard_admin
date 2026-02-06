@@ -58,10 +58,22 @@ export default function CorporateDetails() {
 
   const corporateData = corporateDetails?.data || corporateDetails;
 
+  const corporateId =
+    corporateData?.id ??
+    corporateData?.corporate_id ??
+    corporateDetails?.data?.id ??
+    corporateDetails?.id ??
+    '';
+
   // Group documents by type
   const businessDocuments = React.useMemo(() => {
     return corporateData?.business_documents || [];
   }, [corporateData?.business_documents]);
+
+  const idImages = React.useMemo(
+    () => corporateData?.id_images || [],
+    [corporateData?.id_images]
+  );
 
   const documentGroups = React.useMemo(() => {
     const groups: Record<string, typeof businessDocuments> = {};
@@ -84,17 +96,23 @@ export default function CorporateDetails() {
   const handleViewDocument = (document: (typeof businessDocuments)[0]) => {
     if (!document?.file_url) return;
 
-    const corporateId =
-      corporateDetails?.data?.id ||
-      corporateDetails?.data?.corporate_id ||
-      corporateDetails?.id ||
-      '';
-
     documentModal.openModal(
       MODALS.CORPORATE_MANAGEMENT.CHILDREN.VIEW_KYC_DOCUMENT,
       {
         id: String(corporateId),
         file_url: document.file_url,
+        verified: corporateData?.status === 'approved',
+      }
+    );
+  };
+
+  const handleViewIdImage = (image: (typeof idImages)[0]) => {
+    if (!image?.file_url) return;
+    documentModal.openModal(
+      MODALS.CORPORATE_MANAGEMENT.CHILDREN.VIEW_KYC_DOCUMENT,
+      {
+        id: String(corporateId),
+        file_url: image.file_url,
         verified: corporateData?.status === 'approved',
       }
     );
@@ -183,10 +201,7 @@ export default function CorporateDetails() {
                 onClick={() =>
                   suspendModal.openModal(
                     MODALS.CORPORATE_MANAGEMENT.CHILDREN.DEACTIVATE,
-                    {
-                      id:
-                        corporateData?.id || corporateData?.corporate_id || '',
-                    }
+                    { id: corporateId }
                   )
                 }
               >
@@ -200,10 +215,7 @@ export default function CorporateDetails() {
                 onClick={() =>
                   activateModal.openModal(
                     MODALS.CORPORATE_MANAGEMENT.CHILDREN.ACTIVATE,
-                    {
-                      id:
-                        corporateData?.id || corporateData?.corporate_id || '',
-                    }
+                    { id: corporateId }
                   )
                 }
               >
@@ -284,7 +296,43 @@ export default function CorporateDetails() {
                   </section>
                 </TabsContent>
 
-                <TabsContent value="documents" className="mt-6">
+                <TabsContent value="documents" className="mt-6 space-y-6">
+                  {/* ID Images (from new API) */}
+                  {idImages.length > 0 && (
+                    <div className="border border-gray-200 rounded-lg">
+                      <div className="flex justify-between items-center bg-[#FAFAFA] p-3">
+                        <h2 className="text-gray-500 font-medium">
+                          ID Images
+                        </h2>
+                      </div>
+                      <div className="space-y-3 p-3">
+                        {idImages.map((image: { id: number; file_url: string; file_name?: string }) => (
+                          <div
+                            key={image.id}
+                            className="text-sm flex justify-between items-center"
+                          >
+                            <Text className="text-gray-400">
+                              {image.file_name || `ID Image ${image.id}`}
+                            </Text>
+                            <button
+                              onClick={() => handleViewIdImage(image)}
+                              className="flex gap-1 items-center hover:opacity-80 transition-opacity text-blue-500"
+                            >
+                              <CustomIcon
+                                name="FileText"
+                                width={24}
+                                height={24}
+                              />
+                              <Text className="text-primary-600 text-sm">
+                                View Document
+                              </Text>
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   <div className="border border-gray-200 rounded-lg">
                     <div className="flex justify-between items-center bg-[#FAFAFA] p-3">
                       <h2 className="text-gray-500 font-medium">

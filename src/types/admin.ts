@@ -29,6 +29,15 @@ export type AdminRefreshTokenResponse = {
   refreshToken?: string;
 };
 
+export type VerifyLoginTokenPermission = {
+  id: number;
+  permission: string;
+  description: string;
+  category: string;
+  created_at: string;
+  updated_at: string;
+};
+
 export type VerifyLoginTokenResponse = {
   status: string;
   statusCode: number;
@@ -36,24 +45,20 @@ export type VerifyLoginTokenResponse = {
   data: {
     accessToken: string;
     refreshToken: string;
-    permissions: {
-      role: {
-        id: number;
-        role: string;
-        description: string;
-        created_by: string;
-        created_at: string;
-        updated_at: string;
-      };
-      permissions: Array<{
-        id: number;
-        permission: string;
-        description: string;
-        category: string;
-        created_at: string;
-        updated_at: string;
-      }>;
+    admin: {
+      id: number;
+      email: string;
+      status: string;
+      type: string;
+      role_id: number | null;
+      first_name: string;
+      last_name: string;
+      phone_number: string | null;
+      avatar: string | null;
+      created_at: string;
+      updated_at: string;
     };
+    permissions: VerifyLoginTokenPermission[];
   };
 };
 

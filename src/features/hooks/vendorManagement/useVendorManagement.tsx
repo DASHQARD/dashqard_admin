@@ -224,7 +224,7 @@ export function useVendorManagementBase() {
         userToCheck?.isSuperAdmin)
     ) {
       actions.push({
-        label: 'Deactivate',
+        label: 'Reject vendor',
         onClickFn: () =>
           modalInstance.openModal(
             MODALS.VENDOR_MANAGEMENT.CHILDREN.DEACTIVATE,

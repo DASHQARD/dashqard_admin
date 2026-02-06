@@ -21,7 +21,7 @@ import { useVendorDetailsManagementBase } from '@/features/hooks/vendorManagemen
 import { vendorPaymentsManagementQueries } from '@/features/hooks/vendorPaymentsManagement';
 import {
   ActivateVendor,
-  SuspendVendor,
+  DeactivateVendor,
   ViewVendorKycDocument,
 } from '@/features/components/vendors/modals';
 import { ManageVendorPaymentPreferences } from '@/features/components/vendorPayments/modals';
@@ -35,7 +35,7 @@ export default function VendorDetails() {
   });
 
   const suspendModal = usePersistedModalState({
-    paramName: MODALS.VENDOR_MANAGEMENT.CHILDREN.DEACTIVATE,
+    paramName: MODALS.VENDOR_MANAGEMENT.PARAM_NAME,
   });
 
   const paymentPreferencesModal = usePersistedModalState({
@@ -111,8 +111,8 @@ export default function VendorDetails() {
         id: String(vendorId),
         file_url: document.file_url,
         verified:
-          vendorDetails?.status === 'approved' ||
-          vendorDetails?.approval_status === 'approved',
+          vendorDetails?.approval_status === 'approved' ||
+          vendorDetails?.status === 'active',
       }
     );
   };
@@ -165,7 +165,7 @@ export default function VendorDetails() {
   ];
 
   const displayStatus =
-    vendorDetails?.status || vendorDetails?.approval_status || 'N/A';
+    vendorDetails?.approval_status || vendorDetails?.status || 'N/A';
 
   const showPaymentPreferencesBanner =
     !isLoadingVendorDetails &&
@@ -203,9 +203,12 @@ export default function VendorDetails() {
                 paymentPreferencesModal.openModal(
                   MODALS.VENDOR_PAYMENT_MANAGEMENT.CHILDREN.MANAGE_PREFERENCES,
                   {
-                    id: vendorDetails?.id || vendorDetails?.vendor_id,
-                    vendor_id: vendorDetails?.vendor_id || vendorDetails?.id,
-                    vendor_name: vendorDetails?.vendor_name,
+                    id: vendorDetails?.id ?? vendorDetails?.vendor_id,
+                    vendor_id: vendorDetails?.vendor_id ?? vendorDetails?.id,
+                    vendor_name:
+                      vendorDetails?.vendor_name ||
+                      vendorDetails?.business_name ||
+                      vendorDetails?.vendor_email,
                   }
                 )
               }
@@ -243,9 +246,12 @@ export default function VendorDetails() {
                 paymentPreferencesModal.openModal(
                   MODALS.VENDOR_PAYMENT_MANAGEMENT.CHILDREN.MANAGE_PREFERENCES,
                   {
-                    id: vendorDetails?.id || vendorDetails?.vendor_id,
-                    vendor_id: vendorDetails?.vendor_id || vendorDetails?.id,
-                    vendor_name: vendorDetails?.vendor_name,
+                    id: vendorDetails?.id ?? vendorDetails?.vendor_id,
+                    vendor_id: vendorDetails?.vendor_id ?? vendorDetails?.id,
+                    vendor_name:
+                      vendorDetails?.vendor_name ||
+                      vendorDetails?.business_name ||
+                      vendorDetails?.vendor_email,
                   }
                 )
               }
@@ -253,8 +259,8 @@ export default function VendorDetails() {
               <CustomIcon name="Settings" width={20} height={20} />
               Payment Preferences
             </Button>
-            {vendorDetails?.status === 'active' ||
-            vendorDetails?.approval_status === 'approved' ? (
+            {vendorDetails?.approval_status === 'approved' ||
+              vendorDetails?.status === 'active' ? (
               <Button
                 variant="danger"
                 size="medium"
@@ -263,32 +269,41 @@ export default function VendorDetails() {
                   suspendModal.openModal(
                     MODALS.VENDOR_MANAGEMENT.CHILDREN.DEACTIVATE,
                     {
-                      vendor_account_id:
-                        vendorDetails?.id || vendorDetails?.vendor_id || 0,
+                      vendor_account_id: Number(
+                        vendorDetails?.id ?? vendorDetails?.vendor_id ?? 0
+                      ),
+                      id: vendorDetails?.id ?? vendorDetails?.vendor_id,
+                      vendor_id: vendorDetails?.vendor_id ?? vendorDetails?.id,
                     }
                   )
                 }
               >
                 <CustomIcon name="InfoSign" width={20} height={20} />
-                Suspend Vendor
+                Reject vendor
               </Button>
             ) : (
               <Button
-                variant="outline"
+                variant="secondary"
                 size="medium"
                 className="border-primary-500 text-primary-500"
                 onClick={() =>
                   activateModal.openModal(
                     MODALS.VENDOR_MANAGEMENT.CHILDREN.ACTIVATE,
                     {
-                      vendor_account_id:
-                        vendorDetails?.id || vendorDetails?.vendor_id || 0,
+                      vendor_account_id: Number(
+                        vendorDetails?.id ?? vendorDetails?.vendor_id ?? 0
+                      ),
+                      vendor_id: vendorDetails?.id ?? vendorDetails?.vendor_id,
+                      vendor_name:
+                        vendorDetails?.vendor_name ||
+                        vendorDetails?.business_name ||
+                        vendorDetails?.vendor_email,
                     }
                   )
                 }
               >
                 <CustomIcon name="CheckMarkCircle" width={20} height={20} />
-                Activate Vendor
+                Approve Vendor
               </Button>
             )}
           </div>
@@ -302,7 +317,12 @@ export default function VendorDetails() {
           </div>
         ) : (
           <Profile
-            name={vendorDetails?.vendor_name || 'N/A'}
+            name={
+              vendorDetails?.vendor_name ||
+              vendorDetails?.business_name ||
+              vendorDetails?.vendor_email ||
+              'N/A'
+            }
             businessName={vendorDetails?.business_name || 'N/A'}
             status={displayStatus}
             logo={logoPresignedUrl}
@@ -456,18 +476,17 @@ export default function VendorDetails() {
       {activateModal.modalState ===
         MODALS.VENDOR_MANAGEMENT.CHILDREN.ACTIVATE && <ActivateVendor />}
 
-      {suspendModal.modalState ===
-        MODALS.VENDOR_MANAGEMENT.CHILDREN.DEACTIVATE && <SuspendVendor />}
+      <DeactivateVendor />
 
       {paymentPreferencesModal.modalState ===
         MODALS.VENDOR_PAYMENT_MANAGEMENT.CHILDREN.MANAGE_PREFERENCES && (
-        <ManageVendorPaymentPreferences />
-      )}
+          <ManageVendorPaymentPreferences />
+        )}
 
       {documentModal.modalState ===
         MODALS.VENDOR_MANAGEMENT.CHILDREN.VIEW_KYC_DOCUMENT && (
-        <ViewVendorKycDocument />
-      )}
+          <ViewVendorKycDocument />
+        )}
     </>
   );
 }

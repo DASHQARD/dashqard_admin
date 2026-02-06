@@ -33,14 +33,19 @@ export function useAuth() {
   }
 
   function useVerifyLoginTokenService() {
-    return useMutation({
+    return useMutation<
+      VerifyLoginTokenResponse,
+      { status: number; message: string },
+      string
+    >({
       mutationFn: verifyLoginToken,
-      onSuccess: (response: VerifyLoginTokenResponse) => {
+      onSuccess: (response) => {
+        const { data } = response;
         useAuthStore.getState().authenticate({
-          token: response.data.accessToken,
-          refreshToken: response.data.refreshToken,
-          role: response.data.permissions.role,
-          permissions: response.data.permissions.permissions,
+          token: data.accessToken,
+          refreshToken: data.refreshToken,
+          role: data.admin ?? null,
+          permissions: Array.isArray(data.permissions) ? data.permissions : null,
         });
 
         toast.success('Login successful');

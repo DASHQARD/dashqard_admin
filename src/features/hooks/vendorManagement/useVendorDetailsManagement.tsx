@@ -20,16 +20,24 @@ export function useVendorDetailsManagementBase() {
 
     return [
       {
+        label: 'Account ID',
+        value: vendorDetails.id != null ? String(vendorDetails.id) : '-',
+      },
+      {
         label: 'Vendor ID',
-        value: vendorDetails.vendor_id || vendorDetails.id || '-',
+        value: vendorDetails.vendor_id != null ? String(vendorDetails.vendor_id) : '-',
+      },
+      {
+        label: 'GV ID',
+        value: vendorDetails.gvid || '-',
       },
       {
         label: 'Vendor User ID',
-        value: vendorDetails.vendor_user_id || '-',
+        value: vendorDetails.vendor_user_id != null ? String(vendorDetails.vendor_user_id) : '-',
       },
       {
         label: 'Name',
-        value: vendorDetails.vendor_name || '-',
+        value: vendorDetails.vendor_name || vendorDetails.business_name || vendorDetails.vendor_email || '-',
       },
       {
         label: 'Email',
@@ -48,16 +56,16 @@ export function useVendorDetailsManagementBase() {
         value: vendorDetails.vendor_status || '-',
       },
       {
-        label: 'GV ID',
-        value: vendorDetails.gvid || '-',
-      },
-      {
         label: 'Onboarding Stage',
-        value: vendorDetails.onboarding_stage || '-',
+        value: vendorDetails.onboarding_stage ?? '-',
       },
       {
         label: 'Onboarding Completed',
-        value: vendorDetails.onboarding_completed ? 'Yes' : 'No',
+        value: vendorDetails.onboarding_completed == null
+          ? '-'
+          : vendorDetails.onboarding_completed
+            ? 'Yes'
+            : 'No',
       },
       {
         label: 'Branch Count',

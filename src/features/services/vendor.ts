@@ -4,7 +4,9 @@ import { getQueryString } from '@/utils/helpers';
 
 const commonUrl = '/vendor-management';
 
-export const getVendorsList = async (params?: Record<string, any>): Promise<any> => {
+export const getVendorsList = async (
+  params?: Record<string, any>
+): Promise<any> => {
   const queryString = getQueryString(params);
   const fullUrl = queryString
     ? `${commonUrl}/admin/vendors?${queryString}`
@@ -35,9 +37,10 @@ export const approveVendor = async (data: {
 
 export const updateVendorAccountStatus = async (data: {
   vendor_account_id: number;
-  status: 'active' | 'inactive';
+  approval_status: 'approved' | 'rejected';
+  rejection_reason?: string;
 }): Promise<any> => {
-  return await patchMethod(`${commonUrl}/status`, data);
+  return await patchMethod(`${commonUrl}/admin/approve`, data);
 };
 
 export const removeVendorAdmin = async (data: {
