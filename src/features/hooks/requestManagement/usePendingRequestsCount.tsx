@@ -5,7 +5,7 @@ export function usePendingRequestsCount() {
   const { useGetRequestCorporates } = requestManagementQueries();
   const { data: allRequestsResponse } = useGetRequestCorporates();
   const pendingCounts = useMemo(() => {
-    const allRequestsList = allRequestsResponse?.data || []
+    const allRequestsList = allRequestsResponse?.data || [];
 
     const corporatePending = allRequestsList.filter(
       (request: any) =>

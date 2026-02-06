@@ -1,22 +1,24 @@
 export type Bank = {
-  name: string
-  address: string
-  phone: string
-  website: string
-  email: string
-}
+  name: string;
+  address: string;
+  phone: string;
+  website: string;
+  email: string;
+};
 
 export const GHANA_BANKS: Bank[] = [
   {
     name: 'Absa Bank Ghana LTD',
-    address: 'Absa House J.E. Atta-Mills High Street Accra P.O. Box GP2949, Accra',
+    address:
+      'Absa House J.E. Atta-Mills High Street Accra P.O. Box GP2949, Accra',
     phone: '233-302-429150',
     website: 'https://www.absa.com.gh',
     email: 'service.excellence@absa.africa',
   },
   {
     name: 'Access Bank (Ghana) Plc',
-    address: "Starlets' 91 Road, Opposite Accra Sports Stadium, Osu P. O. Box GP 353, Accra, Ghana",
+    address:
+      "Starlets' 91 Road, Opposite Accra Sports Stadium, Osu P. O. Box GP 353, Accra, Ghana",
     phone: '233-302-661769, 233-302-684858, 233-302-661613',
     website: 'http://www.ghana.accessbankplc.com',
     email: 'info@ghana.accessbankplc.com',
@@ -34,7 +36,8 @@ export const GHANA_BANKS: Bank[] = [
     name: 'Bank of Africa Ghana Limited',
     address:
       'Head Office, 1st Floor, Block A&B, The Octagon, Independence Avenue P.O. Box C1541 Cantonments, Accra – Ghana',
-    phone: '233-302-249690, 233-302-249679/83/98, 233-302-249683, 233-302-249698',
+    phone:
+      '233-302-249690, 233-302-249679/83/98, 233-302-249683, 233-302-249698',
     website: 'http://www.boaghana.com',
     email: 'complaints@boaghana.com',
   },
@@ -47,7 +50,8 @@ export const GHANA_BANKS: Bank[] = [
   },
   {
     name: 'Consolidated Bank Ghana Limited',
-    address: 'First Floor, Manet Tower 3, Airport City, Accra PMB CT363, Cantonments, Accra',
+    address:
+      'First Floor, Manet Tower 3, Airport City, Accra PMB CT363, Cantonments, Accra',
     phone: '233 302-634330, 233 302-634359, 233 302-216000',
     website: 'http://www.cbg.com.gh',
     email: 'info@cbg.com.gh',
@@ -78,7 +82,8 @@ export const GHANA_BANKS: Bank[] = [
     name: 'First Bank Ghana LTD',
     address:
       'Head Office, Plot No. 678, Liberation Road, Airport, Accra, PMB No. 16, Accra North, Ghana',
-    phone: '233-302-236136/235684, 233-302-238510, 233-302-235684, 233-302-236136, 233-302-235819',
+    phone:
+      '233-302-236136/235684, 233-302-238510, 233-302-235684, 233-302-236136, 233-302-235819',
     website: 'http://www.fbnbankghana.com',
     email: 'fbn@fbnbankghana.com',
   },
@@ -100,7 +105,8 @@ export const GHANA_BANKS: Bank[] = [
   },
   {
     name: 'Guaranty Trust Bank (Ghana) Limited',
-    address: '25A, Castle Road, Ambassadorial Enclave, Ridge, PM.B CT 416, Accra – Ghana',
+    address:
+      '25A, Castle Road, Ambassadorial Enclave, Ridge, PM.B CT 416, Accra – Ghana',
     phone:
       '233-302-680668, 233-302-676462, 233-302-687751, 233-302-680662, 233-302-680746, 233-302-676681, 233-302-201027, 233-303-201048, 233-302-816621-3',
     website: 'http://www.gtbghana.com',
@@ -124,7 +130,8 @@ export const GHANA_BANKS: Bank[] = [
   },
   {
     name: 'Prudential Bank Limited',
-    address: 'Head Office, Ring Road Central, PMB - General Post Office, Accra – Ghana',
+    address:
+      'Head Office, Ring Road Central, PMB - General Post Office, Accra – Ghana',
     phone: '233-302-781200-7',
     website: 'http://www.prudentialbank.com.gh',
     email: 'headoffice@prudentialbank.com.gh',
@@ -139,7 +146,8 @@ export const GHANA_BANKS: Bank[] = [
   },
   {
     name: 'Societe General Ghana Plc',
-    address: 'Head Office, P. O. Box 13119, Ring Road Central Accra, Accra - Ghana',
+    address:
+      'Head Office, P. O. Box 13119, Ring Road Central Accra, Accra - Ghana',
     phone: '233-302-202001, 233-302-248920, 233-577606464',
     website: 'http://www.societegenerale.com.gh',
     email: 'sgghana.info@socgen.com',
@@ -169,7 +177,8 @@ export const GHANA_BANKS: Bank[] = [
   },
   {
     name: 'Universal Merchant Bank LTD',
-    address: 'Airport City, SSNIT Emporium, P.O. Box 401, North Ridge, Accra-Ghana',
+    address:
+      'Airport City, SSNIT Emporium, P.O. Box 401, North Ridge, Accra-Ghana',
     phone: '233-302-666331/6',
     website: 'http://www.myumbbank.com',
     email: 'info@myumbbank.com',
@@ -183,4 +192,4 @@ export const GHANA_BANKS: Bank[] = [
     website: 'http://www.zenithbank.com.gh',
     email: 'info@zenithbank.com.gh',
   },
-]
+];

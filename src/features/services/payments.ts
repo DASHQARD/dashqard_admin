@@ -40,11 +40,11 @@ export const getPaymentById = async (id: string): Promise<any> => {
   return response?.data || response;
 };
 
-export const getPaymentsList = async (query?: Record<string, any>): Promise<any> => {
+export const getPaymentsList = async (
+  query?: Record<string, any>
+): Promise<any> => {
   const queryString = getQueryString(query);
-  const fullUrl = queryString
-    ? `${commonUrl}?${queryString}`
-    : `${commonUrl}`;
+  const fullUrl = queryString ? `${commonUrl}?${queryString}` : `${commonUrl}`;
   const response = await axiosClient.get(fullUrl);
   // Axios interceptor already returns response.data, so response here is the API response body
   // which has { data: [...], pagination: {...}, status: ..., etc }

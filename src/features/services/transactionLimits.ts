@@ -10,4 +10,3 @@ export const getTransactionLimits = async (): Promise<any> => {
 export const updateTransactionLimits = async (data: any): Promise<any> => {
   return await patchMethod(commonUrl, data);
 };
-

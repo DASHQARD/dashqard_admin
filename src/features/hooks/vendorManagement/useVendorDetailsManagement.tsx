@@ -6,9 +6,7 @@ import { useParams } from 'react-router';
 export function useVendorDetailsManagementBase() {
   const params = useParams();
 
-  const {
-    useGetVendorDetails,
-  } = vendorManagementQueries();
+  const { useGetVendorDetails } = vendorManagementQueries();
   const { data: vendorDetailsResponse, isLoading: isLoadingVendorDetails } =
     useGetVendorDetails(params?.vendorId || '');
 
@@ -25,7 +23,10 @@ export function useVendorDetailsManagementBase() {
       },
       {
         label: 'Vendor ID',
-        value: vendorDetails.vendor_id != null ? String(vendorDetails.vendor_id) : '-',
+        value:
+          vendorDetails.vendor_id != null
+            ? String(vendorDetails.vendor_id)
+            : '-',
       },
       {
         label: 'GV ID',
@@ -33,11 +34,18 @@ export function useVendorDetailsManagementBase() {
       },
       {
         label: 'Vendor User ID',
-        value: vendorDetails.vendor_user_id != null ? String(vendorDetails.vendor_user_id) : '-',
+        value:
+          vendorDetails.vendor_user_id != null
+            ? String(vendorDetails.vendor_user_id)
+            : '-',
       },
       {
         label: 'Name',
-        value: vendorDetails.vendor_name || vendorDetails.business_name || vendorDetails.vendor_email || '-',
+        value:
+          vendorDetails.vendor_name ||
+          vendorDetails.business_name ||
+          vendorDetails.vendor_email ||
+          '-',
       },
       {
         label: 'Email',
@@ -61,11 +69,12 @@ export function useVendorDetailsManagementBase() {
       },
       {
         label: 'Onboarding Completed',
-        value: vendorDetails.onboarding_completed == null
-          ? '-'
-          : vendorDetails.onboarding_completed
-            ? 'Yes'
-            : 'No',
+        value:
+          vendorDetails.onboarding_completed == null
+            ? '-'
+            : vendorDetails.onboarding_completed
+              ? 'Yes'
+              : 'No',
       },
       {
         label: 'Branch Count',
@@ -73,7 +82,9 @@ export function useVendorDetailsManagementBase() {
       },
       {
         label: 'Date Joined',
-        value: vendorDetails.created_at ? formatDate(vendorDetails.created_at) : '-',
+        value: vendorDetails.created_at
+          ? formatDate(vendorDetails.created_at)
+          : '-',
       },
     ];
   }, [vendorDetails]);
@@ -157,7 +168,9 @@ export function useVendorDetailsManagementBase() {
       },
       {
         label: 'Approved At',
-        value: vendorDetails.approved_at ? formatDate(vendorDetails.approved_at) : '-',
+        value: vendorDetails.approved_at
+          ? formatDate(vendorDetails.approved_at)
+          : '-',
       },
       {
         label: 'Rejection Reason',
@@ -165,7 +178,9 @@ export function useVendorDetailsManagementBase() {
       },
       {
         label: 'Last Updated',
-        value: vendorDetails.updated_at ? formatDate(vendorDetails.updated_at) : '-',
+        value: vendorDetails.updated_at
+          ? formatDate(vendorDetails.updated_at)
+          : '-',
       },
     ];
   }, [vendorDetails]);

@@ -301,34 +301,38 @@ export default function CorporateDetails() {
                   {idImages.length > 0 && (
                     <div className="border border-gray-200 rounded-lg">
                       <div className="flex justify-between items-center bg-[#FAFAFA] p-3">
-                        <h2 className="text-gray-500 font-medium">
-                          ID Images
-                        </h2>
+                        <h2 className="text-gray-500 font-medium">ID Images</h2>
                       </div>
                       <div className="space-y-3 p-3">
-                        {idImages.map((image: { id: number; file_url: string; file_name?: string }) => (
-                          <div
-                            key={image.id}
-                            className="text-sm flex justify-between items-center"
-                          >
-                            <Text className="text-gray-400">
-                              {image.file_name || `ID Image ${image.id}`}
-                            </Text>
-                            <button
-                              onClick={() => handleViewIdImage(image)}
-                              className="flex gap-1 items-center hover:opacity-80 transition-opacity text-blue-500"
+                        {idImages.map(
+                          (image: {
+                            id: number;
+                            file_url: string;
+                            file_name?: string;
+                          }) => (
+                            <div
+                              key={image.id}
+                              className="text-sm flex justify-between items-center"
                             >
-                              <CustomIcon
-                                name="FileText"
-                                width={24}
-                                height={24}
-                              />
-                              <Text className="text-primary-600 text-sm">
-                                View Document
+                              <Text className="text-gray-400">
+                                {image.file_name || `ID Image ${image.id}`}
                               </Text>
-                            </button>
-                          </div>
-                        ))}
+                              <button
+                                onClick={() => handleViewIdImage(image)}
+                                className="flex gap-1 items-center hover:opacity-80 transition-opacity text-blue-500"
+                              >
+                                <CustomIcon
+                                  name="FileText"
+                                  width={24}
+                                  height={24}
+                                />
+                                <Text className="text-primary-600 text-sm">
+                                  View Document
+                                </Text>
+                              </button>
+                            </div>
+                          )
+                        )}
                       </div>
                     </div>
                   )}
@@ -436,8 +440,8 @@ export default function CorporateDetails() {
 
       {documentModal.modalState ===
         MODALS.CORPORATE_MANAGEMENT.CHILDREN.VIEW_KYC_DOCUMENT && (
-          <ViewKycDocument />
-        )}
+        <ViewKycDocument />
+      )}
     </>
   );
 }

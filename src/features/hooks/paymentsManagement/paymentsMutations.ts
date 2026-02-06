@@ -12,7 +12,9 @@ export function paymentsManagementMutations() {
         queryClient.invalidateQueries({ queryKey: ['payments'] });
         queryClient.invalidateQueries({ queryKey: ['payment'] });
         queryClient.invalidateQueries({ queryKey: ['payments-user'] });
-        queryClient.invalidateQueries({ queryKey: ['payments-with-user-details'] });
+        queryClient.invalidateQueries({
+          queryKey: ['payments-with-user-details'],
+        });
         success('Payment deleted successfully');
       },
       onError: (err: any) => {
@@ -31,7 +33,9 @@ export function paymentsManagementMutations() {
         queryClient.invalidateQueries({ queryKey: ['payments'] });
         queryClient.invalidateQueries({ queryKey: ['payment'] });
         queryClient.invalidateQueries({ queryKey: ['payments-user'] });
-        queryClient.invalidateQueries({ queryKey: ['payments-with-user-details'] });
+        queryClient.invalidateQueries({
+          queryKey: ['payments-with-user-details'],
+        });
         success('Payment status updated successfully');
       },
       onError: (err: any) => {
@@ -45,4 +49,3 @@ export function paymentsManagementMutations() {
     useUpdatePaymentStatus,
   };
 }
-

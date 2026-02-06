@@ -1,21 +1,23 @@
-import DatePicker, { type ReactDatePickerCustomHeaderProps } from 'react-datepicker'
+import DatePicker, {
+  type ReactDatePickerCustomHeaderProps,
+} from 'react-datepicker';
 
-import { cn } from '@/libs'
+import { cn } from '@/libs';
 
-import { InputLabel } from '../InputLabel'
-import { ErrorText } from '../Text'
+import { InputLabel } from '../InputLabel';
+import { ErrorText } from '../Text';
 
 type Props = Readonly<
   {
-    placeholder?: string
-    value?: Date
-    label?: string
-    id?: string
-    error?: string
-    disabled?: boolean
-    dateFormat?: string
+    placeholder?: string;
+    value?: Date;
+    label?: string;
+    id?: string;
+    error?: string;
+    disabled?: boolean;
+    dateFormat?: string;
   } & ReactDatePickerCustomHeaderProps
->
+>;
 export function DateInput(props: Props) {
   const {
     placeholder,
@@ -26,7 +28,7 @@ export function DateInput(props: Props) {
     disabled,
     dateFormat = 'dd, MMM yyyy',
     ...rest
-  } = props
+  } = props;
   return (
     <div>
       {label && <InputLabel htmlFor={id}>{label}</InputLabel>}
@@ -45,5 +47,5 @@ export function DateInput(props: Props) {
       />
       <ErrorText error={error} />
     </div>
-  )
+  );
 }

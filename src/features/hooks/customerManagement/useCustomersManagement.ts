@@ -21,22 +21,23 @@ export function useCustomersManagementBase() {
   const paramsForApi = useMemo(() => {
     const apiParams: any = {
       limit: query.limit || 10,
-    }
+    };
     const queryWithAfter = query as any;
     if (queryWithAfter.after) {
       // Send after as date string (API expects date string format)
       apiParams.after = queryWithAfter.after;
     }
     if (query.search) {
-      apiParams.search = query.search
+      apiParams.search = query.search;
     }
     if (query.status) {
-      apiParams.status = query.status
+      apiParams.status = query.status;
     }
-    return apiParams
-  }, [query])
+    return apiParams;
+  }, [query]);
 
-  const { data: customersResponse, isLoading: isLoadingCustomers } = useCustomers(paramsForApi);
+  const { data: customersResponse, isLoading: isLoadingCustomers } =
+    useCustomers(paramsForApi);
 
   const customers = React.useMemo(() => {
     if (!customersResponse) return null;
@@ -241,24 +242,24 @@ export function useCustomersManagementBase() {
   const handleNextPage = useCallback(() => {
     if (pagination?.hasNextPage && pagination?.next) {
       // Set after as date string (API expects date string format)
-      setQuery({ ...query, after: pagination.next } as any)
+      setQuery({ ...query, after: pagination.next } as any);
     }
-  }, [pagination, query, setQuery])
+  }, [pagination, query, setQuery]);
 
   const handleSetAfter = useCallback(
     (after: string) => {
       // Set after as date string or empty string to reset
-      setQuery({ ...query, after: after || undefined } as any)
+      setQuery({ ...query, after: after || undefined } as any);
     },
-    [query, setQuery],
-  )
+    [query, setQuery]
+  );
 
   // Calculate estimated total for display
   const estimatedTotal = useMemo(() => {
     return pagination?.hasNextPage
       ? (customers?.length || 0) + (query.limit || 10)
-      : (customers?.length || 0)
-  }, [pagination, customers?.length, query.limit])
+      : customers?.length || 0;
+  }, [pagination, customers?.length, query.limit]);
 
   return {
     modal,

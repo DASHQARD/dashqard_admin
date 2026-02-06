@@ -58,7 +58,9 @@ export default function Corporates() {
               printTitle="Corporates"
               hasNextPage={pagination?.hasNextPage}
               hasPreviousPage={pagination?.hasPreviousPage}
-              currentAfter={(query as any).after ? String((query as any).after) : undefined}
+              currentAfter={
+                (query as any).after ? String((query as any).after) : undefined
+              }
               previousCursor={pagination?.previous || null}
               onNextPage={handleNextPage}
               onPreviousPage={() => {

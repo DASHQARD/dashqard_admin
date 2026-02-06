@@ -53,9 +53,7 @@ export function superAdminInvitationsManagementMutations() {
         success('Super admin invitation status updated successfully');
       },
       onError: (err: any) => {
-        error(
-          err?.message || 'Failed to update super admin invitation status'
-        );
+        error(err?.message || 'Failed to update super admin invitation status');
       },
     });
   }
@@ -66,4 +64,3 @@ export function superAdminInvitationsManagementMutations() {
     useUpdateSuperAdminInvitationStatus,
   };
 }
-

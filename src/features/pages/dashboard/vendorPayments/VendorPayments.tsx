@@ -153,7 +153,11 @@ export default function VendorPayments() {
                 printTitle="Vendor Payments"
                 hasNextPage={paginationInfo.hasNextPage}
                 hasPreviousPage={paginationInfo.hasPreviousPage}
-                currentAfter={(query as any).after ? String((query as any).after) : undefined}
+                currentAfter={
+                  (query as any).after
+                    ? String((query as any).after)
+                    : undefined
+                }
                 previousCursor={paginationInfo.previous || null}
                 onNextPage={handleNextPage}
                 onPreviousPage={handlePreviousPage}

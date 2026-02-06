@@ -1,198 +1,146 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React from 'react';
+import { PhoneInput, type PhoneInputRefType } from 'react-international-phone';
+import 'react-international-phone/style.css';
 
-import { cn, Icon } from '@/libs'
-import { ErrorText } from '../Text'
+import { cn } from '@/libs';
+import { ErrorText } from '../Text';
 
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  label?: any
-  options?: any
-  selectedVal?: any
-  handleChange?: any
-  id?: any
-  isRequired?: any
-  name?: any
-  type?: any
-  error?: any
-  maxLength?: any
+interface InputProps extends Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  'onChange'
+> {
+  label?: React.ReactNode;
+  options?: unknown[];
+  selectedVal?: string;
+  handleChange?: (value: string) => void;
+  id?: string;
+  isRequired?: boolean;
+  name?: string;
+  /** Compatible with react-hook-form FieldError, ErrorText, etc. */
+  error?: any;
+  maxLength?: number;
+  placeholder?: string;
+  hint?: React.ReactNode;
 }
 
-export const BasePhoneInput = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ options, id, error, selectedVal, handleChange, label, isRequired, name, maxLength }, ref) => {
-    const code = useMemo(() => {
-      const value = selectedVal?.split('-')[0]
-      return value
-    }, [selectedVal])
+/**
+ * Normalize "+233-559617908" or "+233559617908" to E.164 "+233559617908"
+ * for react-international-phone value prop.
+ */
+function toE164(val: string): string {
+  if (!val) return '';
+  return val.replace(/-/, '');
+}
 
-    const number = useMemo(() => {
-      const value = selectedVal?.split('-')[1]
-      return value || ''
-    }, [selectedVal])
+/**
+ * Return phone number in E.164 format without hyphens (e.g., "+233559617908")
+ */
+function toLegacyFormat(phone: string): string {
+  if (!phone) return '';
+  // Return phone number directly in E.164 format (already formatted by react-international-phone)
+  return phone;
+}
 
-    const [isOpen, setIsOpen] = useState(false)
-    const [displayImage, setDisplayImage] = useState('')
-    const [query, setQuery] = useState('')
-    const [countryCode, setCountryCode] = useState(code)
-    const [value, setValue] = useState(number)
-
-    const inputRef = React.useRef<HTMLDivElement>(null)
-
-    const isNumber = /^\d+$/
-
-    const setDefault = (options: any) => {
-      // Default to Ghana (+233)
-      const ghanaOption = options?.find((option: any) => {
-        return option?.code === '+233' || option?.label === 'Ghana'
-      })
-      return ghanaOption || options?.[0]
-    }
-
-    useEffect(() => {
-      if (!options?.length) return
-
-      const option = setDefault(options)
-      // Initialize state from options prop only if not already set
-      if (option?.code && !countryCode) {
-        setCountryCode(option.code)
-      }
-      if (option?.image && !displayImage) {
-        setDisplayImage(option.image)
-      }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [options])
-
-    useEffect(() => {
-      if (value) handleChange(countryCode + '-' + value)
-      else handleChange('')
-    }, [countryCode, value, handleChange])
-
-    const selectOption = (option: any) => {
-      setQuery(() => '')
-      setDisplayImage(option.image)
-      setCountryCode(option.code)
-      setIsOpen(false)
-    }
-
-    const getDisplayValue = () => {
-      if (query) return query
-      if (countryCode) return countryCode
-      return ''
-    }
-
-    const filter = (options: any) => {
-      return options?.filter((option: any) => option?.code?.indexOf(query) > -1)
-    }
-
-    useEffect(() => {
-      function closeMenu(e: MouseEvent) {
-        if (inputRef.current && isOpen && !inputRef.current.contains(e.target as Node)) {
-          setIsOpen(false)
-        }
-      }
-
-      if (isOpen) {
-        document.addEventListener('mousedown', closeMenu)
-      }
-
-      return () => {
-        document.removeEventListener('mousedown', closeMenu)
-      }
-    }, [isOpen])
-
-    function toggle(e: React.MouseEvent) {
-      e.stopPropagation()
-      setIsOpen(!isOpen)
-    }
+export const BasePhoneInput = React.forwardRef<PhoneInputRefType, InputProps>(
+  (
+    {
+      options,
+      id,
+      error,
+      selectedVal,
+      handleChange,
+      label,
+      isRequired,
+      name,
+      maxLength,
+      disabled,
+      placeholder = 'Enter number',
+      hint,
+    },
+    ref
+  ) => {
+    const value = toE164(selectedVal ?? '');
+    void options;
 
     return (
-      <div className={cn(`grid gap-2`)}>
+      <div className={cn('grid w-full gap-2')}>
         {label ? (
-          <label className={cn(`text-sm font-medium`)} htmlFor={id}>
+          <label
+            className="flex gap-1 items-center text-[#151819] text-sm"
+            htmlFor={id}
+          >
             {label}
             {isRequired && <span className="text-error"> *</span>}
           </label>
         ) : null}
         <div
-          ref={inputRef}
-          className={`dropdown flex gap-4 border border-[#CDD3D3] rounded-lg h-12 items-center px-6 relative`}
+          className={cn(
+            'flex h-12 w-full min-w-0 items-center rounded-lg border border-gray-300 px-3 transition-colors overflow-hidden',
+            'focus-within:border-primary-400 focus-within:outline-none focus-within:ring-1 focus-within:ring-primary-400',
+            error && 'border-red-500',
+            disabled && 'cursor-not-allowed bg-gray-50 opacity-50'
+          )}
         >
-          <div className={cn(`relative  rounded-md bg-white-100`)}>
-            <div className={cn(`flex items-center gap-2 py-1 cursor-pointer`)} onClick={toggle}>
-              {displayImage && (
-                <img
-                  className="image shrink-0"
-                  src={displayImage}
-                  alt={''}
-                  width={24}
-                  height={24}
-                />
-              )}
-              <input
-                className={cn(
-                  `font-light bg-transparent cursor-pointer outline-none w-[50px] shrink-0`,
-                )}
-                type="text"
-                value={getDisplayValue()}
-                onClick={toggle}
-                name={name}
-                placeholder="Select..."
-                onChange={(e) => {
-                  setQuery(e.target.value)
-                  setCountryCode('')
-                }}
-                readOnly
-              />
-              <div
-                className={cn(`caret transition-all -ml-4 shrink-0 ${isOpen ? 'rotate-180' : ''}`)}
-              >
-                <Icon icon="bi:caret-down-fill" className="size-4" />
-              </div>
-            </div>
-            {isOpen && (
-              <div
-                className={cn(
-                  `absolute left-0 top-full mt-1 w-full bg-white border border-[#CDD3D3] rounded-lg shadow-lg z-50 max-h-[200px] overflow-y-auto`,
-                )}
-              >
-                {options?.length ? (
-                  filter(options)?.map((option: any) => (
-                    <div
-                      onClick={() => selectOption(option)}
-                      className={cn(
-                        `option flex items-center gap-2 px-3 py-2 hover:bg-gray-100 cursor-pointer ${
-                          option.code === countryCode ? 'bg-primary-50 text-primary-700' : ''
-                        }`,
-                      )}
-                      key={`${option.code}-${option.label}`}
-                    >
-                      {option.image ? (
-                        <img className="image" src={option.image} alt="" width={24} height={24} />
-                      ) : null}
-                      <span>{option.code}</span>
-                    </div>
-                  ))
-                ) : (
-                  <div className={cn(`p-[12px_24px]`)}>No Options</div>
-                )}
-              </div>
-            )}
-          </div>
-          <input
+          <PhoneInput
             ref={ref}
-            maxLength={maxLength}
+            defaultCountry="gh"
             value={value}
-            data-testid={'phoneNumber'}
-            className={cn(`w-full font-light bg-transparent outline-none`)}
-            name={name}
-            placeholder="Enter number"
-            onChange={(e) => {
-              if (isNumber.test(e.target.value) || e.target.value === '') setValue(e.target.value)
+            onChange={(phone: string) => {
+              if (!handleChange) return;
+              if (!phone) {
+                handleChange('');
+                return;
+              }
+              const formatted = toLegacyFormat(phone);
+              handleChange(formatted);
             }}
+            preferredCountries={['gh']}
+            disabled={disabled}
+            placeholder={placeholder}
+            name={name}
+            inputProps={
+              {
+                maxLength,
+                'data-testid': 'phoneNumber',
+              } as React.InputHTMLAttributes<HTMLInputElement>
+            }
+            className="flex-1 min-w-0"
+            inputClassName={cn(
+              '!border-0 min-w-0 flex-1 bg-transparent text-sm font-light outline-none placeholder:text-gray-400'
+            )}
+            inputStyle={{ border: 'none' }}
+            countrySelectorStyleProps={{
+              buttonStyle: {
+                border: 'none',
+                borderTop: 'none',
+                borderBottom: 'none',
+                borderLeft: 'none',
+                borderRight: 'none',
+              },
+              buttonClassName:
+                '!border-0 flex shrink-0 items-center gap-2 bg-transparent px-0 cursor-pointer outline-none',
+            }}
+            dialCodePreviewStyleProps={{
+              style: { border: 'none', marginRight: 0 },
+              className: '!border-0',
+            }}
+            style={
+              {
+                '--react-international-phone-height': '48px',
+                '--react-international-phone-border-color': 'transparent',
+                '--react-international-phone-country-selector-border-color':
+                  'transparent',
+                '--react-international-phone-dial-code-preview-border-color':
+                  'transparent',
+              } as React.CSSProperties
+            }
           />
         </div>
-        {error && <ErrorText error={error} />}
+        {hint ? <p className="text-xs text-gray-500">{hint}</p> : null}
+        {error ? <ErrorText error={error} /> : null}
       </div>
-    )
-  },
-)
+    );
+  }
+);
 
-BasePhoneInput.displayName = 'BasePhoneInput'
+BasePhoneInput.displayName = 'BasePhoneInput';

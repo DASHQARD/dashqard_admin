@@ -1,24 +1,37 @@
-import React from 'react'
+import React from 'react';
 
-import { cn } from '@/libs'
+import { cn } from '@/libs';
 
-import classes from './checkbox.module.scss'
+import classes from './checkbox.module.scss';
 
 interface Props {
-  variant?: 'lg' | 'sm'
-  label?: string
-  disabled?: boolean
-  indeterminate?: boolean
-  rounded?: boolean
+  variant?: 'lg' | 'sm';
+  label?: string;
+  disabled?: boolean;
+  indeterminate?: boolean;
+  rounded?: boolean;
 }
 
-export const Checkbox = React.forwardRef<HTMLInputElement, React.ComponentProps<'input'> & Props>(
-  ({ label, disabled, indeterminate, variant = 'lg', rounded = false, ...rest }, ref) => {
+export const Checkbox = React.forwardRef<
+  HTMLInputElement,
+  React.ComponentProps<'input'> & Props
+>(
+  (
+    {
+      label,
+      disabled,
+      indeterminate,
+      variant = 'lg',
+      rounded = false,
+      ...rest
+    },
+    ref
+  ) => {
     const getSizePx = (size: 'lg' | 'sm') => {
-      if (size === 'lg') return '24px'
-      if (size === 'sm') return '16px'
-      return '16px'
-    }
+      if (size === 'lg') return '24px';
+      if (size === 'sm') return '16px';
+      return '16px';
+    };
 
     return (
       <div
@@ -35,15 +48,15 @@ export const Checkbox = React.forwardRef<HTMLInputElement, React.ComponentProps<
               [classes.checkbox_input],
               { [classes.disabled]: disabled },
               { [classes.indeterminate]: indeterminate },
-              { [classes.rounded]: rounded },
+              { [classes.rounded]: rounded }
             )}
             {...rest}
           />
           {label ? <span className="">{label}</span> : null}
         </label>
       </div>
-    )
-  },
-)
+    );
+  }
+);
 
-export default Checkbox
+export default Checkbox;

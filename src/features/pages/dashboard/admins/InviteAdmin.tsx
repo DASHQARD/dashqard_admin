@@ -1,7 +1,7 @@
 import type { SubmitHandler } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Input, Text, Combobox } from '@/components';
+import { BasePhoneInput, Button, Input, Text, Combobox } from '@/components';
 import { useCustomForm } from '@/libs';
 import { z } from 'zod';
 import { useInviteAdmin } from '@/features/hooks';
@@ -95,11 +95,18 @@ export default function InviteAdmin() {
                 error={form.formState.errors.email?.message}
               />
 
-              <Input
-                label="Phone Number"
-                placeholder="Enter phone number"
-                {...form.register('phone_number')}
-                error={form.formState.errors.phone_number?.message}
+              <Controller
+                control={form.control}
+                name="phone_number"
+                render={({ field }) => (
+                  <BasePhoneInput
+                    label="Phone Number"
+                    placeholder="Enter phone number"
+                    selectedVal={field.value}
+                    handleChange={field.onChange}
+                    error={form.formState.errors.phone_number?.message}
+                  />
+                )}
               />
 
               <Controller
@@ -120,7 +127,7 @@ export default function InviteAdmin() {
                 )}
               />
 
-              <div className="flex items-center gap-3 pt-4 border-t">
+              <div className="flex items-center gap-3 pt-4">
                 <Button
                   type="button"
                   variant="outline"

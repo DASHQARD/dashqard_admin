@@ -18,7 +18,6 @@ export function VendorActionCell({ row }: TableCellProps<{ id: string }>) {
   const { userPermissions = [] } = useContentGuard();
   const user = useAuthStore().user;
 
-
   return (
     <Dropdown
       actions={getVendorOptions({

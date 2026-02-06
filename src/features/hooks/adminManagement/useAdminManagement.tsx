@@ -32,29 +32,30 @@ export function useAdminManagementBase() {
   const paramsForApi = useMemo(() => {
     const apiParams: any = {
       limit: query.limit || 10,
-    }
+    };
     const queryWithAfter = query as any;
     if (queryWithAfter.after) {
       // Send after as date string (API expects date string format)
       apiParams.after = queryWithAfter.after;
     }
     if (query.search) {
-      apiParams.search = query.search
+      apiParams.search = query.search;
     }
     if (query.status) {
-      apiParams.status = query.status
+      apiParams.status = query.status;
     }
     // Include date filters if present
     if (query.dateFrom) {
-      apiParams.dateFrom = query.dateFrom
+      apiParams.dateFrom = query.dateFrom;
     }
     if (query.dateTo) {
-      apiParams.dateTo = query.dateTo
+      apiParams.dateTo = query.dateTo;
     }
-    return apiParams
-  }, [query])
+    return apiParams;
+  }, [query]);
 
-  const { data: adminsResponse, isLoading: isLoadingAdminsList } = useGetAdmins(paramsForApi);
+  const { data: adminsResponse, isLoading: isLoadingAdminsList } =
+    useGetAdmins(paramsForApi);
 
   // Extract data from response
   const adminsList = React.useMemo(() => {
@@ -218,25 +219,25 @@ export function useAdminManagementBase() {
   const handleNextPage = useCallback(() => {
     if (pagination?.hasNextPage && pagination?.next) {
       // Set after as date string (API expects date string format)
-      setQuery({ ...query, after: pagination.next } as any)
+      setQuery({ ...query, after: pagination.next } as any);
     }
-  }, [pagination, query, setQuery])
+  }, [pagination, query, setQuery]);
 
   const handleSetAfter = useCallback(
     (after: string) => {
       // Set after as date string or empty string to reset
-      setQuery({ ...query, after: after || undefined } as any)
+      setQuery({ ...query, after: after || undefined } as any);
     },
-    [query, setQuery],
-  )
+    [query, setQuery]
+  );
 
   // Calculate estimated total for display
   const estimatedTotal = useMemo(() => {
     const adminsArray = Array.isArray(adminsList) ? adminsList : [];
     return pagination?.hasNextPage
       ? adminsArray.length + (query.limit || 10)
-      : adminsArray.length
-  }, [pagination, adminsList, query.limit])
+      : adminsArray.length;
+  }, [pagination, adminsList, query.limit]);
 
   return {
     query,

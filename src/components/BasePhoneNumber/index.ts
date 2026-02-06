@@ -1,1 +1,1 @@
-export * from './BasePhoneNumber'
+export * from './BasePhoneNumber';

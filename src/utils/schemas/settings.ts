@@ -1,5 +1,5 @@
-import { z } from 'zod'
-import { getRequiredEmailSchema, getRequiredStringSchema } from './shared'
+import { z } from 'zod';
+import { getRequiredEmailSchema, getRequiredStringSchema } from './shared';
 
 export const SettingsSchema = z.object({
   fullname: getRequiredStringSchema('Full Name'),
@@ -11,4 +11,4 @@ export const SettingsSchema = z.object({
   newPin: z.string().optional(),
   name: z.string().optional(),
   reason: z.string().optional(),
-})
+});

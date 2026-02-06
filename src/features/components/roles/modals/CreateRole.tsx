@@ -79,6 +79,7 @@ export function CreateRole() {
           />
           <Input
             label="Description"
+            type="textarea"
             rows={4}
             innerClassName="h-24"
             placeholder="e.g., Full access to all features"

@@ -1,87 +1,90 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react'
-import { useLocation, useSearchParams } from 'react-router-dom'
+import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useLocation, useSearchParams } from 'react-router-dom';
 
-import type { PersistedModalStateOptions, PersistedModalStateReturn } from '@/types'
+import type {
+  PersistedModalStateOptions,
+  PersistedModalStateReturn,
+} from '@/types';
 
 export function usePersistedModalState<TModalData = unknown>({
   paramName = 'modal',
   defaultValue = null,
   resetOnRouteChange = false,
 }: PersistedModalStateOptions = {}): PersistedModalStateReturn<TModalData> {
-  const location = useLocation()
-  const [searchParams, setSearchParams] = useSearchParams()
+  const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const previousPathRef = useRef(location.pathname)
+  const previousPathRef = useRef(location.pathname);
 
   // Get values from URL
-  const modalState = searchParams.get(paramName) ?? defaultValue ?? ''
-  const modalDataFromUrl = searchParams.get('modalData') ?? ''
+  const modalState = searchParams.get(paramName) ?? defaultValue ?? '';
+  const modalDataFromUrl = searchParams.get('modalData') ?? '';
 
   const openModal = useCallback(
     (modalName: string, data?: TModalData) => {
       setSearchParams(
         (prev) => {
-          const newParams = new URLSearchParams(prev)
-          newParams.set(paramName, modalName)
+          const newParams = new URLSearchParams(prev);
+          newParams.set(paramName, modalName);
 
           if (data !== undefined) {
             try {
-              newParams.set('modalData', JSON.stringify(data))
+              newParams.set('modalData', JSON.stringify(data));
             } catch (error) {
-              console.warn('Failed to serialize modal data:', error)
-              newParams.delete('modalData')
+              console.warn('Failed to serialize modal data:', error);
+              newParams.delete('modalData');
             }
           } else {
-            newParams.delete('modalData')
+            newParams.delete('modalData');
           }
 
-          return newParams
+          return newParams;
         },
-        { replace: true },
-      )
+        { replace: true }
+      );
     },
-    [paramName, setSearchParams],
-  )
+    [paramName, setSearchParams]
+  );
 
   const closeModal = useCallback(() => {
     setSearchParams(
       (prev) => {
-        const newParams = new URLSearchParams(prev)
-        newParams.delete(paramName)
-        newParams.delete('modalData')
-        return newParams
+        const newParams = new URLSearchParams(prev);
+        newParams.delete(paramName);
+        newParams.delete('modalData');
+        return newParams;
       },
-      { replace: true },
-    )
-  }, [paramName, setSearchParams])
+      { replace: true }
+    );
+  }, [paramName, setSearchParams]);
 
   const isModalOpen = useCallback(
     (modalName?: string) => {
-      const currentModal = modalState || null
+      const currentModal = modalState || null;
       if (!modalName) {
-        return Boolean(currentModal)
+        return Boolean(currentModal);
       }
-      return currentModal === modalName
+      return currentModal === modalName;
     },
-    [modalState],
-  )
+    [modalState]
+  );
 
   const parsedModalData = useMemo(() => {
-    if (!modalDataFromUrl) return null
+    if (!modalDataFromUrl) return null;
     try {
-      return JSON.parse(modalDataFromUrl) as TModalData
+      return JSON.parse(modalDataFromUrl) as TModalData;
     } catch (error) {
-      console.warn('Failed to parse modal data from URL:', error)
-      return null
+      console.warn('Failed to parse modal data from URL:', error);
+      return null;
     }
-  }, [modalDataFromUrl])
+  }, [modalDataFromUrl]);
 
   useEffect(() => {
     if (resetOnRouteChange && location.pathname !== previousPathRef.current) {
-      closeModal()
+      closeModal();
     }
-    previousPathRef.current = location.pathname
-  }, [resetOnRouteChange, location.pathname, closeModal])
+    previousPathRef.current = location.pathname;
+  }, [resetOnRouteChange, location.pathname, closeModal]);
 
   return useMemo(
     () => ({
@@ -91,6 +94,6 @@ export function usePersistedModalState<TModalData = unknown>({
       closeModal,
       isModalOpen,
     }),
-    [modalState, parsedModalData, openModal, closeModal, isModalOpen],
-  )
+    [modalState, parsedModalData, openModal, closeModal, isModalOpen]
+  );
 }

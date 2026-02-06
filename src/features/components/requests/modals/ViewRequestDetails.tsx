@@ -7,9 +7,10 @@ import { formatDate, getStatusVariant } from '@/utils/helpers';
 
 // grouzedezaga - 5315@yopmail.com
 
-
 export function ViewRequestDetails() {
-  const modal = usePersistedModalState<{ id: number } | { id: string; status: string }>({
+  const modal = usePersistedModalState<
+    { id: number } | { id: string; status: string }
+  >({
     paramName: MODALS.REQUEST_CORPORATE_MANAGEMENT.PARAM_NAME,
   });
 
@@ -21,8 +22,12 @@ export function ViewRequestDetails() {
   );
 
   const { mutateAsync: getPresignedURL } = usePresignedURL();
-  const [logoUrlPresigned, setLogoUrlPresigned] = React.useState<string | null>(null);
-  const [currentLogoPresigned, setCurrentLogoPresigned] = React.useState<string | null>(null);
+  const [logoUrlPresigned, setLogoUrlPresigned] = React.useState<string | null>(
+    null
+  );
+  const [currentLogoPresigned, setCurrentLogoPresigned] = React.useState<
+    string | null
+  >(null);
 
   // Fetch presigned URL for proposed logo
   React.useEffect(() => {
@@ -78,7 +83,8 @@ export function ViewRequestDetails() {
 
   // Fetch presigned URL for current logo
   React.useEffect(() => {
-    const currentLogo = requestCorporateDetails?.request_data?.current_data?.logo;
+    const currentLogo =
+      requestCorporateDetails?.request_data?.current_data?.logo;
     if (!currentLogo || typeof currentLogo !== 'string') {
       setCurrentLogoPresigned(null);
       return;
@@ -95,7 +101,9 @@ export function ViewRequestDetails() {
     const fetchCurrentLogoPresignedUrl = async () => {
       try {
         // Remove leading slash if present for S3 key format
-        const fileKey = currentLogo.startsWith('/') ? currentLogo.slice(1) : currentLogo;
+        const fileKey = currentLogo.startsWith('/')
+          ? currentLogo.slice(1)
+          : currentLogo;
         const response = await getPresignedURL(fileKey);
         const url =
           (typeof response === 'string'
@@ -125,14 +133,19 @@ export function ViewRequestDetails() {
     return () => {
       cancelled = true;
     };
-  }, [requestCorporateDetails?.request_data?.current_data?.logo, getPresignedURL]);
+  }, [
+    requestCorporateDetails?.request_data?.current_data?.logo,
+    getPresignedURL,
+  ]);
 
   return (
     <Modal
       position="side"
       title="Request Details"
       panelClass="!w-[1100px]"
-      isOpen={modal.isModalOpen(MODALS.REQUEST_CORPORATE_MANAGEMENT.CHILDREN.VIEW)}
+      isOpen={modal.isModalOpen(
+        MODALS.REQUEST_CORPORATE_MANAGEMENT.CHILDREN.VIEW
+      )}
       setIsOpen={(isOpen) => {
         if (!isOpen) {
           modal.closeModal();
@@ -146,7 +159,11 @@ export function ViewRequestDetails() {
           <div className="flex items-center justify-between pb-4 border-b border-gray-200">
             <div className="flex flex-col gap-1">
               <p className="text-gray-400 text-xs">Request ID</p>
-              <Text variant="span" weight="normal" className="text-gray-800 text-base">
+              <Text
+                variant="span"
+                weight="normal"
+                className="text-gray-800 text-base"
+              >
                 {requestCorporateDetails?.request_id || '-'}
               </Text>
             </div>
@@ -154,7 +171,11 @@ export function ViewRequestDetails() {
               <p className="text-gray-400 text-xs">Status</p>
               <Tag
                 value={requestCorporateDetails?.status || 'Pending'}
-                variant={getStatusVariant((requestData as any)?.status || requestCorporateDetails?.status || 'pending')}
+                variant={getStatusVariant(
+                  (requestData as any)?.status ||
+                    requestCorporateDetails?.status ||
+                    'pending'
+                )}
                 className="w-fit"
               />
             </div>
@@ -251,7 +272,10 @@ export function ViewRequestDetails() {
               <div className="flex flex-col gap-1">
                 <p className="text-gray-400 text-xs">Reviewed At</p>
                 <Text variant="span" weight="normal" className="text-gray-800">
-                  {formatDate(requestCorporateDetails.reviewed_at, 'DD MMM YYYY, HH:mm')}
+                  {formatDate(
+                    requestCorporateDetails.reviewed_at,
+                    'DD MMM YYYY, HH:mm'
+                  )}
                 </Text>
               </div>
             )}
@@ -261,9 +285,9 @@ export function ViewRequestDetails() {
               <Text variant="span" weight="normal" className="text-gray-800">
                 {requestCorporateDetails?.created_at
                   ? formatDate(
-                    requestCorporateDetails.created_at,
-                    'DD MMM YYYY, HH:mm'
-                  )
+                      requestCorporateDetails.created_at,
+                      'DD MMM YYYY, HH:mm'
+                    )
                   : '-'}
               </Text>
             </div>
@@ -273,9 +297,9 @@ export function ViewRequestDetails() {
               <Text variant="span" weight="normal" className="text-gray-800">
                 {requestCorporateDetails?.updated_at
                   ? formatDate(
-                    requestCorporateDetails.updated_at,
-                    'DD MMM YYYY, HH:mm'
-                  )
+                      requestCorporateDetails.updated_at,
+                      'DD MMM YYYY, HH:mm'
+                    )
                   : '-'}
               </Text>
             </div>
@@ -305,7 +329,9 @@ export function ViewRequestDetails() {
           {requestCorporateDetails?.approval_chain &&
             requestCorporateDetails.approval_chain.length > 0 && (
               <div className="flex flex-col gap-3 pb-4 border-b border-gray-200">
-                <p className="text-gray-600 text-sm font-medium">Approval Chain</p>
+                <p className="text-gray-600 text-sm font-medium">
+                  Approval Chain
+                </p>
                 <div className="grid grid-cols-2 gap-4">
                   {requestCorporateDetails.approval_chain.map(
                     (
@@ -325,7 +351,11 @@ export function ViewRequestDetails() {
                         <div className="flex flex-col gap-3">
                           <div className="flex items-center justify-between">
                             <p className="text-gray-400 text-xs">Level</p>
-                            <Text variant="span" weight="normal" className="text-gray-800 text-sm">
+                            <Text
+                              variant="span"
+                              weight="normal"
+                              className="text-gray-800 text-sm"
+                            >
                               {approval.level || '-'}
                             </Text>
                           </div>
@@ -333,31 +363,54 @@ export function ViewRequestDetails() {
                             <p className="text-gray-400 text-xs">Status</p>
                             <Tag
                               value={approval.status || 'Pending'}
-                              variant={getStatusVariant(approval.status || 'pending')}
+                              variant={getStatusVariant(
+                                approval.status || 'pending'
+                              )}
                               className="w-fit"
                             />
                           </div>
                           {approval.approver_user_id && (
                             <div className="flex items-center justify-between">
-                              <p className="text-gray-400 text-xs">Approver User ID</p>
-                              <Text variant="span" weight="normal" className="text-gray-800 text-sm">
+                              <p className="text-gray-400 text-xs">
+                                Approver User ID
+                              </p>
+                              <Text
+                                variant="span"
+                                weight="normal"
+                                className="text-gray-800 text-sm"
+                              >
                                 {approval.approver_user_id}
                               </Text>
                             </div>
                           )}
                           {approval.approver_user_type && (
                             <div className="flex items-center justify-between">
-                              <p className="text-gray-400 text-xs">Approver User Type</p>
-                              <Text variant="span" weight="normal" className="text-gray-800 text-sm">
+                              <p className="text-gray-400 text-xs">
+                                Approver User Type
+                              </p>
+                              <Text
+                                variant="span"
+                                weight="normal"
+                                className="text-gray-800 text-sm"
+                              >
                                 {approval.approver_user_type}
                               </Text>
                             </div>
                           )}
                           {approval.reviewed_at && (
                             <div className="flex items-center justify-between">
-                              <p className="text-gray-400 text-xs">Reviewed At</p>
-                              <Text variant="span" weight="normal" className="text-gray-800 text-sm">
-                                {formatDate(approval.reviewed_at, 'DD MMM YYYY, HH:mm')}
+                              <p className="text-gray-400 text-xs">
+                                Reviewed At
+                              </p>
+                              <Text
+                                variant="span"
+                                weight="normal"
+                                className="text-gray-800 text-sm"
+                              >
+                                {formatDate(
+                                  approval.reviewed_at,
+                                  'DD MMM YYYY, HH:mm'
+                                )}
                               </Text>
                             </div>
                           )}
@@ -373,7 +426,9 @@ export function ViewRequestDetails() {
           {requestCorporateDetails?.request_data && (
             <div className="flex flex-col gap-4 pb-4 border-b border-gray-200">
               <div className="flex items-center justify-between">
-                <p className="text-gray-600 text-sm font-medium">Request Data</p>
+                <p className="text-gray-600 text-sm font-medium">
+                  Request Data
+                </p>
                 {requestCorporateDetails.request_data.fields_to_update && (
                   <div className="flex flex-wrap gap-2">
                     {Object.keys(
@@ -391,29 +446,32 @@ export function ViewRequestDetails() {
               </div>
 
               {/* Logo URL Display - Full Width */}
-              {requestCorporateDetails.request_data.logo_url && logoUrlPresigned && (
-                <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                  <p className="text-gray-600 text-xs font-medium mb-3">Proposed Logo</p>
-                  <div className="flex flex-col gap-2">
-                    <img
-                      src={logoUrlPresigned}
-                      alt="Proposed logo"
-                      className="w-full max-w-[300px] h-auto rounded-lg border border-gray-200 object-contain"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = 'none';
-                      }}
-                    />
-                    <a
-                      href={logoUrlPresigned}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 text-xs hover:underline"
-                    >
-                      View Full Image
-                    </a>
+              {requestCorporateDetails.request_data.logo_url &&
+                logoUrlPresigned && (
+                  <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <p className="text-gray-600 text-xs font-medium mb-3">
+                      Proposed Logo
+                    </p>
+                    <div className="flex flex-col gap-2">
+                      <img
+                        src={logoUrlPresigned}
+                        alt="Proposed logo"
+                        className="w-full max-w-[300px] h-auto rounded-lg border border-gray-200 object-contain"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = 'none';
+                        }}
+                      />
+                      <a
+                        href={logoUrlPresigned}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 text-xs hover:underline"
+                      >
+                        View Full Image
+                      </a>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
               <div className="grid grid-cols-2 gap-4">
                 {/* Current Data */}
@@ -430,14 +488,18 @@ export function ViewRequestDetails() {
                           <p className="text-gray-400 text-xs capitalize">
                             {key.replace(/_/g, ' ')}
                           </p>
-                          {key === 'logo' && value && typeof value === 'string' && currentLogoPresigned ? (
+                          {key === 'logo' &&
+                          value &&
+                          typeof value === 'string' &&
+                          currentLogoPresigned ? (
                             <div className="flex flex-col gap-2">
                               <img
                                 src={currentLogoPresigned}
                                 alt="Current logo"
                                 className="w-full max-w-[200px] h-auto rounded-lg border border-gray-200 object-contain"
                                 onError={(e) => {
-                                  (e.target as HTMLImageElement).style.display = 'none';
+                                  (e.target as HTMLImageElement).style.display =
+                                    'none';
                                 }}
                               />
                               <a
@@ -450,7 +512,11 @@ export function ViewRequestDetails() {
                               </a>
                             </div>
                           ) : (
-                            <Text variant="span" weight="normal" className="text-gray-800 text-sm">
+                            <Text
+                              variant="span"
+                              weight="normal"
+                              className="text-gray-800 text-sm"
+                            >
                               {key.includes('_at') && typeof value === 'string'
                                 ? formatDate(value, 'DD MMM YYYY, HH:mm')
                                 : String(value || '-')}
@@ -489,7 +555,9 @@ export function ViewRequestDetails() {
                                   alt="Proposed logo"
                                   className="w-full max-w-[200px] h-auto rounded-lg border border-green-200 object-contain"
                                   onError={(e) => {
-                                    (e.target as HTMLImageElement).style.display = 'none';
+                                    (
+                                      e.target as HTMLImageElement
+                                    ).style.display = 'none';
                                   }}
                                 />
                                 <a
@@ -509,7 +577,11 @@ export function ViewRequestDetails() {
                             <p className="text-gray-400 text-xs capitalize">
                               {key.replace(/_/g, ' ')}
                             </p>
-                            <Text variant="span" weight="normal" className="text-gray-800 text-sm">
+                            <Text
+                              variant="span"
+                              weight="normal"
+                              className="text-gray-800 text-sm"
+                            >
                               {key.includes('_at') && typeof value === 'string'
                                 ? formatDate(value, 'DD MMM YYYY, HH:mm')
                                 : String(value || '-')}
@@ -531,10 +603,15 @@ export function ViewRequestDetails() {
                 <Button
                   variant="danger"
                   onClick={() => {
-                    modal.openModal(MODALS.REQUEST_CORPORATE_MANAGEMENT.CHILDREN.REJECT, {
-                      id: requestCorporateDetails?.id ? String(requestCorporateDetails.id) : '',
-                      status: 'rejected',
-                    } as any);
+                    modal.openModal(
+                      MODALS.REQUEST_CORPORATE_MANAGEMENT.CHILDREN.REJECT,
+                      {
+                        id: requestCorporateDetails?.id
+                          ? String(requestCorporateDetails.id)
+                          : '',
+                        status: 'rejected',
+                      } as any
+                    );
                   }}
                 >
                   Reject
@@ -542,10 +619,15 @@ export function ViewRequestDetails() {
                 <Button
                   variant="outline"
                   onClick={() => {
-                    modal.openModal(MODALS.REQUEST_CORPORATE_MANAGEMENT.CHILDREN.APPROVE, {
-                      id: requestCorporateDetails?.id ? String(requestCorporateDetails.id) : '',
-                      status: 'approved',
-                    } as any);
+                    modal.openModal(
+                      MODALS.REQUEST_CORPORATE_MANAGEMENT.CHILDREN.APPROVE,
+                      {
+                        id: requestCorporateDetails?.id
+                          ? String(requestCorporateDetails.id)
+                          : '',
+                        status: 'approved',
+                      } as any
+                    );
                   }}
                 >
                   Approve

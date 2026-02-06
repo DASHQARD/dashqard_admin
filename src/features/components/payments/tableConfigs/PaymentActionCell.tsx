@@ -43,7 +43,10 @@ export function PaymentActionCell({ row }: TableCellProps<PaymentData>) {
       label: 'Delete',
       icon: 'bi:trash',
       onClickFn: () => {
-        modal.openModal(MODALS.PAYMENTS_MANAGEMENT.CHILDREN.DELETE, row.original);
+        modal.openModal(
+          MODALS.PAYMENTS_MANAGEMENT.CHILDREN.DELETE,
+          row.original
+        );
       },
     },
   ];

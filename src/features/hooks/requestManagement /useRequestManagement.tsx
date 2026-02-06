@@ -28,20 +28,20 @@ export function useRequestManagementBase() {
   const paramsForApi = useMemo(() => {
     const apiParams: any = {
       limit: query.limit || 10,
-    }
+    };
     const queryWithAfter = query as any;
     if (queryWithAfter.after) {
       // Send after as date string (API expects date string format)
       apiParams.after = queryWithAfter.after;
     }
     if (query.search) {
-      apiParams.search = query.search
+      apiParams.search = query.search;
     }
     if (query.status) {
-      apiParams.status = query.status
+      apiParams.status = query.status;
     }
-    return apiParams
-  }, [query])
+    return apiParams;
+  }, [query]);
 
   const {
     data: allRequestsResponse,
@@ -268,10 +268,13 @@ export function useRequestManagementBase() {
       actions.push({
         label: 'Approve Request',
         onClickFn: () => {
-          modalInstance.openModal(MODALS.REQUEST_VENDOR_MANAGEMENT.CHILDREN.APPROVE, {
-            id: String(requestVendor.id),
-            status: 'approved',
-          });
+          modalInstance.openModal(
+            MODALS.REQUEST_VENDOR_MANAGEMENT.CHILDREN.APPROVE,
+            {
+              id: String(requestVendor.id),
+              status: 'approved',
+            }
+          );
         },
       });
     }
@@ -290,10 +293,13 @@ export function useRequestManagementBase() {
       actions.push({
         label: 'Reject Request',
         onClickFn: () =>
-          modalInstance.openModal(MODALS.REQUEST_VENDOR_MANAGEMENT.CHILDREN.REJECT, {
-            id: String(requestVendor.id),
-            status: 'rejected',
-          }),
+          modalInstance.openModal(
+            MODALS.REQUEST_VENDOR_MANAGEMENT.CHILDREN.REJECT,
+            {
+              id: String(requestVendor.id),
+              status: 'rejected',
+            }
+          ),
       });
     }
 
@@ -326,25 +332,31 @@ export function useRequestManagementBase() {
   const handleNextPage = useCallback(() => {
     if (pagination?.hasNextPage && pagination?.next) {
       // Set after as date string (API expects date string format)
-      setQuery({ ...query, after: pagination.next } as any)
+      setQuery({ ...query, after: pagination.next } as any);
     }
-  }, [pagination, query, setQuery])
+  }, [pagination, query, setQuery]);
 
   const handleSetAfter = useCallback(
     (after: string) => {
       // Set after as date string or empty string to reset
-      setQuery({ ...query, after: after || undefined } as any)
+      setQuery({ ...query, after: after || undefined } as any);
     },
-    [query, setQuery],
-  )
+    [query, setQuery]
+  );
 
   // Calculate estimated total for display
   const estimatedTotal = useMemo(() => {
-    const totalLength = (requestCorporatesList?.length || 0) + (requestVendorsList?.length || 0);
+    const totalLength =
+      (requestCorporatesList?.length || 0) + (requestVendorsList?.length || 0);
     return pagination?.hasNextPage
       ? totalLength + (query.limit || 10)
-      : totalLength
-  }, [pagination, requestCorporatesList?.length, requestVendorsList?.length, query.limit])
+      : totalLength;
+  }, [
+    pagination,
+    requestCorporatesList?.length,
+    requestVendorsList?.length,
+    query.limit,
+  ]);
 
   return {
     query,

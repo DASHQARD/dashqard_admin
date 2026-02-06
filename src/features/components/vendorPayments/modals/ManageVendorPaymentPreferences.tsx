@@ -75,10 +75,8 @@ export function ManageVendorPaymentPreferences() {
       if (data && typeof data === 'object') {
         return {
           payment_frequency:
-            (data.payment_frequency as
-              | 'daily'
-              | 'weekly'
-              | 'monthly') || 'monthly',
+            (data.payment_frequency as 'daily' | 'weekly' | 'monthly') ||
+            'monthly',
         };
       }
     }
@@ -224,10 +222,7 @@ export function ManageVendorPaymentPreferences() {
                             value={field.value}
                             onValueChange={(value) => {
                               field.onChange(
-                                value as
-                                | 'daily'
-                                | 'weekly'
-                                | 'monthly'
+                                value as 'daily' | 'weekly' | 'monthly'
                               );
                             }}
                             className="flex flex-col gap-3"

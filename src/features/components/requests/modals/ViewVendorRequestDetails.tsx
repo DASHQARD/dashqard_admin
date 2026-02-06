@@ -57,8 +57,10 @@ export function ViewVendorRequestDetails() {
     requestDetailsResponse?.data ?? requestDetailsResponse ?? null;
 
   const requestId = details?.id ?? requestData?.id;
-  const isPending = (details?.status ?? (requestData as { status?: string })?.status)
-    ?.toLowerCase() === 'pending';
+  const isPending =
+    (
+      details?.status ?? (requestData as { status?: string })?.status
+    )?.toLowerCase() === 'pending';
 
   const handleApprove = () => {
     if (requestId == null) return;
@@ -129,7 +131,11 @@ export function ViewVendorRequestDetails() {
                       className="w-fit"
                     />
                   ) : (
-                    <Text variant="span" weight="normal" className="text-gray-800">
+                    <Text
+                      variant="span"
+                      weight="normal"
+                      className="text-gray-800"
+                    >
                       -
                     </Text>
                   )
@@ -140,11 +146,17 @@ export function ViewVendorRequestDetails() {
               <DetailRow label="User Type" value={details?.user_type} />
               <DetailRow
                 label="Entity ID"
-                value={details?.entity_id != null ? String(details.entity_id) : undefined}
+                value={
+                  details?.entity_id != null
+                    ? String(details.entity_id)
+                    : undefined
+                }
               />
               <DetailRow
                 label="User ID"
-                value={details?.user_id != null ? String(details.user_id) : undefined}
+                value={
+                  details?.user_id != null ? String(details.user_id) : undefined
+                }
               />
               <DetailRow
                 label="Initiated By User ID"
@@ -168,12 +180,13 @@ export function ViewVendorRequestDetails() {
             <DetailRow label="Description" value={details?.description} />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
-              {details?.rejection_reason != null && details.rejection_reason !== '' && (
-                <DetailRow
-                  label="Rejection Reason"
-                  value={details.rejection_reason}
-                />
-              )}
+              {details?.rejection_reason != null &&
+                details.rejection_reason !== '' && (
+                  <DetailRow
+                    label="Rejection Reason"
+                    value={details.rejection_reason}
+                  />
+                )}
 
               {details?.reviewed_by != null && details.reviewed_by !== '' && (
                 <DetailRow label="Reviewed By" value={details.reviewed_by} />
@@ -211,69 +224,73 @@ export function ViewVendorRequestDetails() {
                   label="Request Data"
                   children={
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5 mt-1">
-                      {Object.entries(details.request_data).map(([key, val]) => (
-                        <div
-                          key={key}
-                          className="flex justify-between gap-2 text-sm min-w-0"
-                        >
-                          <span className="text-gray-500 shrink-0">
-                            {formatLabel(key)}:
-                          </span>
-                          <Text
-                            variant="span"
-                            weight="normal"
-                            className="text-gray-800 text-right break-all"
+                      {Object.entries(details.request_data).map(
+                        ([key, val]) => (
+                          <div
+                            key={key}
+                            className="flex justify-between gap-2 text-sm min-w-0"
                           >
-                            {typeof val === 'object' && val !== null
-                              ? JSON.stringify(val)
-                              : String(val)}
-                          </Text>
-                        </div>
-                      ))}
+                            <span className="text-gray-500 shrink-0">
+                              {formatLabel(key)}:
+                            </span>
+                            <Text
+                              variant="span"
+                              weight="normal"
+                              className="text-gray-800 text-right break-all"
+                            >
+                              {typeof val === 'object' && val !== null
+                                ? JSON.stringify(val)
+                                : String(val)}
+                            </Text>
+                          </div>
+                        )
+                      )}
                     </div>
                   }
                 />
               )}
 
-            {details?.approval_chain &&
-              details.approval_chain.length > 0 && (
-                <DetailRow
-                  label="Approval Chain"
-                  children={
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1">
-                      {details.approval_chain.map((step, index) => (
-                        <div
-                          key={index}
-                          className="rounded-lg border border-gray-100 bg-gray-50 p-2 text-sm"
-                        >
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="text-gray-600 font-medium">
-                              {step.level ? formatLabel(step.level) : `Step ${index + 1}`}
-                            </span>
-                            <Tag
-                              value={step.status ?? 'pending'}
-                              variant={getStatusVariant(step.status ?? 'pending')}
-                              className="w-fit text-xs"
-                            />
-                          </div>
-                          {step.approver_user_type != null && (
-                            <p className="text-gray-500 text-xs mt-1">
-                              {step.approver_user_type}
-                              {step.approver_user_id != null &&
-                                ` (ID: ${step.approver_user_id})`}
-                            </p>
-                          )}
-                          {step.reviewed_at && (
-                            <p className="text-gray-400 text-xs mt-0.5">
-                              Reviewed: {formatDate(step.reviewed_at, 'DD MMM YYYY, HH:mm')}
-                            </p>
-                          )}
+            {details?.approval_chain && details.approval_chain.length > 0 && (
+              <DetailRow
+                label="Approval Chain"
+                children={
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1">
+                    {details.approval_chain.map((step, index) => (
+                      <div
+                        key={index}
+                        className="rounded-lg border border-gray-100 bg-gray-50 p-2 text-sm"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-gray-600 font-medium">
+                            {step.level
+                              ? formatLabel(step.level)
+                              : `Step ${index + 1}`}
+                          </span>
+                          <Tag
+                            value={step.status ?? 'pending'}
+                            variant={getStatusVariant(step.status ?? 'pending')}
+                            className="w-fit text-xs"
+                          />
                         </div>
-                      ))}
-                    </div>
-                  }
-                />
-              )}
+                        {step.approver_user_type != null && (
+                          <p className="text-gray-500 text-xs mt-1">
+                            {step.approver_user_type}
+                            {step.approver_user_id != null &&
+                              ` (ID: ${step.approver_user_id})`}
+                          </p>
+                        )}
+                        {step.reviewed_at && (
+                          <p className="text-gray-400 text-xs mt-0.5">
+                            Reviewed:{' '}
+                            {formatDate(step.reviewed_at, 'DD MMM YYYY, HH:mm')}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                }
+              />
+            )}
           </section>
         </div>
         <div className="px-6 py-4 border-t border-gray-100 flex gap-3">

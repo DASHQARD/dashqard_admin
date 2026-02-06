@@ -7,7 +7,8 @@ export function usePaymentDetailsManagementBase() {
   const [query, setQuery] = useReducerSpread(DEFAULT_QUERY);
 
   const { useGetPaymentDetails } = paymentDetailsManagementQueries();
-  const { data: paymentDetailsList, isLoading: isLoadingPaymentDetails } = useGetPaymentDetails();
+  const { data: paymentDetailsList, isLoading: isLoadingPaymentDetails } =
+    useGetPaymentDetails();
 
   // Filter payment details based on search query (client-side filtering)
   const filteredPaymentDetailsList = React.useMemo(() => {
@@ -32,4 +33,3 @@ export function usePaymentDetailsManagementBase() {
     isLoadingPaymentDetails,
   };
 }
-

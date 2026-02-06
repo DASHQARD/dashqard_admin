@@ -53,17 +53,17 @@ export function useSuperAdminInvitationsManagementBase() {
   const handleNextPage = useCallback(() => {
     if (pagination?.hasNextPage && pagination?.next) {
       // Set after as date string (API expects date string format)
-      setQuery({ ...query, after: pagination.next } as any)
+      setQuery({ ...query, after: pagination.next } as any);
     }
-  }, [pagination, query, setQuery])
+  }, [pagination, query, setQuery]);
 
   const handleSetAfter = useCallback(
     (after: string) => {
       // Set after as date string or empty string to reset
-      setQuery({ ...query, after: after || undefined } as any)
+      setQuery({ ...query, after: after || undefined } as any);
     },
-    [query, setQuery],
-  )
+    [query, setQuery]
+  );
 
   const totalCount = useMemo(() => {
     // For cursor-based pagination, use estimated total

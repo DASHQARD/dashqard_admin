@@ -1,1 +1,1 @@
-export * from './CustomErrorBoundary'
+export * from './CustomErrorBoundary';

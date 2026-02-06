@@ -45,7 +45,10 @@ export function ActivateVendor() {
   const isOpen = modal.isModalOpen(MODALS.VENDOR_MANAGEMENT.CHILDREN.ACTIVATE);
 
   const vendorAccountId = Number(
-    vendorData?.vendor_account_id ?? vendorData?.id ?? vendorData?.vendor_id ?? 0
+    vendorData?.vendor_account_id ??
+      vendorData?.id ??
+      vendorData?.vendor_id ??
+      0
   );
   const vendorId = vendorData?.vendor_id ?? vendorData?.id ?? vendorAccountId;
   const vendorIdStr = vendorId ? String(vendorId) : '';
@@ -56,7 +59,10 @@ export function ActivateVendor() {
     isLoading: isLoadingPreferences,
     error: preferencesError,
     isError,
-  } = useGetVendorPaymentPreferences(vendorIdStr, isOpen && step === 'preferences');
+  } = useGetVendorPaymentPreferences(
+    vendorIdStr,
+    isOpen && step === 'preferences'
+  );
 
   const { useUpdateVendorPaymentPreferences } =
     vendorPaymentsManagementMutations();
@@ -107,13 +113,7 @@ export function ActivateVendor() {
       didAutoAdvanceRef.current = true;
       setStep('confirm');
     }
-  }, [
-    isOpen,
-    isLoadingPreferences,
-    vendorIdStr,
-    preferencesNotFound,
-    step,
-  ]);
+  }, [isOpen, isLoadingPreferences, vendorIdStr, preferencesNotFound, step]);
 
   useEffect(() => {
     if (isOpen && vendorIdStr && step === 'preferences') {
@@ -132,9 +132,17 @@ export function ActivateVendor() {
       didAutoAdvanceRef.current = false;
       setStep('preferences');
     }
-  }, [isOpen, vendorIdStr, step, currentPreferences.payment_frequency, formInstance]);
+  }, [
+    isOpen,
+    vendorIdStr,
+    step,
+    currentPreferences.payment_frequency,
+    formInstance,
+  ]);
 
-  const onSavePreferences: SubmitHandler<PaymentPreferencesFormData> = (data) => {
+  const onSavePreferences: SubmitHandler<PaymentPreferencesFormData> = (
+    data
+  ) => {
     if (!vendorIdStr) return;
     updatePreferencesMutation.mutate(
       {
@@ -229,7 +237,11 @@ export function ActivateVendor() {
                 )}
 
                 <div className="flex flex-col gap-2">
-                  <Text variant="h6" weight="semibold" className="text-gray-900">
+                  <Text
+                    variant="h6"
+                    weight="semibold"
+                    className="text-gray-900"
+                  >
                     Payment frequency
                   </Text>
                   <Controller
@@ -250,10 +262,7 @@ export function ActivateVendor() {
                           { value: 'weekly', label: 'Weekly' },
                           { value: 'monthly', label: 'Monthly' },
                         ].map(({ value, label }) => (
-                          <div
-                            key={value}
-                            className="flex items-center gap-3"
-                          >
+                          <div key={value} className="flex items-center gap-3">
                             <RadioGroupItem value={value} id={value} />
                             <label
                               htmlFor={value}

@@ -1,14 +1,14 @@
-import React from 'react'
-import { cn } from '@/libs'
-import { ErrorText } from '../Text'
+import React from 'react';
+import { cn } from '@/libs';
+import { ErrorText } from '../Text';
 
 interface FileUploaderProps {
-  label?: string
-  value?: File | null
-  onChange?: (file: File | null) => void
-  error?: string
-  accept?: string
-  id?: string
+  label?: string;
+  value?: File | null;
+  onChange?: (file: File | null) => void;
+  error?: string;
+  accept?: string;
+  id?: string;
 }
 
 export default function FileUploader({
@@ -19,28 +19,28 @@ export default function FileUploader({
   accept = 'image/*',
   id,
 }: FileUploaderProps) {
-  const [preview, setPreview] = React.useState<string | null>(null)
-  const fileInputRef = React.useRef<HTMLInputElement>(null)
+  const [preview, setPreview] = React.useState<string | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
     if (value) {
-      const objectUrl = URL.createObjectURL(value)
-      setPreview(objectUrl)
-      return () => URL.revokeObjectURL(objectUrl)
+      const objectUrl = URL.createObjectURL(value);
+      setPreview(objectUrl);
+      return () => URL.revokeObjectURL(objectUrl);
     } else {
-      setPreview(null)
+      setPreview(null);
     }
-  }, [value])
+  }, [value]);
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0] || null
-    onChange?.(file)
+    const file = e.target.files?.[0] || null;
+    onChange?.(file);
   }
 
   function handleRemove() {
-    onChange?.(null)
+    onChange?.(null);
     if (fileInputRef.current) {
-      fileInputRef.current.value = ''
+      fileInputRef.current.value = '';
     }
   }
 
@@ -54,8 +54,10 @@ export default function FileUploader({
       <div
         className={cn(
           'border-2 border-dashed rounded-lg p-4 transition-colors min-h-48 flex items-center justify-center',
-          error ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400',
-          value && 'border-primary-500 bg-primary-50/30',
+          error
+            ? 'border-red-300 bg-red-50'
+            : 'border-gray-300 hover:border-gray-400',
+          value && 'border-primary-500 bg-primary-50/30'
         )}
       >
         <input
@@ -81,7 +83,9 @@ export default function FileUploader({
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">{value.name}</p>
+                <p className="text-sm font-medium text-gray-900 truncate">
+                  {value.name}
+                </p>
                 <p className="text-xs text-gray-500">
                   {(value.size / 1024).toFixed(2)} KB • {value.type}
                 </p>
@@ -108,5 +112,5 @@ export default function FileUploader({
       </div>
       <ErrorText error={error} />
     </div>
-  )
+  );
 }

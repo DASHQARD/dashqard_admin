@@ -45,7 +45,9 @@ export function useAuth() {
           token: data.accessToken,
           refreshToken: data.refreshToken,
           role: data.admin ?? null,
-          permissions: Array.isArray(data.permissions) ? data.permissions : null,
+          permissions: Array.isArray(data.permissions)
+            ? data.permissions
+            : null,
         });
 
         toast.success('Login successful');

@@ -1,6 +1,6 @@
 import { Controller, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Input, Modal, Combobox } from '@/components';
+import { BasePhoneInput, Button, Input, Modal, Combobox } from '@/components';
 import { usePersistedModalState } from '@/hooks';
 import { useCustomForm } from '@/libs';
 import { MODALS } from '@/utils/constants';
@@ -49,7 +49,6 @@ export function CreateSuperAdminInvitation() {
     }));
   }, [countriesData]);
 
-
   const onSubmit: SubmitHandler<CreateInvitationSchemaType> = (data) => {
     createInvitationMutation.mutate(data, {
       onSuccess: () => {
@@ -84,11 +83,18 @@ export function CreateSuperAdminInvitation() {
             error={form.formState.errors.email?.message}
           />
 
-          <Input
-            label="Phone Number"
-            placeholder="Enter phone number"
-            {...form.register('phone_number')}
-            error={form.formState.errors.phone_number?.message}
+          <Controller
+            control={form.control}
+            name="phone_number"
+            render={({ field }) => (
+              <BasePhoneInput
+                label="Phone Number"
+                placeholder="Enter phone number"
+                selectedVal={field.value}
+                handleChange={field.onChange}
+                error={form.formState.errors.phone_number?.message}
+              />
+            )}
           />
 
           <Controller
@@ -147,4 +153,3 @@ export function CreateSuperAdminInvitation() {
     </Modal>
   );
 }
-

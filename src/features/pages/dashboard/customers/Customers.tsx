@@ -53,14 +53,19 @@ export default function Customers() {
             csvHeaders={[]}
             filterBy={{
               simpleSelects: [
-                { label: 'status', options: OPTIONS.CUSTOMER_MANAGEMENT_STATUS },
+                {
+                  label: 'status',
+                  options: OPTIONS.CUSTOMER_MANAGEMENT_STATUS,
+                },
               ],
               date: [{ queryKey: 'dateFrom' }, { queryKey: 'dateTo' }],
             }}
             noSearch
             hasNextPage={pagination?.hasNextPage}
             hasPreviousPage={pagination?.hasPreviousPage}
-            currentAfter={(query as any).after ? String((query as any).after) : undefined}
+            currentAfter={
+              (query as any).after ? String((query as any).after) : undefined
+            }
             previousCursor={pagination?.previous || null}
             onNextPage={handleNextPage}
             onPreviousPage={() => {

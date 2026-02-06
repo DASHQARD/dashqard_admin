@@ -30,7 +30,9 @@ export function DeleteRequest() {
   return (
     <Modal
       panelClass=" "
-      isOpen={modal.isModalOpen(MODALS.REQUEST_CORPORATE_MANAGEMENT.CHILDREN.DELETE)}
+      isOpen={modal.isModalOpen(
+        MODALS.REQUEST_CORPORATE_MANAGEMENT.CHILDREN.DELETE
+      )}
       setIsOpen={(isOpen) => {
         if (!isOpen) {
           modal.closeModal();
@@ -52,7 +54,12 @@ export function DeleteRequest() {
             </Text>
             <p className="text-gray-600 text-center text-sm">
               Are you sure you want to delete the request{' '}
-              <strong>{modal.modalData?.request_id || modal.modalData?.name || 'this request'}</strong>? This action cannot be undone.
+              <strong>
+                {modal.modalData?.request_id ||
+                  modal.modalData?.name ||
+                  'this request'}
+              </strong>
+              ? This action cannot be undone.
             </p>
           </div>
         </div>
@@ -79,4 +86,3 @@ export function DeleteRequest() {
     </Modal>
   );
 }
-

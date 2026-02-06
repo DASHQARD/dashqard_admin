@@ -4,11 +4,11 @@ import { getQueryString } from '@/utils/helpers';
 
 const commonUrl = '/requests/admin';
 
-export const getRequestCorporatesList = async (params?: Record<string, any>): Promise<any> => {
+export const getRequestCorporatesList = async (
+  params?: Record<string, any>
+): Promise<any> => {
   const queryString = getQueryString(params);
-  const fullUrl = queryString
-    ? `${commonUrl}?${queryString}`
-    : `${commonUrl}`;
+  const fullUrl = queryString ? `${commonUrl}?${queryString}` : `${commonUrl}`;
   const response = await axiosClient.get(fullUrl);
   // Axios interceptor already returns response.data, so response here is the API response body
   // which has { data: [...], pagination: {...}, status: ..., etc }

@@ -1,16 +1,26 @@
-import React from 'react'
+import React from 'react';
 
-import { cn } from '@/libs'
+import { cn } from '@/libs';
 
-type PossibleTextElements = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p' | 'span' | 'div' | 'label'
+type PossibleTextElements =
+  | 'h1'
+  | 'h2'
+  | 'h3'
+  | 'h4'
+  | 'h5'
+  | 'h6'
+  | 'p'
+  | 'span'
+  | 'div'
+  | 'label';
 type Props = {
-  children: React.ReactNode
-  as?: PossibleTextElements
-  weight?: 'normal' | 'medium' | 'semibold' | 'bold' | 'extrabold' | 'black'
-  variant?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p' | 'span'
-  asVariant?: boolean
-  className?: string
-} & React.ComponentProps<PossibleTextElements>
+  children: React.ReactNode;
+  as?: PossibleTextElements;
+  weight?: 'normal' | 'medium' | 'semibold' | 'bold' | 'extrabold' | 'black';
+  variant?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p' | 'span';
+  asVariant?: boolean;
+  className?: string;
+} & React.ComponentProps<PossibleTextElements>;
 
 export const Text = React.memo((props: Props) => {
   const {
@@ -21,15 +31,15 @@ export const Text = React.memo((props: Props) => {
     className = '',
     children,
     ...rest
-  } = props
+  } = props;
 
   const computedFontWeight = React.useMemo(() => {
     if (!weight)
       return variant.includes('h') // if it's a heading text
         ? 'bold'
-        : 'normal'
-    return weight
-  }, [weight, variant])
+        : 'normal';
+    return weight;
+  }, [weight, variant]);
 
   const fontWeights: Record<Exclude<Props['weight'], undefined>, string> = {
     normal: 'font-normal',
@@ -38,7 +48,7 @@ export const Text = React.memo((props: Props) => {
     bold: 'font-bold',
     extrabold: 'font-extrabold',
     black: 'font-black',
-  }
+  };
 
   const variantClasses: Record<Exclude<Props['variant'], undefined>, string> = {
     h1: 'text-[32px] leading-[38px]',
@@ -49,15 +59,19 @@ export const Text = React.memo((props: Props) => {
     h6: 'text-base',
     p: 'text-base leading-[1.4] tracking-[-0.01em]1',
     span: 'text-sm',
-  }
+  };
 
   const classNames = cn([
     { [variantClasses[variant]]: !!variant },
     { [fontWeights[computedFontWeight]]: !!computedFontWeight },
     className,
-  ])
+  ]);
 
-  const evaluatedElement = asVariant ? variant : as
+  const evaluatedElement = asVariant ? variant : as;
 
-  return React.createElement(evaluatedElement, { className: classNames, ...rest }, children)
-})
+  return React.createElement(
+    evaluatedElement,
+    { className: classNames, ...rest },
+    children
+  );
+});

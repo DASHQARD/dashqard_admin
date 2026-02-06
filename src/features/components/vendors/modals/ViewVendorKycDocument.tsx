@@ -53,7 +53,8 @@ export const ViewVendorKycDocument = () => {
           setDocumentUrl(url);
           setIsPending(false);
         }
-      } catch (error) {
+      } catch (error: any) {
+        console.error(error);
         if (!cancelled) {
           setDocumentUrl(null);
           setIsPending(false);

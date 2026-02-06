@@ -16,31 +16,33 @@ export function useVendorPaymentsManagementBase() {
   const { userPermissions = [] } = useContentGuard();
   const user = useAuthStore().user;
 
-
   // Build query params for API with cursor support
   const apiQuery = React.useMemo(() => {
     const apiParams: any = {
       limit: query.limit || 10,
-    }
+    };
     const queryWithAfter = query as any;
     if (queryWithAfter.after) {
       // Send after as date string (API expects date string format)
       apiParams.after = queryWithAfter.after;
     }
     if (query.search) {
-      apiParams.search = query.search
+      apiParams.search = query.search;
     }
     // Handle filter fields
-    const statusField = (query as any).status || (query as any).VENDOR_PAYMENT_STATUS;
+    const statusField =
+      (query as any).status || (query as any).VENDOR_PAYMENT_STATUS;
     if (statusField) {
-      apiParams.status = statusField
+      apiParams.status = statusField;
     }
-    const frequencyField = (query as any).payment_frequency || (query as any).VENDOR_PAYMENT_FREQUENCY;
+    const frequencyField =
+      (query as any).payment_frequency ||
+      (query as any).VENDOR_PAYMENT_FREQUENCY;
     if (frequencyField) {
-      apiParams.payment_frequency = frequencyField
+      apiParams.payment_frequency = frequencyField;
     }
-    return apiParams
-  }, [query])
+    return apiParams;
+  }, [query]);
 
   const { data: vendorPaymentsResponse, isLoading: isLoadingVendorPayments } =
     useGetVendorPayments(apiQuery);
@@ -90,18 +92,18 @@ export function useVendorPaymentsManagementBase() {
   const handleNextPage = useCallback(() => {
     if (paginationInfo?.hasNextPage && paginationInfo?.next) {
       // Set after as date string (API expects date string format)
-      setQuery({ ...query, after: paginationInfo.next } as any)
+      setQuery({ ...query, after: paginationInfo.next } as any);
     }
-  }, [paginationInfo, query, setQuery])
+  }, [paginationInfo, query, setQuery]);
 
   // Handle set after (for previous page)
   const handleSetAfter = useCallback(
     (after: string) => {
       // Set after as date string or empty string to reset
-      setQuery({ ...query, after: after || undefined } as any)
+      setQuery({ ...query, after: after || undefined } as any);
     },
-    [query, setQuery],
-  )
+    [query, setQuery]
+  );
 
   // Handle previous page
   const handlePreviousPage = useCallback(() => {
@@ -330,16 +332,20 @@ export function useVendorPaymentsManagementBase() {
 
   // Calculate estimated total for display
   const estimatedTotal = useMemo(() => {
-    const paymentsArray = Array.isArray(vendorPaymentList) ? vendorPaymentList : [];
+    const paymentsArray = Array.isArray(vendorPaymentList)
+      ? vendorPaymentList
+      : [];
     return paginationInfo?.hasNextPage
       ? paymentsArray.length + (query.limit || 10)
-      : paymentsArray.length
-  }, [paginationInfo, vendorPaymentList, query.limit])
+      : paymentsArray.length;
+  }, [paginationInfo, vendorPaymentList, query.limit]);
 
   return {
     query,
     setQuery,
-    vendorPaymentList: Array.isArray(vendorPaymentList) ? vendorPaymentList : [],
+    vendorPaymentList: Array.isArray(vendorPaymentList)
+      ? vendorPaymentList
+      : [],
     isLoadingVendorPayments,
     isLoadingSummary,
     summaryData,

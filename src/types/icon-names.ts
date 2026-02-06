@@ -48,4 +48,4 @@ export type IconNames =
   | 'Settings'
   | 'UserGroup'
   | 'UserIdVerification'
-  | 'WarningSign'
+  | 'WarningSign';

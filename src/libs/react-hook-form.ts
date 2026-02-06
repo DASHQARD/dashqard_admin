@@ -12,7 +12,7 @@ import { defu } from 'defu';
 import { getTarget } from '../utils/helpers';
 
 export function useCustomForm<T extends FieldValues>(
-  formOptions: UseFormProps<T>,
+  formOptions: UseFormProps<T>
 ) {
   const defaultOptions = { mode: 'all' } as UseFormProps<T>;
   const formMethods = useReactHookForm<T>(defu(formOptions, defaultOptions));
@@ -26,7 +26,7 @@ export function useCustomForm<T extends FieldValues>(
       value: getTarget(values, args[0]),
       defaultValue: getTarget(values, args[0]),
     }),
-    [formMethods, formState.errors, values],
+    [formMethods, formState.errors, values]
   );
 
   /** use case: where initial value for select component is used, or reset */
@@ -35,7 +35,7 @@ export function useCustomForm<T extends FieldValues>(
       ...register(...args),
       key: getTarget(values, args[0]),
     }),
-    [formMethods, register, values],
+    [formMethods, register, values]
   );
 
   return {

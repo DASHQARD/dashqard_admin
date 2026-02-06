@@ -5,9 +5,7 @@ import { useAuthStore } from '@/stores';
 import type { TableCellProps } from '@/types/shared';
 import { MODALS } from '@/utils/constants';
 
-export function PermissionActionCell({
-  row,
-}: TableCellProps<{ id: number }>) {
+export function PermissionActionCell({ row }: TableCellProps<{ id: number }>) {
   const modal = usePersistedModalState({
     paramName: MODALS.PERMISSIONS_MANAGEMENT.PARAM_NAME,
   });

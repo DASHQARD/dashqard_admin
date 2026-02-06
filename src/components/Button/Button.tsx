@@ -1,22 +1,22 @@
-import React from 'react'
-import { type VariantProps } from 'class-variance-authority'
-import type { IconProps } from '@iconify/react'
-import { Icon } from '@/libs'
-import { buttonClasses } from './buttonClasses'
+import React from 'react';
+import { type VariantProps } from 'class-variance-authority';
+import type { IconProps } from '@iconify/react';
+import { Icon } from '@/libs';
+import { buttonClasses } from './buttonClasses';
 
-type ButtonClasses = VariantProps<typeof buttonClasses>
+type ButtonClasses = VariantProps<typeof buttonClasses>;
 
-type AsProp = React.ElementType | React.ComponentType<unknown>
+type AsProp = React.ElementType | React.ComponentType<unknown>;
 
 type ButtonProps<T extends AsProp = 'button'> = {
-  as?: T
-  icon?: IconProps['icon']
-  iconPosition?: 'left' | 'right'
-  iconProps?: Partial<React.ComponentProps<typeof Icon>>
-  loading?: boolean
-  className?: string
+  as?: T;
+  icon?: IconProps['icon'];
+  iconPosition?: 'left' | 'right';
+  iconProps?: Partial<React.ComponentProps<typeof Icon>>;
+  loading?: boolean;
+  className?: string;
 } & React.ComponentProps<'button'> &
-  Omit<ButtonClasses, 'minW'>
+  Omit<ButtonClasses, 'minW'>;
 
 export function Button<T extends AsProp = 'button'>(props: ButtonProps<T>) {
   const {
@@ -32,7 +32,7 @@ export function Button<T extends AsProp = 'button'>(props: ButtonProps<T>) {
     className,
     size,
     ...rest
-  } = props
+  } = props;
 
   const evaluatedProps = {
     className: buttonClasses({
@@ -45,17 +45,19 @@ export function Button<T extends AsProp = 'button'>(props: ButtonProps<T>) {
     }),
     disabled: disabled || loading,
     ...rest,
-  }
+  };
 
-  const renderedIcon = icon ? <Icon {...iconProps} icon={icon} /> : null
+  const renderedIcon = icon ? <Icon {...iconProps} icon={icon} /> : null;
 
   return React.createElement(
     as,
     evaluatedProps as React.ComponentProps<'button'>,
     iconPosition === 'left' && !loading && icon ? renderedIcon : null,
     iconOnly && icon && !loading ? renderedIcon : null,
-    loading ? <Icon icon="mdi:loading" className="animate-spin text-xl" /> : null,
+    loading ? (
+      <Icon icon="mdi:loading" className="animate-spin text-xl" />
+    ) : null,
     !loading ? children : null,
-    iconPosition === 'right' && !loading && icon ? renderedIcon : null,
-  )
+    iconPosition === 'right' && !loading && icon ? renderedIcon : null
+  );
 }

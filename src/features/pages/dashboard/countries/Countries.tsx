@@ -55,7 +55,9 @@ export default function Countries() {
               printTitle="Countries"
               hasNextPage={false}
               hasPreviousPage={false}
-              currentAfter={(query as any).after ? String((query as any).after) : undefined}
+              currentAfter={
+                (query as any).after ? String((query as any).after) : undefined
+              }
               previousCursor={null}
               onNextPage={() => {
                 // Pagination will be implemented when hook supports it

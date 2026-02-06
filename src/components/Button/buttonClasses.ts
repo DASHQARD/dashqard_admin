@@ -1,4 +1,4 @@
-import { cva } from 'class-variance-authority'
+import { cva } from 'class-variance-authority';
 
 export const buttonClasses = cva(
   'flex items-center justify-center gap-2 text-sm font-medium transition whitespace-nowrap outline-none ring-offset-2 active:scale-[0.97] focus-visible:ring-2 focus-visible:ring-blue-500 cursor-pointer',
@@ -37,7 +37,8 @@ export const buttonClasses = cva(
       {
         disabled: true,
         variant: 'primary',
-        className: '!bg-white-400 !text-black/50 border-grey border !cursor-not-allowed',
+        className:
+          '!bg-white-400 !text-black/50 border-grey border !cursor-not-allowed',
       },
       {
         disabled: true,
@@ -62,5 +63,5 @@ export const buttonClasses = cva(
       disabled: false,
       shape: 'pill',
     },
-  },
-)
+  }
+);

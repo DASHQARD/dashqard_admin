@@ -2,7 +2,7 @@ import type { SearchAction, SearchState } from '@/types';
 
 export function searchReducer(
   state: SearchState,
-  action: SearchAction,
+  action: SearchAction
 ): SearchState {
   switch (action.type) {
     case 'SET_SEARCH_QUERY':

@@ -37,8 +37,6 @@ export default function VendorRequests() {
     setQuery,
   } = useRequestManagementBase();
 
-
-
   return (
     <>
       <div className="lg:py-10">
@@ -76,7 +74,9 @@ export default function VendorRequests() {
               printTitle="Vendor Requests"
               hasNextPage={false}
               hasPreviousPage={false}
-              currentAfter={(query as any).after ? String((query as any).after) : undefined}
+              currentAfter={
+                (query as any).after ? String((query as any).after) : undefined
+              }
               previousCursor={null}
               onNextPage={() => {
                 // Pagination will be implemented when hook supports it
@@ -105,16 +105,16 @@ export default function VendorRequests() {
       )}
       {modal.modalState ===
         MODALS.REQUEST_VENDOR_MANAGEMENT.CHILDREN.APPROVE && (
-          <ApproveVendorRequestStatus />
-        )}
+        <ApproveVendorRequestStatus />
+      )}
       {modal.modalState ===
         MODALS.REQUEST_VENDOR_MANAGEMENT.CHILDREN.REJECT && (
-          <RejectVendorRequestStatus />
-        )}
+        <RejectVendorRequestStatus />
+      )}
       {modal.modalState ===
         MODALS.REQUEST_VENDOR_MANAGEMENT.CHILDREN.DELETE && (
-          <DeleteVendorRequest />
-        )}
+        <DeleteVendorRequest />
+      )}
     </>
   );
 }

@@ -4,7 +4,13 @@ export const ADMIN_TYPES = [
 ];
 
 export const OPTIONS = {
-  CUSTOMER_MANAGEMENT_STATUS: ['active', 'suspended', 'inactive', 'pending', 'verified'],
+  CUSTOMER_MANAGEMENT_STATUS: [
+    'active',
+    'suspended',
+    'inactive',
+    'pending',
+    'verified',
+  ],
   CORPORATE_MANAGEMENT_STATUS: ['active', 'deactivated', 'inactive'],
   VENDOR_MANAGEMENT_STATUS: ['active', 'suspended', 'inactive'],
   ADMIN_STATUS: ['active', 'deactivated', 'pending'],

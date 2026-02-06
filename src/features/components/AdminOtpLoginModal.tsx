@@ -1,23 +1,26 @@
-import { useAuth } from '../hooks'
-import { Controller, useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { Button, OTPInput, Text } from '@/components'
-import { z } from 'zod'
-import { VerifyLoginOTPSchema } from '@/utils/schemas'
-import { Icon } from '@/libs'
+import { useAuth } from '../hooks';
+import { Controller, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Button, OTPInput, Text } from '@/components';
+import { z } from 'zod';
+import { VerifyLoginOTPSchema } from '@/utils/schemas';
+import { Icon } from '@/libs';
 
 export default function AdminOtpLoginModal() {
-  const { useVerifyLoginTokenService } = useAuth()
-  const { mutate, isPending } = useVerifyLoginTokenService()
+  const { useVerifyLoginTokenService } = useAuth();
+  const { mutate, isPending } = useVerifyLoginTokenService();
   const form = useForm<z.infer<typeof VerifyLoginOTPSchema>>({
     resolver: zodResolver(VerifyLoginOTPSchema),
-  })
+  });
 
   const onSubmit = (data: z.infer<typeof VerifyLoginOTPSchema>) => {
-    mutate(data.otp)
-  }
+    mutate(data.otp);
+  };
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
+    <form
+      onSubmit={form.handleSubmit(onSubmit)}
+      className="flex flex-col gap-4"
+    >
       <div className="flex items-center gap-3">
         <div className="bg-primary-500 rounded-full h-10 w-10 flex items-center justify-center">
           <Icon icon="bi:shield-check" className="size-5 text-white" />
@@ -44,9 +47,9 @@ export default function AdminOtpLoginModal() {
               {...field}
               secure
               onChange={(value) => {
-                field.onChange(value)
+                field.onChange(value);
                 if (value.length === 4) {
-                  mutate(value)
+                  mutate(value);
                 }
               }}
             />
@@ -71,5 +74,5 @@ export default function AdminOtpLoginModal() {
         </Button>
       </div>
     </form>
-  )
+  );
 }

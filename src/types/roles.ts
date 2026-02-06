@@ -1,4 +1,9 @@
-import type { PERMISSION_KEYS, PERMISSION_MODULES, PERMISSION_CATEGORIES, PERMISSION_ACTIONS } from '@/utils/constants';
+import type {
+  PERMISSION_KEYS,
+  PERMISSION_MODULES,
+  PERMISSION_CATEGORIES,
+  PERMISSION_ACTIONS,
+} from '@/utils/constants';
 
 // Legacy permission type format: "Module action" (e.g., "Dashboard view")
 export type LegacyPermissionType =

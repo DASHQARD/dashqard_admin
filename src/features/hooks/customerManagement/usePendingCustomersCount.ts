@@ -6,7 +6,8 @@ export function usePendingCustomersCount(): number {
 
   return useMemo(() => {
     const list = data?.data ?? [];
-    const total = (data?.pagination as any)?.total ?? (data?.pagination as any)?.totalCount;
+    const total =
+      (data?.pagination as any)?.total ?? (data?.pagination as any)?.totalCount;
     if (typeof total === 'number' && total >= 0) {
       return total;
     }

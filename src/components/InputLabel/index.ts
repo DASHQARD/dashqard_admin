@@ -1,1 +1,1 @@
-export * from './InputLabel.tsx'
+export * from './InputLabel.tsx';

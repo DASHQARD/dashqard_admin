@@ -1,38 +1,49 @@
-import type { SelectComponentsConfig, StylesConfig } from 'react-select'
-import CreatableReactSelect from 'react-select/creatable'
+import type { SelectComponentsConfig, StylesConfig } from 'react-select';
+import CreatableReactSelect from 'react-select/creatable';
 
-import { cn, Icon } from '@/libs'
-import type { DropdownOption } from '@/types'
+import { cn, Icon } from '@/libs';
+import type { DropdownOption } from '@/types';
 
-import { InputLabel } from '../InputLabel'
-import { Loader } from '../Loader'
-import { ErrorText } from '../Text'
+import { InputLabel } from '../InputLabel';
+import { Loader } from '../Loader';
+import { ErrorText } from '../Text';
 
 type Props = {
-  options?: DropdownOption[]
-  onChange?: any
-  value?: any
-  extraOnChange?: (option: any) => void
-  error?: string | { message: string } | boolean
-  label?: string
-  className?: string
-  isDropdown?: boolean
-  iconBefore?: string
-} & React.ComponentProps<typeof CreatableReactSelect>
+  options?: DropdownOption[];
+  onChange?: any;
+  value?: any;
+  extraOnChange?: (option: any) => void;
+  error?: string | { message: string } | boolean;
+  label?: string;
+  className?: string;
+  isDropdown?: boolean;
+  iconBefore?: string;
+} & React.ComponentProps<typeof CreatableReactSelect>;
 
 export function CreatableCombobox(props: Props) {
-  const { options, onChange, value, extraOnChange, error, label, isDropdown, iconBefore, ...rest } =
-    props
+  const {
+    options,
+    onChange,
+    value,
+    extraOnChange,
+    error,
+    label,
+    isDropdown,
+    iconBefore,
+    ...rest
+  } = props;
 
   return (
     <div className={cn(props.className)}>
-      {label && <InputLabel htmlFor={props?.id ?? props.name}>{label}</InputLabel>}
+      {label && (
+        <InputLabel htmlFor={props?.id ?? props.name}>{label}</InputLabel>
+      )}
       <div
         className={cn(
           'border focus-within:border-primary-400 hover:border-primary-400 border-gray-300 rounded-lg flex justify-between flex-1 items-center overflow-hidden',
           {
             'hover:border-gray-300 border-gray-300 rounded-xl': isDropdown,
-          },
+          }
         )}
       >
         {iconBefore && <Icon icon={iconBefore} className="ml-2" />}
@@ -42,13 +53,13 @@ export function CreatableCombobox(props: Props) {
           menuPosition="fixed"
           onChange={(option: any, { name }) => {
             if (props.isMulti) {
-              onChange(option)
+              onChange(option);
             } else {
               // FIX: Handle both selected and created options properly
-              const value = option?.value ?? option?.label ?? ''
-              onChange({ target: { value, name } })
+              const value = option?.value ?? option?.label ?? '';
+              onChange({ target: { value, name } });
             }
-            extraOnChange?.(option)
+            extraOnChange?.(option);
           }}
           value={
             props.isMulti
@@ -66,7 +77,7 @@ export function CreatableCombobox(props: Props) {
       </div>
       <ErrorText error={error} />
     </div>
-  )
+  );
 }
 
 const selectComponents: Partial<SelectComponentsConfig<any, any, any>> = {
@@ -78,7 +89,7 @@ const selectComponents: Partial<SelectComponentsConfig<any, any, any>> = {
     </div>
   ),
   IndicatorSeparator: () => null,
-}
+};
 
 const selectStyles: StylesConfig<any> = {
   container: (baseStyles) => ({
@@ -145,7 +156,9 @@ const selectStyles: StylesConfig<any> = {
     overflowWrap: 'break-word',
     hyphens: 'none',
     ':hover': {
-      backgroundColor: state.isSelected ? 'var(--color-gray-100)' : 'var(--color-gray-50)',
+      backgroundColor: state.isSelected
+        ? 'var(--color-gray-100)'
+        : 'var(--color-gray-50)',
     },
     backgroundColor: state.isSelected
       ? 'var(--color-gray-100)'
@@ -153,25 +166,32 @@ const selectStyles: StylesConfig<any> = {
         ? 'white'
         : 'white',
   }),
-}
+};
 
 const deepMergeStyles = (base: any, overrides: any) => {
-  if (!overrides) return base
+  if (!overrides) return base;
   return Object.keys(overrides).reduce(
     (merged, key) => {
-      if (typeof base[key] === 'function' && typeof overrides[key] === 'function') {
+      if (
+        typeof base[key] === 'function' &&
+        typeof overrides[key] === 'function'
+      ) {
         merged[key] = (baseStyles: any, state: any) => ({
           ...base[key](baseStyles, state),
           ...overrides[key](baseStyles, state),
-        })
-      } else if (typeof base[key] === 'object' && base[key] !== null && !Array.isArray(base[key])) {
-        merged[key] = deepMergeStyles(base[key], overrides[key])
+        });
+      } else if (
+        typeof base[key] === 'object' &&
+        base[key] !== null &&
+        !Array.isArray(base[key])
+      ) {
+        merged[key] = deepMergeStyles(base[key], overrides[key]);
       } else {
-        merged[key] = overrides[key]
+        merged[key] = overrides[key];
       }
 
-      return merged
+      return merged;
     },
-    { ...base },
-  )
-}
+    { ...base }
+  );
+};

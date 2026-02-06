@@ -60,17 +60,21 @@ export default function VendorDetails() {
 
   const vendorId = vendorDetails?.id ?? vendorDetails?.vendor_id;
   const { useGetVendorPaymentPreferences } = vendorPaymentsManagementQueries();
-  const { data: paymentPreferencesData, isLoading: isLoadingPaymentPreferences } =
-    useGetVendorPaymentPreferences(
-      vendorId != null ? String(vendorId) : '',
-      !!vendorId && !isLoadingVendorDetails
-    );
+  const {
+    data: paymentPreferencesData,
+    isLoading: isLoadingPaymentPreferences,
+  } = useGetVendorPaymentPreferences(
+    vendorId != null ? String(vendorId) : '',
+    !!vendorId && !isLoadingVendorDetails
+  );
 
-  const paymentPreferences = paymentPreferencesData?.data ?? paymentPreferencesData;
+  const paymentPreferences =
+    paymentPreferencesData?.data ?? paymentPreferencesData;
   const hasPaymentPreferences =
     paymentPreferences &&
     typeof paymentPreferences === 'object' &&
-    (paymentPreferences as { id?: number; payment_frequency?: string }).id != null;
+    (paymentPreferences as { id?: number; payment_frequency?: string }).id !=
+      null;
 
   const { mutateAsync: getPresignedURL } = usePresignedURL();
   const [logoPresignedUrl, setLogoPresignedUrl] = React.useState<
@@ -102,8 +106,7 @@ export default function VendorDetails() {
   const handleViewDocument = (document: (typeof businessDocuments)[0]) => {
     if (!document?.file_url) return;
 
-    const vendorId =
-      vendorDetails?.id || vendorDetails?.vendor_id || '';
+    const vendorId = vendorDetails?.id || vendorDetails?.vendor_id || '';
 
     documentModal.openModal(
       MODALS.VENDOR_MANAGEMENT.CHILDREN.VIEW_KYC_DOCUMENT,
@@ -260,7 +263,7 @@ export default function VendorDetails() {
               Payment Preferences
             </Button>
             {vendorDetails?.approval_status === 'approved' ||
-              vendorDetails?.status === 'active' ? (
+            vendorDetails?.status === 'active' ? (
               <Button
                 variant="danger"
                 size="medium"
@@ -401,7 +404,8 @@ export default function VendorDetails() {
                       </h2>
                       <Tag
                         value={
-                          displayStatus === 'approved' || displayStatus === 'active'
+                          displayStatus === 'approved' ||
+                          displayStatus === 'active'
                             ? 'Verified'
                             : displayStatus === 'rejected'
                               ? 'Rejected'
@@ -451,7 +455,8 @@ export default function VendorDetails() {
                       })}
 
                       {businessDocuments.length > 0 &&
-                        businessDocuments[0]?.employer_identification_number && (
+                        businessDocuments[0]
+                          ?.employer_identification_number && (
                           <div className="text-sm flex justify-between items-center pt-3 border-t border-gray-200">
                             <Text className="capitalize text-sm text-gray-400">
                               Employer Identification Number:
@@ -480,13 +485,13 @@ export default function VendorDetails() {
 
       {paymentPreferencesModal.modalState ===
         MODALS.VENDOR_PAYMENT_MANAGEMENT.CHILDREN.MANAGE_PREFERENCES && (
-          <ManageVendorPaymentPreferences />
-        )}
+        <ManageVendorPaymentPreferences />
+      )}
 
       {documentModal.modalState ===
         MODALS.VENDOR_MANAGEMENT.CHILDREN.VIEW_KYC_DOCUMENT && (
-          <ViewVendorKycDocument />
-        )}
+        <ViewVendorKycDocument />
+      )}
     </>
   );
 }

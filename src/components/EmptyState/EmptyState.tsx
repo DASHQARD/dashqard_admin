@@ -1,10 +1,10 @@
-import { Text } from '@/components'
+import { Text } from '@/components';
 
 type Props = {
-  title: string
-  description: string
-  image: any
-}
+  title: string;
+  description: string;
+  image: any;
+};
 export function EmptyState({ image, title, description }: Readonly<Props>) {
   return (
     <div className="w-full h-2/3 grid place-content-center py-12">
@@ -20,5 +20,5 @@ export function EmptyState({ image, title, description }: Readonly<Props>) {
         </div>
       </div>
     </div>
-  )
+  );
 }

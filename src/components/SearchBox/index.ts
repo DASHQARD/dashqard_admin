@@ -1,2 +1,2 @@
-export * from './DebouncedSearch'
-export * from './SearchBox'
+export * from './DebouncedSearch';
+export * from './SearchBox';

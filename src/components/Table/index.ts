@@ -1,2 +1,2 @@
-export * from './PaginatedTable'
-export * from './Table'
+export * from './PaginatedTable';
+export * from './Table';

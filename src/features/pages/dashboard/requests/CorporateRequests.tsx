@@ -16,7 +16,6 @@ import { usePersistedModalState } from '@/hooks';
 import { useNavigate } from 'react-router';
 import type { RequestCorporate } from '@/types';
 
-
 export default function Corporates() {
   const navigate = useNavigate();
   const modal = usePersistedModalState<RequestCorporate>({
@@ -79,20 +78,20 @@ export default function Corporates() {
 
       {modal.modalState ===
         MODALS.REQUEST_CORPORATE_MANAGEMENT.CHILDREN.VIEW && (
-          <ViewRequestDetails />
-        )}
+        <ViewRequestDetails />
+      )}
       {modal.modalState ===
         MODALS.REQUEST_CORPORATE_MANAGEMENT.CHILDREN.APPROVE && (
-          <ApproveRequestStatus />
-        )}
+        <ApproveRequestStatus />
+      )}
       {modal.modalState ===
         MODALS.REQUEST_CORPORATE_MANAGEMENT.CHILDREN.REJECT && (
-          <RejectRequestStatus />
-        )}
+        <RejectRequestStatus />
+      )}
       {modal.modalState ===
         MODALS.REQUEST_CORPORATE_MANAGEMENT.CHILDREN.DELETE && (
-          <DeleteRequest />
-        )}
+        <DeleteRequest />
+      )}
     </>
   );
 }

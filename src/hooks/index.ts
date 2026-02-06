@@ -7,3 +7,4 @@ export * from './useReducerSpread';
 export * from './useFormInputRef';
 export * from './usePersistedModalState';
 export * from './useContentGuard';
+export * from './useSearch';

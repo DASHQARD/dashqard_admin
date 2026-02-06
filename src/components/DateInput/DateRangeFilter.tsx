@@ -1,12 +1,12 @@
-import DatePicker from 'react-datepicker'
+import DatePicker from 'react-datepicker';
 
-import dayjs from 'dayjs'
+import dayjs from 'dayjs';
 
-import { Button } from '@/components'
-import { cn, Icon } from '@/libs'
+import { Button } from '@/components';
+import { cn, Icon } from '@/libs';
 
-import 'react-datepicker/dist/react-datepicker.css'
-import './DateInput.scss'
+import 'react-datepicker/dist/react-datepicker.css';
+import './DateInput.scss';
 
 export function DateRangeFilter({
   startDate,
@@ -18,14 +18,14 @@ export function DateRangeFilter({
   showButtonIcon = true,
   iconClassName,
 }: {
-  startDate?: Date | null
-  endDate?: Date | null
-  onChange: (dates: [Date | null, Date | null]) => void
-  placeholder?: string
-  format?: string
-  maxDate?: Date
-  showButtonIcon?: boolean
-  iconClassName?: string
+  startDate?: Date | null;
+  endDate?: Date | null;
+  onChange: (dates: [Date | null, Date | null]) => void;
+  placeholder?: string;
+  format?: string;
+  maxDate?: Date;
+  showButtonIcon?: boolean;
+  iconClassName?: string;
 }) {
   return (
     <div className="relative w-max">
@@ -45,13 +45,16 @@ export function DateRangeFilter({
               'font-normal w-max cursor-default !rounded-[6px] border border-[#E4E7EC] bg-white px-4 py-2 text-sm text-[#7C8689] hover:bg-white hover:border-[#E4E7EC] h-[38px]',
               {
                 'font-medium text-[#212123]': startDate && endDate,
-              },
+              }
             )}
             iconPosition="right"
             icon={showButtonIcon ? 'lucide:chevron-down' : ''}
             iconProps={{ width: '16', className: 'text-[#98A2B3]' }}
           >
-            <Icon icon="hugeicons:calendar-04" className={cn('size-4', iconClassName)} />
+            <Icon
+              icon="hugeicons:calendar-04"
+              className={cn('size-4', iconClassName)}
+            />
 
             {startDate && endDate
               ? `${dayjs(startDate).format(format)} - ${dayjs(endDate).format(format)}`
@@ -70,5 +73,5 @@ export function DateRangeFilter({
         </button>
       )}
     </div>
-  )
+  );
 }

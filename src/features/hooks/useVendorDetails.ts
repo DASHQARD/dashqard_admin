@@ -1,18 +1,18 @@
-import { useQuery } from '@tanstack/react-query'
-import { getVendorInfo, getVendorCards } from '../services'
+import { useQuery } from '@tanstack/react-query';
+import { getVendorInfo, getVendorCards } from '../services';
 import type {
   VendorDetails,
   VendorDetailsResponse,
   VendorCardsResponse,
   VendorCards,
-} from '@/types'
+} from '@/types';
 
 export function useVendorDetails(id: string) {
   return useQuery<VendorDetailsResponse, Error, VendorDetails>({
     queryKey: ['vendor-details', id],
     queryFn: () => getVendorInfo(id),
     enabled: !!id,
-  })
+  });
 }
 
 export function useGetVendorCards(id: string) {
@@ -20,5 +20,5 @@ export function useGetVendorCards(id: string) {
     queryKey: ['vendor-cards', id],
     queryFn: () => getVendorCards(id),
     enabled: !!id,
-  })
+  });
 }

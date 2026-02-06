@@ -1,21 +1,27 @@
-import { z } from 'zod'
-import { getRequiredStringSchema } from './shared'
-import isEmail from 'validator/es/lib/isEmail'
+import { z } from 'zod';
+import { getRequiredStringSchema } from './shared';
+import isEmail from 'validator/es/lib/isEmail';
 
 export const CreateCardSchema = z.object({
   product: getRequiredStringSchema('Product'),
   description: getRequiredStringSchema('Description'),
   type: getRequiredStringSchema('Type'),
-  price: z.number({ message: 'Price must be a number' }).positive('Price must be greater than 0'),
+  price: z
+    .number({ message: 'Price must be a number' })
+    .positive('Price must be greater than 0'),
   currency: getRequiredStringSchema('Currency'),
-  issue_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Issue date must be in YYYY-MM-DD format'),
-  expiry_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Expiry date must be in YYYY-MM-DD format'),
+  issue_date: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Issue date must be in YYYY-MM-DD format'),
+  expiry_date: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Expiry date must be in YYYY-MM-DD format'),
   images: z
     .array(
       z.object({
         file_url: z.string(),
         file_name: z.string(),
-      }),
+      })
     )
     .optional()
     .default([]),
@@ -24,15 +30,15 @@ export const CreateCardSchema = z.object({
       z.object({
         file_url: z.string(),
         file_name: z.string(),
-      }),
+      })
     )
     .optional()
     .default([]),
-})
+});
 
 export const UpdateCardSchema = CreateCardSchema.extend({
   card_id: z.number().positive('Card ID is required'),
-})
+});
 
 export const DashGoAndDashProPurchaseFormSchema = z.object({
   assign_to_self: z.boolean(),
@@ -52,9 +58,9 @@ export const DashGoAndDashProPurchaseFormSchema = z.object({
     z.object({
       file_url: z.string(),
       file_name: z.string(),
-    }),
+    })
   ),
-})
+});
 
 export const AssignRecipientSchema = z
   .object({
@@ -76,7 +82,7 @@ export const AssignRecipientSchema = z
           code: z.ZodIssueCode.custom,
           message: 'Name is required when not assigning to self',
           path: ['name'],
-        })
+        });
       }
       // Email is optional but if provided, must be valid
       if (data.email && data.email.trim().length > 0 && !isEmail(data.email)) {
@@ -84,7 +90,7 @@ export const AssignRecipientSchema = z
           code: z.ZodIssueCode.custom,
           message: 'Please provide a valid email address',
           path: ['email'],
-        })
+        });
       }
     }
-  })
+  });

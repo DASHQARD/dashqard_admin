@@ -11,4 +11,9 @@ export * from './payment';
 export * from './search';
 export * from './forms';
 export * from './shared';
-export type { Role as RoleType, Permission as PermissionType, RolesListResponse, PermissionsListResponse } from './role';
+export type {
+  Role as RoleType,
+  Permission as PermissionType,
+  RolesListResponse,
+  PermissionsListResponse,
+} from './role';

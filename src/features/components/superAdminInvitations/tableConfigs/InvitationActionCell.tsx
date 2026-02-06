@@ -19,9 +19,7 @@ type InvitationData = {
   updated_at?: string;
 };
 
-export function InvitationActionCell({
-  row,
-}: TableCellProps<InvitationData>) {
+export function InvitationActionCell({ row }: TableCellProps<InvitationData>) {
   const modal = usePersistedModalState<InvitationData>({
     paramName: MODALS.SUPER_ADMIN_INVITATIONS_MANAGEMENT.PARAM_NAME,
   });

@@ -15,7 +15,6 @@ export function useCorporateManagementBase() {
 
   const user = useAuthStore().user;
 
-
   const {
     useGetCorporates,
     useGetCorporateDetails,
@@ -25,23 +24,22 @@ export function useCorporateManagementBase() {
   const params = useMemo(() => {
     const apiParams: any = {
       limit: query.limit || 10,
-    }
+    };
     const queryWithAfter = query as any;
     if (queryWithAfter.after) {
       // Send after as date string (database expects timestamp/date format)
       apiParams.after = queryWithAfter.after;
     }
     if (query.search) {
-      apiParams.search = query.search
+      apiParams.search = query.search;
     }
     if (query.status) {
-      apiParams.status = query.status
+      apiParams.status = query.status;
     }
-    return apiParams
-  }, [query])
+    return apiParams;
+  }, [query]);
 
   const { data, isLoading: isLoadingCorporatesList } = useGetCorporates(params);
-
 
   const corporatesList = React.useMemo(() => {
     if (!data?.data) return [];
@@ -122,7 +120,10 @@ export function useCorporateManagementBase() {
       },
       {
         label: 'Sequence Number',
-        value: details.sequence_number != null ? String(details.sequence_number) : '-',
+        value:
+          details.sequence_number != null
+            ? String(details.sequence_number)
+            : '-',
       },
       {
         label: 'Default Payment Option',
@@ -306,24 +307,24 @@ export function useCorporateManagementBase() {
   const handleNextPage = useCallback(() => {
     if (pagination?.hasNextPage && pagination?.next) {
       // Set after as date string (API expects date string format)
-      setQuery({ ...query, after: pagination.next } as any)
+      setQuery({ ...query, after: pagination.next } as any);
     }
-  }, [pagination, query, setQuery])
+  }, [pagination, query, setQuery]);
 
   const handleSetAfter = useCallback(
     (after: string) => {
       // Set after as date string or empty string to reset
-      setQuery({ ...query, after: after || undefined } as any)
+      setQuery({ ...query, after: after || undefined } as any);
     },
-    [query, setQuery],
-  )
+    [query, setQuery]
+  );
 
   // Calculate estimated total for display
   const estimatedTotal = useMemo(() => {
     return pagination?.hasNextPage
       ? corporatesList.length + (query.limit || 10)
-      : corporatesList.length
-  }, [pagination, corporatesList.length, query.limit])
+      : corporatesList.length;
+  }, [pagination, corporatesList.length, query.limit]);
 
   return {
     query,

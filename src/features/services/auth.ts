@@ -46,9 +46,7 @@ const updateVendorStatus = async (
 
 const getCustomers = async (query?: Record<string, any>): Promise<any> => {
   const queryString = getQueryString(query);
-  const fullUrl = queryString
-    ? `/users/all?${queryString}`
-    : `/users/all`;
+  const fullUrl = queryString ? `/users/all?${queryString}` : `/users/all`;
   const response = await axiosClient.get(fullUrl);
   // Axios interceptor already returns response.data, so response here is the API response body
   // which has { data: [...], pagination: {...}, status: ..., etc }

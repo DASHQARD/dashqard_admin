@@ -59,4 +59,3 @@ export const updateCountryStatus = async (
 ): Promise<any> => {
   return await patchMethod(`${commonUrl}/${id}/status`, data);
 };
-

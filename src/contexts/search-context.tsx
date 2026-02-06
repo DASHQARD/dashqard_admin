@@ -1,11 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
-
-import type { PageType, SearchContextType, SearchState } from '@/types';
+import type { PageType, SearchState } from '@/types';
 import { searchReducer } from './search-reducer';
-
-export const SearchContext = React.createContext<SearchContextType | undefined>(
-  undefined
-);
+import { SearchContext } from './search-context-value';
 
 const initialState: SearchState = {
   searchQuery: '',

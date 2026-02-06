@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 
 import {
   Content,
@@ -12,40 +12,40 @@ import {
   Trigger,
   Value,
   Viewport,
-} from '@radix-ui/react-select'
+} from '@radix-ui/react-select';
 
-import { CustomIcon, ErrorText, InputLabel, Loader } from '@/components'
-import { useHookFormInputRef } from '@/hooks'
-import { cn } from '@/libs'
-import type { DropdownOption, NativeEventHandler } from '@/types'
-import { isTesting } from '@/utils/constants'
+import { CustomIcon, ErrorText, InputLabel, Loader } from '@/components';
+import { useHookFormInputRef } from '@/hooks';
+import { cn } from '@/libs';
+import type { DropdownOption, NativeEventHandler } from '@/types';
+import { isTesting } from '@/utils/constants';
 
 type DefaultValueProps = Readonly<{
-  currentOption?: DropdownOption
-  placeholder?: string
-  value?: string
-}>
+  currentOption?: DropdownOption;
+  placeholder?: string;
+  value?: string;
+}>;
 
 type Props = Readonly<{
-  name?: string
-  label?: string
-  error?: string | boolean
-  className?: string
-  innerClassName?: string
-  options: DropdownOption[]
-  placeholder?: string
-  clearable?: boolean
-  disabled?: boolean
-  loading?: boolean
+  name?: string;
+  label?: string;
+  error?: string | boolean;
+  className?: string;
+  innerClassName?: string;
+  options: DropdownOption[];
+  placeholder?: string;
+  clearable?: boolean;
+  disabled?: boolean;
+  loading?: boolean;
 
-  open?: boolean
-  value?: string
-  onChange?: NativeEventHandler
-  onValueChange?: (value: string) => void
-  onBlur?: NativeEventHandler
+  open?: boolean;
+  value?: string;
+  onChange?: NativeEventHandler;
+  onValueChange?: (value: string) => void;
+  onBlur?: NativeEventHandler;
 
-  renderValue?: (props: DefaultValueProps) => React.ReactNode
-}>
+  renderValue?: (props: DefaultValueProps) => React.ReactNode;
+}>;
 
 export const Select = React.memo(
   React.forwardRef((props: Props, ref) => {
@@ -63,7 +63,7 @@ export const Select = React.memo(
       onBlur,
       renderValue = DefaultValue,
       loading,
-    } = props
+    } = props;
 
     const { onValueChange, onElementBlur } = useHookFormInputRef({
       name,
@@ -71,9 +71,9 @@ export const Select = React.memo(
       onChange: onChange as (e: Event) => void,
       onBlur: onBlur as (e: Event) => void,
       ref: ref as React.Ref<HTMLInputElement>,
-    })
+    });
 
-    const currentOption = options.find((option) => option.value === value)
+    const currentOption = options.find((option) => option.value === value);
 
     return (
       /* WRAPPER */
@@ -82,7 +82,12 @@ export const Select = React.memo(
         {label ? <InputLabel htmlFor={props.name}>{label}</InputLabel> : null}
 
         {/* INNER */}
-        <Root value={value} onValueChange={onValueChange} name={name} disabled={disabled}>
+        <Root
+          value={value}
+          onValueChange={onValueChange}
+          name={name}
+          disabled={disabled}
+        >
           <Trigger
             data-testid={`select-${label ?? ''}`}
             data-value={value}
@@ -91,7 +96,7 @@ export const Select = React.memo(
               ' focus:ring-primary-500',
               { 'ring-1 ring-error-500': !!error },
               { 'text-[#9DA1A8]': !!placeholder && !value },
-              innerClassName,
+              innerClassName
             )}
             onBlur={onElementBlur}
           >
@@ -99,7 +104,9 @@ export const Select = React.memo(
               {renderValue({ value, currentOption, placeholder })}
             </Value>
             <div>
-              {!loading && <CustomIcon name="Caret" className="text-[#9DA1A8]" />}
+              {!loading && (
+                <CustomIcon name="Caret" className="text-[#9DA1A8]" />
+              )}
               {loading && <Loader />}
             </div>
           </Trigger>
@@ -116,7 +123,7 @@ export const Select = React.memo(
                     value={option.value}
                     className={cn(
                       'flex gap-4 justify-between p-2 px-3 hover:bg-primary-50/50 cursor-pointer rounded data-[highlighted]:bg-gray-100 m-1 outline-none focus:ring-1 focus:ring-gray-200',
-                      { 'bg-primary-500/10': option.value === value },
+                      { 'bg-primary-500/10': option.value === value }
                     )}
                   >
                     <ItemText>{option.label}</ItemText>
@@ -152,10 +159,14 @@ export const Select = React.memo(
         {/* MESSAGE */}
         <ErrorText error={error} />
       </div>
-    )
-  }),
-)
+    );
+  })
+);
 
-function DefaultValue({ value, currentOption, placeholder }: DefaultValueProps) {
-  return value ? currentOption?.label : placeholder
+function DefaultValue({
+  value,
+  currentOption,
+  placeholder,
+}: DefaultValueProps) {
+  return value ? currentOption?.label : placeholder;
 }

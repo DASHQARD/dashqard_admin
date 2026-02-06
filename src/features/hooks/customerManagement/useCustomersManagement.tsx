@@ -1,20 +1,18 @@
 import React from 'react';
-import { useNavigate } from 'react-router';
 
 import {
   useContentGuard,
   usePersistedModalState,
   useReducerSpread,
-  // useSearch,
-} from '@/hooks';
-import { useAuthStore } from '@/stores';
-import { DEFAULT_QUERY, MODALS, ROUTES } from '@/utils/constants';
+  useSearch,
+} from '../../../hooks';
+import { useAuthStore } from '../../../stores';
+import { DEFAULT_QUERY, MODALS } from '../../../utils/constants';
+import { CustomerStuff } from '../../components/customerManagement';
 import { useCustomers } from './useCustomers';
-import { CustomerStuff } from '@/features/components/customerManagement';
 
-export function useCustomersManagementBase(dateRange?: string) {
+export function useCustomersManagementBase() {
   const { state } = useSearch();
-  const navigate = useNavigate();
 
   const [query, setQuery] = useReducerSpread(DEFAULT_QUERY);
   const { userPermissions = [] } = useContentGuard();
@@ -31,7 +29,7 @@ export function useCustomersManagementBase(dateRange?: string) {
 
   React.useEffect(() => {
     if (state) {
-      setQuery({ ...query, page: 1, search: state.searchQuery.trim() });
+      setQuery({ ...query, after: '', search: state.searchQuery.trim() });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setQuery, state.searchQuery]);
@@ -55,31 +53,28 @@ export function useCustomersManagementBase(dateRange?: string) {
     }
   ) {
     if (!ajo) return [];
-    const baseOptions = [];
+    const baseOptions: { label: string; onClickFn: () => void }[] = [];
 
     const viewOption = [
       {
         label: 'View',
-        onClickFn: () =>
-          navigate(
-            `${ROUTES.IN_APP.DASHBOARD.SAVINGS.SAVINGS_DETAILS}/participants/${ajo.id}?type=ajo&groupName=${encodeURIComponent(ajo.group_name || '')}`
-          ),
+        onClickFn: () => modal.openModal(MODALS.CUSTOMER.VIEW, ajo),
       },
     ];
 
     const editOption = {
       label: 'Edit',
-      onClickFn: () => modal.openModal(MODALS.SAVINGS.CHILDREN.UPDATE, ajo),
+      onClickFn: () => modal.openModal(MODALS.CUSTOMER.VIEW, ajo),
     };
 
     const activateOption = {
       label: 'Activate',
-      onClickFn: () => modal.openModal(MODALS.SAVINGS.CHILDREN.ACTIVATE, ajo),
+      onClickFn: () => modal.openModal(MODALS.CUSTOMER.ACTIVATE, ajo),
     };
 
     const deactivateOption = {
       label: 'Deactivate',
-      onClickFn: () => modal.openModal(MODALS.SAVINGS.CHILDREN.DEACTIVATE, ajo),
+      onClickFn: () => modal.openModal(MODALS.CUSTOMER.DEACTIVATE, ajo),
     };
 
     if (
@@ -118,12 +113,9 @@ export function useCustomersManagementBase(dateRange?: string) {
     modal,
     query,
     tabConfigs,
-    // ajoList,
-    // isLoadingAjoList,
-    // InterestRateSettingsTabConfigs,
     setQuery,
     getSavingsOptions,
-    // ajoTotal,
-    // isLoadingAjoTotal,
+    customers: customers?.data ?? [],
+    isLoadingCustomers,
   };
 }

@@ -42,7 +42,10 @@ export function DeactivateVendor() {
   useEffect(() => {
     if (modal.modalData) {
       const vendorAccountId = Number(
-        modal.modalData?.vendor_account_id ?? modal.modalData?.id ?? modal.modalData?.vendor_id ?? 0
+        modal.modalData?.vendor_account_id ??
+          modal.modalData?.id ??
+          modal.modalData?.vendor_id ??
+          0
       );
       form.reset({
         vendor_account_id: vendorAccountId,

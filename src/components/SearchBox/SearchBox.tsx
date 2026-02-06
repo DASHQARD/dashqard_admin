@@ -1,7 +1,7 @@
-import { type ComponentProps } from 'react'
+import { type ComponentProps } from 'react';
 
-import { Input } from '@/components'
-import { Icon } from '@/libs'
+import { Input } from '@/components';
+import { Icon } from '@/libs';
 
 export const SearchBox = ({
   value,
@@ -10,10 +10,10 @@ export const SearchBox = ({
   placeholder = 'Search',
   ...props
 }: ComponentProps<typeof Input> & {
-  value: string
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void
-  ref?: React.RefObject<HTMLInputElement & HTMLTextAreaElement>
-  placeholder?: string
+  value: string;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  ref?: React.RefObject<HTMLInputElement & HTMLTextAreaElement>;
+  placeholder?: string;
 }) => {
   return (
     <Input
@@ -30,5 +30,5 @@ export const SearchBox = ({
       inputClassName="text-sm"
       {...props}
     />
-  )
-}
+  );
+};

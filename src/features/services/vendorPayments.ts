@@ -40,9 +40,7 @@ export const getVendorPayments = async (
   query?: VendorPaymentsQueryParams
 ): Promise<any> => {
   const queryString = getQueryString(query);
-  const fullUrl = queryString
-    ? `${commonUrl}?${queryString}`
-    : `${commonUrl}`;
+  const fullUrl = queryString ? `${commonUrl}?${queryString}` : `${commonUrl}`;
   const response = await axiosClient.get(fullUrl);
   // Axios interceptor already returns response.data, so response here is the API response body
   // which has { data: [...], pagination: {...}, status: ..., etc }

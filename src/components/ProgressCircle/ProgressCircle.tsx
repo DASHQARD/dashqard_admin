@@ -1,10 +1,14 @@
-export function ProgressCircle({ currentProgress }: { readonly currentProgress: number }) {
-  const gradientId = 'linearGradient'
-  const circleSize = 30
-  const strokeWidth = 2
-  const radius = (circleSize - strokeWidth) / 2
-  const circumference = 2 * Math.PI * radius
-  const offset = circumference * (1 - currentProgress / 100)
+export function ProgressCircle({
+  currentProgress,
+}: {
+  readonly currentProgress: number;
+}) {
+  const gradientId = 'linearGradient';
+  const circleSize = 30;
+  const strokeWidth = 2;
+  const radius = (circleSize - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference * (1 - currentProgress / 100);
 
   const circleFillStyles = {
     fill: 'none',
@@ -12,7 +16,7 @@ export function ProgressCircle({ currentProgress }: { readonly currentProgress: 
     strokeLinecap: 'round',
     strokeDasharray: circumference,
     strokeDashoffset: offset,
-  }
+  };
 
   const circleBackgroundStyles = {
     fill: 'none',
@@ -20,7 +24,7 @@ export function ProgressCircle({ currentProgress }: { readonly currentProgress: 
     strokeWidth,
     strokeLinecap: 'round',
     strokeDasharray: circumference,
-  }
+  };
   return (
     <div className="relative w-[72px] h-[72px] flex items-center justify-center">
       <svg
@@ -32,7 +36,10 @@ export function ProgressCircle({ currentProgress }: { readonly currentProgress: 
         <defs>
           <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
             <stop style={{ stopColor: '#EB7B1A' }} offset="0%" />
-            <stop style={{ stopColor: 'rgba(235, 123, 26, 0.0)' }} offset="77.77%" />
+            <stop
+              style={{ stopColor: 'rgba(235, 123, 26, 0.0)' }}
+              offset="77.77%"
+            />
           </linearGradient>
         </defs>
         <circle
@@ -56,5 +63,5 @@ export function ProgressCircle({ currentProgress }: { readonly currentProgress: 
         {currentProgress}%
       </span>
     </div>
-  )
+  );
 }

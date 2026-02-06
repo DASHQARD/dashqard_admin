@@ -1,4 +1,8 @@
-import { getVendorsList, getVendorDetails, getVendorQrCode } from '@/features/services';
+import {
+  getVendorsList,
+  getVendorDetails,
+  getVendorQrCode,
+} from '@/features/services';
 import { useQuery } from '@tanstack/react-query';
 
 export function vendorManagementQueries() {

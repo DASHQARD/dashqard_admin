@@ -112,6 +112,9 @@ export function EditRole() {
               />
               <Input
                 label="Description"
+                type="textarea"
+                innerClassName="h-24"
+                rows={10}
                 placeholder="e.g., Full access to all features"
                 {...form.register('description')}
                 error={form.formState.errors.description?.message}

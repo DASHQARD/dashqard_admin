@@ -129,9 +129,7 @@ export function Modal(props: Props) {
                       </Dialog.Title>
 
                       <Dialog.Close asChild>
-                        <button
-                          className="text-xl bg-gray-100 w-8 h-8 grid place-items-center rounded-full text-gray-400 hover:bg-gray-200 hover:text-gray-500"
-                        >
+                        <button className="text-xl bg-gray-100 w-8 h-8 grid place-items-center rounded-full text-gray-400 hover:bg-gray-200 hover:text-gray-500">
                           <Icon icon="ic:round-close" />
                         </button>
                       </Dialog.Close>

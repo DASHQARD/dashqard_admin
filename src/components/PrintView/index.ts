@@ -1,1 +1,1 @@
-export * from './PrintView'
+export * from './PrintView';
