@@ -18,26 +18,8 @@ export function useVendorDetailsManagementBase() {
 
     return [
       {
-        label: 'Account ID',
-        value: vendorDetails.id != null ? String(vendorDetails.id) : '-',
-      },
-      {
-        label: 'Vendor ID',
-        value:
-          vendorDetails.vendor_id != null
-            ? String(vendorDetails.vendor_id)
-            : '-',
-      },
-      {
         label: 'GV ID',
         value: vendorDetails.gvid || '-',
-      },
-      {
-        label: 'Vendor User ID',
-        value:
-          vendorDetails.vendor_user_id != null
-            ? String(vendorDetails.vendor_user_id)
-            : '-',
       },
       {
         label: 'Name',
