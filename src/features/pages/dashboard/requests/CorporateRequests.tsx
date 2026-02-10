@@ -11,13 +11,13 @@ import {
   ViewRequestDetails,
 } from '@/features/components';
 import { useRequestManagementBase } from '@/features/hooks/requestManagement ';
-import { MODALS, ROUTES } from '@/utils';
+import { MODALS } from '@/utils';
 import { usePersistedModalState } from '@/hooks';
-import { useNavigate } from 'react-router';
+// import { useNavigate } from 'react-router';    
 import type { RequestCorporate } from '@/types';
 
 export default function Corporates() {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();  
   const modal = usePersistedModalState<RequestCorporate>({
     paramName: MODALS.REQUEST_CORPORATE_MANAGEMENT.PARAM_NAME,
   });
@@ -53,14 +53,14 @@ export default function Corporates() {
               setQuery={setQuery}
               searchPlaceholder="Search by corporate name or location..."
               csvHeaders={requestCorporateListCsvHeaders}
-              onRowClick={(row) => {
-                navigate(
-                  ROUTES.IN_APP.DASHBOARD.CORPORATE_DETAILS.replace(
-                    ':corporateId',
-                    row.entity_id
-                  )
-                );
-              }}
+              // onRowClick={(row) => {
+              //   navigate(
+              //     ROUTES.IN_APP.DASHBOARD.CORPORATE_DETAILS.replace(
+              //       ':corporateId',
+              //       row.entity_id
+              //     )
+              //   );
+              // }}
               filterBy={{
                 simpleSelects: [
                   {
@@ -78,20 +78,20 @@ export default function Corporates() {
 
       {modal.modalState ===
         MODALS.REQUEST_CORPORATE_MANAGEMENT.CHILDREN.VIEW && (
-        <ViewRequestDetails />
-      )}
+          <ViewRequestDetails />
+        )}
       {modal.modalState ===
         MODALS.REQUEST_CORPORATE_MANAGEMENT.CHILDREN.APPROVE && (
-        <ApproveRequestStatus />
-      )}
+          <ApproveRequestStatus />
+        )}
       {modal.modalState ===
         MODALS.REQUEST_CORPORATE_MANAGEMENT.CHILDREN.REJECT && (
-        <RejectRequestStatus />
-      )}
+          <RejectRequestStatus />
+        )}
       {modal.modalState ===
         MODALS.REQUEST_CORPORATE_MANAGEMENT.CHILDREN.DELETE && (
-        <DeleteRequest />
-      )}
+          <DeleteRequest />
+        )}
     </>
   );
 }

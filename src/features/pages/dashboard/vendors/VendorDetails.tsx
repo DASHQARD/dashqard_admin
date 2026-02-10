@@ -69,7 +69,9 @@ export default function VendorDetails() {
   );
 
   const paymentPreferences =
-    paymentPreferencesData?.data ?? paymentPreferencesData;
+    vendorDetails?.payment_preference ??
+    paymentPreferencesData?.data ??
+    paymentPreferencesData;
   const hasPaymentPreferences =
     paymentPreferences &&
     typeof paymentPreferences === 'object' &&
@@ -78,6 +80,9 @@ export default function VendorDetails() {
 
   const { mutateAsync: getPresignedURL } = usePresignedURL();
   const [logoPresignedUrl, setLogoPresignedUrl] = React.useState<
+    string | undefined
+  >(undefined);
+  const [avatarPresignedUrl, setAvatarPresignedUrl] = React.useState<
     string | undefined
   >(undefined);
 
@@ -159,6 +164,46 @@ export default function VendorDetails() {
       cancelled = true;
     };
   }, [documentGroups, getPresignedURL]);
+
+  React.useEffect(() => {
+    const avatarFile = vendorDetails?.vendor_avatar;
+    if (!avatarFile) {
+      setAvatarPresignedUrl(undefined);
+      return;
+    }
+
+    if (avatarFile.startsWith('http')) {
+      setAvatarPresignedUrl(avatarFile);
+      return;
+    }
+
+    let cancelled = false;
+
+    const fetchAvatarPresignedUrl = async () => {
+      try {
+        const response = await getPresignedURL(avatarFile);
+        const url =
+          (typeof response === 'string'
+            ? response
+            : typeof response === 'object' && response
+              ? (response as any)?.data || (response as any)?.url
+              : String(response)) || avatarFile;
+        if (!cancelled) {
+          setAvatarPresignedUrl(url);
+        }
+      } catch {
+        if (!cancelled) {
+          setAvatarPresignedUrl(undefined);
+        }
+      }
+    };
+
+    fetchAvatarPresignedUrl();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [vendorDetails?.vendor_avatar, getPresignedURL]);
 
   const requiredDocumentTypes = [
     'certificate_of_incorporation',
@@ -328,7 +373,7 @@ export default function VendorDetails() {
             }
             businessName={vendorDetails?.business_name || 'N/A'}
             status={displayStatus}
-            logo={logoPresignedUrl}
+            logo={avatarPresignedUrl ?? logoPresignedUrl}
           >
             <div className="flex flex-col gap-6 w-full">
               <Tabs value={activeTab} onValueChange={setActiveTab}>

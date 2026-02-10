@@ -5,7 +5,45 @@ import { usePersistedModalState, usePresignedURL } from '@/hooks';
 import { MODALS } from '@/utils/constants';
 import { formatDate, getStatusVariant } from '@/utils/helpers';
 
-// grouzedezaga - 5315@yopmail.com
+function formatValue(key: string, value: unknown): string {
+  if (value == null) return '-';
+  if (key.includes('_at') && typeof value === 'string') {
+    return formatDate(value, 'DD MMM YYYY, HH:mm');
+  }
+  return String(value);
+}
+
+function KeyValueGrid({
+  data,
+  title,
+  className = '',
+}: {
+  data: Record<string, unknown>;
+  title: string;
+  className?: string;
+}) {
+  const entries = Object.entries(data);
+  if (entries.length === 0) return null;
+  return (
+    <div className={className}>
+      <p className="text-gray-600 text-sm font-medium mb-3 pb-2 border-b border-gray-200">
+        {title}
+      </p>
+      <div className="grid grid-cols-2 gap-4 mt-3">
+        {entries.map(([key, value]) => (
+          <div key={key} className="flex flex-col gap-1">
+            <p className="text-gray-400 text-xs capitalize">
+              {key.replace(/_/g, ' ')}
+            </p>
+            <Text variant="span" weight="normal" className="text-gray-800 text-sm">
+              {formatValue(key, value)}
+            </Text>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export function ViewRequestDetails() {
   const modal = usePersistedModalState<
@@ -50,7 +88,6 @@ export function ViewRequestDetails() {
         // Remove leading slash if present for S3 key format
         const fileKey = logoUrl.startsWith('/') ? logoUrl.slice(1) : logoUrl;
         const response = await getPresignedURL(fileKey);
-        console.log('response', response);
         const url =
           (typeof response === 'string'
             ? response
@@ -173,8 +210,8 @@ export function ViewRequestDetails() {
                 value={requestCorporateDetails?.status || 'Pending'}
                 variant={getStatusVariant(
                   (requestData as any)?.status ||
-                    requestCorporateDetails?.status ||
-                    'pending'
+                  requestCorporateDetails?.status ||
+                  'pending'
                 )}
                 className="w-fit"
               />
@@ -285,9 +322,9 @@ export function ViewRequestDetails() {
               <Text variant="span" weight="normal" className="text-gray-800">
                 {requestCorporateDetails?.created_at
                   ? formatDate(
-                      requestCorporateDetails.created_at,
-                      'DD MMM YYYY, HH:mm'
-                    )
+                    requestCorporateDetails.created_at,
+                    'DD MMM YYYY, HH:mm'
+                  )
                   : '-'}
               </Text>
             </div>
@@ -297,9 +334,9 @@ export function ViewRequestDetails() {
               <Text variant="span" weight="normal" className="text-gray-800">
                 {requestCorporateDetails?.updated_at
                   ? formatDate(
-                      requestCorporateDetails.updated_at,
-                      'DD MMM YYYY, HH:mm'
-                    )
+                    requestCorporateDetails.updated_at,
+                    'DD MMM YYYY, HH:mm'
+                  )
                   : '-'}
               </Text>
             </div>
@@ -422,32 +459,87 @@ export function ViewRequestDetails() {
               </div>
             )}
 
-          {/* Request Data - Side by Side Comparison */}
-          {requestCorporateDetails?.request_data && (
-            <div className="flex flex-col gap-4 pb-4 border-b border-gray-200">
-              <div className="flex items-center justify-between">
-                <p className="text-gray-600 text-sm font-medium">
-                  Request Data
-                </p>
-                {requestCorporateDetails.request_data.fields_to_update && (
-                  <div className="flex flex-wrap gap-2">
-                    {Object.keys(
-                      requestCorporateDetails.request_data.fields_to_update
-                    ).map((field) => (
-                      <Tag
-                        key={field}
-                        value={field.replace(/_/g, ' ')}
-                        variant="gray"
-                        className="w-fit"
-                      />
-                    ))}
-                  </div>
-                )}
+          {/* Entity Details - shown when API returns entity_details */}
+          {requestCorporateDetails?.entity_details &&
+            typeof requestCorporateDetails.entity_details === 'object' && (
+              <div className="flex flex-col gap-4 pb-4 border-b border-gray-200">
+                <KeyValueGrid
+                  data={
+                    requestCorporateDetails.entity_details as Record<
+                      string,
+                      unknown
+                    >
+                  }
+                  title="Entity Details"
+                  className="p-4 bg-gray-50 rounded-lg border border-gray-200"
+                />
               </div>
+            )}
 
-              {/* Logo URL Display - Full Width */}
-              {requestCorporateDetails.request_data.logo_url &&
-                logoUrlPresigned && (
+          {/* Request Data - layout depends on module */}
+          {requestCorporateDetails?.request_data && (() => {
+            const module = requestCorporateDetails?.module;
+            const reqData = requestCorporateDetails.request_data as Record<
+              string,
+              unknown
+            >;
+
+            if (module === 'card') {
+              return (
+                <div className="flex flex-col gap-4 pb-4 border-b border-gray-200">
+                  <KeyValueGrid
+                    data={reqData}
+                    title="Request Data"
+                    className="p-4 bg-blue-50 rounded-lg border border-blue-200"
+                  />
+                </div>
+              );
+            }
+
+            if (module === 'vendor_management') {
+              return (
+                <div className="flex flex-col gap-4 pb-4 border-b border-gray-200">
+                  <KeyValueGrid
+                    data={reqData}
+                    title="Request Data"
+                    className="p-4 bg-blue-50 rounded-lg border border-blue-200"
+                  />
+                </div>
+              );
+            }
+
+            if (module === 'business_details') {
+              return null;
+            }
+
+            const hasComparison =
+              reqData.current_data || reqData.proposed_data || reqData.logo_url;
+            if (!hasComparison) return null;
+
+            return (
+              <div className="flex flex-col gap-4 pb-4 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <p className="text-gray-600 text-sm font-medium">
+                    Request Data
+                  </p>
+                  {reqData.fields_to_update &&
+                  typeof reqData.fields_to_update === 'object' ? (
+                    <div className="flex flex-wrap gap-2">
+                      {Object.keys(
+                        reqData.fields_to_update as Record<string, unknown>
+                      ).map((field) => (
+                        <Tag
+                          key={field}
+                          value={field.replace(/_/g, ' ')}
+                          variant="gray"
+                          className="w-fit"
+                        />
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+
+                {reqData.logo_url && logoUrlPresigned ? (
                   <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
                     <p className="text-gray-600 text-xs font-medium mb-3">
                       Proposed Logo
@@ -471,130 +563,126 @@ export function ViewRequestDetails() {
                       </a>
                     </div>
                   </div>
-                )}
+                ) : null}
 
-              <div className="grid grid-cols-2 gap-4">
-                {/* Current Data */}
-                {requestCorporateDetails.request_data.current_data && (
-                  <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                    <p className="text-gray-600 text-xs font-medium mb-3 pb-2 border-b border-gray-200">
-                      Current Data
-                    </p>
-                    <div className="flex flex-col gap-3">
-                      {Object.entries(
-                        requestCorporateDetails.request_data.current_data
-                      ).map(([key, value]) => (
-                        <div key={key} className="flex flex-col gap-1">
-                          <p className="text-gray-400 text-xs capitalize">
-                            {key.replace(/_/g, ' ')}
-                          </p>
-                          {key === 'logo' &&
-                          value &&
-                          typeof value === 'string' &&
-                          currentLogoPresigned ? (
-                            <div className="flex flex-col gap-2">
-                              <img
-                                src={currentLogoPresigned}
-                                alt="Current logo"
-                                className="w-full max-w-[200px] h-auto rounded-lg border border-gray-200 object-contain"
-                                onError={(e) => {
-                                  (e.target as HTMLImageElement).style.display =
-                                    'none';
-                                }}
-                              />
-                              <a
-                                href={currentLogoPresigned}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-blue-600 text-xs hover:underline"
-                              >
-                                View Full Image
-                              </a>
-                            </div>
-                          ) : (
-                            <Text
-                              variant="span"
-                              weight="normal"
-                              className="text-gray-800 text-sm"
-                            >
-                              {key.includes('_at') && typeof value === 'string'
-                                ? formatDate(value, 'DD MMM YYYY, HH:mm')
-                                : String(value || '-')}
-                            </Text>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Proposed Data */}
-                {requestCorporateDetails.request_data.proposed_data && (
-                  <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-                    <p className="text-gray-600 text-xs font-medium mb-3 pb-2 border-b border-green-200">
-                      Proposed Data
-                    </p>
-                    <div className="flex flex-col gap-3">
-                      {Object.entries(
-                        requestCorporateDetails.request_data.proposed_data
-                      ).map(([key, value]) => {
-                        // If this is a logo update and logo_url exists, show the logo
-                        if (
-                          key === 'logo' &&
-                          requestCorporateDetails.request_data.logo_url &&
-                          logoUrlPresigned
-                        ) {
-                          return (
+                <div className="grid grid-cols-2 gap-4">
+                  {reqData.current_data &&
+                  typeof reqData.current_data === 'object' ? (
+                      <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <p className="text-gray-600 text-xs font-medium mb-3 pb-2 border-b border-gray-200">
+                          Current Data
+                        </p>
+                        <div className="flex flex-col gap-3">
+                          {Object.entries(
+                            reqData.current_data as Record<string, unknown>
+                          ).map(([key, value]) => (
                             <div key={key} className="flex flex-col gap-1">
                               <p className="text-gray-400 text-xs capitalize">
                                 {key.replace(/_/g, ' ')}
                               </p>
-                              <div className="flex flex-col gap-2">
-                                <img
-                                  src={logoUrlPresigned}
-                                  alt="Proposed logo"
-                                  className="w-full max-w-[200px] h-auto rounded-lg border border-green-200 object-contain"
-                                  onError={(e) => {
-                                    (
-                                      e.target as HTMLImageElement
-                                    ).style.display = 'none';
-                                  }}
-                                />
-                                <a
-                                  href={logoUrlPresigned}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-green-600 text-xs hover:underline"
+                              {key === 'logo' &&
+                                value &&
+                                typeof value === 'string' &&
+                                currentLogoPresigned ? (
+                                <div className="flex flex-col gap-2">
+                                  <img
+                                    src={currentLogoPresigned}
+                                    alt="Current logo"
+                                    className="w-full max-w-[200px] h-auto rounded-lg border border-gray-200 object-contain"
+                                    onError={(e) => {
+                                      (e.target as HTMLImageElement).style.display =
+                                        'none';
+                                    }}
+                                  />
+                                  <a
+                                    href={currentLogoPresigned}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-blue-600 text-xs hover:underline"
+                                  >
+                                    View Full Image
+                                  </a>
+                                </div>
+                              ) : (
+                                <Text
+                                  variant="span"
+                                  weight="normal"
+                                  className="text-gray-800 text-sm"
                                 >
-                                  View Full Image
-                                </a>
-                              </div>
+                                  {formatValue(key, value)}
+                                </Text>
+                              )}
                             </div>
-                          );
-                        }
-                        return (
-                          <div key={key} className="flex flex-col gap-1">
-                            <p className="text-gray-400 text-xs capitalize">
-                              {key.replace(/_/g, ' ')}
-                            </p>
-                            <Text
-                              variant="span"
-                              weight="normal"
-                              className="text-gray-800 text-sm"
-                            >
-                              {key.includes('_at') && typeof value === 'string'
-                                ? formatDate(value, 'DD MMM YYYY, HH:mm')
-                                : String(value || '-')}
-                            </Text>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
+
+                  {reqData.proposed_data &&
+                  typeof reqData.proposed_data === 'object' ? (
+                      <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                        <p className="text-gray-600 text-xs font-medium mb-3 pb-2 border-b border-green-200">
+                          Proposed Data
+                        </p>
+                        <div className="flex flex-col gap-3">
+                          {Object.entries(
+                            reqData.proposed_data as Record<string, unknown>
+                          ).map(([key, value]) => {
+                            if (
+                              key === 'logo' &&
+                              reqData.logo_url &&
+                              logoUrlPresigned
+                            ) {
+                              return (
+                                <div key={key} className="flex flex-col gap-1">
+                                  <p className="text-gray-400 text-xs capitalize">
+                                    {key.replace(/_/g, ' ')}
+                                  </p>
+                                  <div className="flex flex-col gap-2">
+                                    <img
+                                      src={logoUrlPresigned}
+                                      alt="Proposed logo"
+                                      className="w-full max-w-[200px] h-auto rounded-lg border border-green-200 object-contain"
+                                      onError={(e) => {
+                                        (
+                                          e.target as HTMLImageElement
+                                        ).style.display = 'none';
+                                      }}
+                                    />
+                                    <a
+                                      href={logoUrlPresigned}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-green-600 text-xs hover:underline"
+                                    >
+                                      View Full Image
+                                    </a>
+                                  </div>
+                                </div>
+                              );
+                            }
+                            return (
+                              <div key={key} className="flex flex-col gap-1">
+                                <p className="text-gray-400 text-xs capitalize">
+                                  {key.replace(/_/g, ' ')}
+                                </p>
+                                <Text
+                                  variant="span"
+                                  weight="normal"
+                                  className="text-gray-800 text-sm"
+                                >
+                                  {formatValue(key, value)}
+                                </Text>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ) : null}
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
         </div>
         <div className="px-6 py-4 border-t border-gray-100">
           <div className="flex justify-end items-center gap-3">

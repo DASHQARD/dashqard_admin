@@ -18,10 +18,6 @@ export function useVendorDetailsManagementBase() {
 
     return [
       {
-        label: 'GV ID',
-        value: vendorDetails.gvid || '-',
-      },
-      {
         label: 'Name',
         value:
           vendorDetails.vendor_name ||
