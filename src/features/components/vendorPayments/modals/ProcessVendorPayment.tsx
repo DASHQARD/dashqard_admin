@@ -98,7 +98,7 @@ export function ProcessVendorPayment() {
 
       form.reset(formData);
     }
-  }, [isOpen, paymentData]);
+  }, [isOpen, paymentData, form]);
 
   const onSubmit: SubmitHandler<z.infer<typeof PaymentFormSchema>> = (data) => {
     if (!paymentData) return;
