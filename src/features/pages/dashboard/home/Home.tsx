@@ -22,9 +22,7 @@ function KpiCard({
       <div className="relative z-10 p-5 min-h-[92px]">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
-            <div className="text-[13px] font-medium text-white/70">
-              {title}
-            </div>
+            <div className="text-[13px] font-medium text-white/70">{title}</div>
             <div className="text-2xl font-bold mt-1 text-white">{value}</div>
           </div>
 

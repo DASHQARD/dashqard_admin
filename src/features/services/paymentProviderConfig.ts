@@ -13,4 +13,3 @@ export const updatePaymentProviderConfig = async (data: {
 }): Promise<any> => {
   return await patchMethod(commonUrl, data);
 };
-

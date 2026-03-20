@@ -9,8 +9,7 @@ import {
 
 export default function CardConfigurations() {
   const { useGetCardConfigurations } = cardConfigurationsManagementQueries();
-  const { data: cardConfigurations, isLoading } =
-    useGetCardConfigurations();
+  const { data: cardConfigurations, isLoading } = useGetCardConfigurations();
 
   const { useUpdateCardConfigurations } =
     cardConfigurationsManagementMutations();
@@ -109,4 +108,3 @@ export default function CardConfigurations() {
     </div>
   );
 }
-

@@ -12,4 +12,3 @@ export const updateCardConfigurations = async (data: {
 }): Promise<any> => {
   return await patchMethod(commonUrl, data);
 };
-
