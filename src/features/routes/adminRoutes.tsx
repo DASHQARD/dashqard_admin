@@ -10,6 +10,8 @@ import {
   TransactionLimits,
   Countries,
   Fees,
+  CardConfigurations,
+  PaymentProviderConfig,
   Profile,
   Tickets,
   Payment,
@@ -87,6 +89,14 @@ export const adminRoutes: RouteObject[] = [
   {
     path: 'fees',
     element: <Fees />,
+  },
+  {
+    path: 'card-configurations',
+    element: <CardConfigurations />,
+  },
+  {
+    path: 'payment-provider-config',
+    element: <PaymentProviderConfig />,
   },
   {
     path: 'profile',

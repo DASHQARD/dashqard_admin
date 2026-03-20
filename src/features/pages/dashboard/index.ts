@@ -7,6 +7,8 @@ export * from './permissions';
 export * from './transactionLimits';
 export * from './countries';
 export * from './fees';
+export * from './cardConfigurations';
+export * from './paymentProviderConfig';
 export * from './profile';
 export * from './tickets';
 export * from './payment';

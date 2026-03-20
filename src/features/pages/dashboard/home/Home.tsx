@@ -1,8 +1,56 @@
 import { LoaderGif } from '@/assets/gifs';
 import { Icon } from '@/libs';
 
+function KpiCard({
+  title,
+  value,
+  icon,
+  backgroundColor,
+  actionIcon,
+}: {
+  title: string;
+  value: string;
+  icon: string;
+  backgroundColor: string;
+  actionIcon: string;
+}) {
+  return (
+    <div
+      className="relative overflow-hidden rounded-xl"
+      style={{ backgroundColor }}
+    >
+      <div className="relative z-10 p-5 min-h-[92px]">
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <div className="text-[13px] font-medium text-white/70">
+              {title}
+            </div>
+            <div className="text-2xl font-bold mt-1 text-white">{value}</div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center">
+              <Icon icon={icon} className="text-white text-base" />
+            </div>
+            <div className="w-9 h-9 rounded-lg bg-black/20 flex items-center justify-center">
+              <Icon icon={actionIcon} className="text-white text-base" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Home() {
   const isLoading = false;
+
+  const metrics = {
+    totalUsers: 1250,
+    totalTransactions: 5432,
+    totalRevenue: 1250000,
+    pendingApprovals: 23,
+  };
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-GH', {
@@ -10,14 +58,6 @@ export default function Home() {
       currency: 'GHS',
       minimumFractionDigits: 2,
     }).format(amount);
-  };
-
-  // Mock data - replace with actual API calls
-  const metrics = {
-    totalUsers: 1250,
-    totalTransactions: 5432,
-    totalRevenue: 1250000,
-    pendingApprovals: 23,
   };
 
   if (isLoading) {
@@ -61,66 +101,36 @@ export default function Home() {
           </h5>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* Total Users */}
-          <div className="bg-white rounded-xl p-6 shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-[#f1f3f4] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.1)] flex items-center gap-5">
-            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[#402D87] to-[#2d1a72] flex items-center justify-center text-white text-3xl shrink-0">
-              <Icon icon="bi:people-fill" />
-            </div>
-            <div className="flex-1">
-              <div className="text-2xl font-bold mb-1 leading-none text-[#402D87]">
-                {metrics.totalUsers.toLocaleString()}
-              </div>
-              <div className="text-sm text-[#6c757d] mb-2 font-medium">
-                Total Users
-              </div>
-            </div>
-          </div>
-
-          {/* Total Transactions */}
-          <div className="bg-white rounded-xl p-6 shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-[#f1f3f4] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.1)] flex items-center gap-5">
-            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[#402D87] to-[#2d1a72] flex items-center justify-center text-white text-3xl shrink-0">
-              <Icon icon="bi:receipt" />
-            </div>
-            <div className="flex-1">
-              <div className="text-2xl font-bold mb-1 leading-none text-[#402D87]">
-                {metrics.totalTransactions.toLocaleString()}
-              </div>
-              <div className="text-sm text-[#6c757d] mb-2 font-medium">
-                Total Transactions
-              </div>
-            </div>
-          </div>
-
-          {/* Total Revenue */}
-          <div className="bg-white rounded-xl p-6 shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-[#f1f3f4] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.1)] flex items-center gap-5">
-            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[#402D87] to-[#2d1a72] flex items-center justify-center text-white text-3xl shrink-0">
-              <Icon icon="bi:currency-dollar" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-2xl font-bold mb-1 leading-none text-[#402D87] truncate">
-                {formatCurrency(metrics.totalRevenue)}
-              </div>
-              <div className="text-sm text-[#6c757d] mb-2 font-medium">
-                Total Revenue
-              </div>
-            </div>
-          </div>
-
-          {/* Pending Approvals */}
-          <div className="bg-white rounded-xl p-6 shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-[#f1f3f4] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.1)] flex items-center gap-5">
-            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[#402D87] to-[#2d1a72] flex items-center justify-center text-white text-3xl shrink-0">
-              <Icon icon="bi:clock-history" />
-            </div>
-            <div className="flex-1">
-              <div className="text-2xl font-bold mb-1 leading-none text-[#402D87]">
-                {metrics.pendingApprovals}
-              </div>
-              <div className="text-sm text-[#6c757d] mb-2 font-medium">
-                Pending Approvals
-              </div>
-            </div>
-          </div>
+        {/* Top KPI Row */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+          <KpiCard
+            title="Total Users"
+            value={metrics.totalUsers.toLocaleString()}
+            icon="bi:people-fill"
+            actionIcon="bi:file-earmark-text"
+            backgroundColor="#402D87"
+          />
+          <KpiCard
+            title="Total Transactions"
+            value={metrics.totalTransactions.toLocaleString()}
+            icon="bi:receipt"
+            actionIcon="bi:file-earmark-text"
+            backgroundColor="#2d1a72"
+          />
+          <KpiCard
+            title="Total Revenue"
+            value={formatCurrency(metrics.totalRevenue)}
+            icon="bi:currency-dollar"
+            actionIcon="bi:file-earmark-text"
+            backgroundColor="#402D87"
+          />
+          <KpiCard
+            title="Pending Approvals"
+            value={metrics.pendingApprovals.toLocaleString()}
+            icon="bi:clock-history"
+            actionIcon="bi:file-earmark-text"
+            backgroundColor="#2d1a72"
+          />
         </div>
 
         {/* Analytics Section */}

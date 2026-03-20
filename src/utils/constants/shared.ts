@@ -42,6 +42,8 @@ export const ROUTES = {
       TRANSACTION_LIMITS: '/admin/transaction-limits',
       COUNTRIES: '/admin/countries',
       FEES: '/admin/fees',
+      CARD_CONFIGURATIONS: '/admin/card-configurations',
+      PAYMENT_PROVIDER_CONFIG: '/admin/payment-provider-config',
       TICKETS: '/admin/tickets',
       PAYMENTS: '/admin/payments',
       VENDOR_PAYMENTS: '/admin/vendor-payments',

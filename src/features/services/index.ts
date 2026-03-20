@@ -8,6 +8,8 @@ export * from './roles';
 export * from './transactionLimits';
 export * from './countries';
 export * from './fees';
+export * from './cardConfigurations';
+export * from './paymentProviderConfig';
 export * from './tickets';
 export * from './paymentDetails';
 export * from './payments';

@@ -72,6 +72,18 @@ export const ADMIN_NAV_ITEMS = [
         icon: 'bi:currency-dollar',
         permission: 'fees:view',
       },
+      {
+        path: ROUTES.IN_APP.ADMIN.CARD_CONFIGURATIONS,
+        label: 'Card Configurations',
+        icon: 'bi:credit-card',
+        permission: 'card_configurations:view',
+      },
+      {
+        path: ROUTES.IN_APP.ADMIN.PAYMENT_PROVIDER_CONFIG,
+        label: 'Payment Providers',
+        icon: 'bi:credit-card',
+        permission: 'payments:view',
+      },
     ],
   },
   {
