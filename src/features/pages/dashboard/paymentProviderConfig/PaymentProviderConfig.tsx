@@ -44,7 +44,7 @@ export default function PaymentProviderConfig() {
     { label: 'Paystack', value: 'paystack' },
     { label: 'Eganow', value: 'eganow' },
     { label: 'Kowri', value: 'kowri' },
-    { label: 'ExpressPay', value: 'expresspay' }
+    { label: 'ExpressPay', value: 'expresspay' },
   ];
 
   const payoutServices = gateways;
