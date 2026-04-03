@@ -110,7 +110,10 @@ export const getAdminVendorBranches = async (
   const queryString = getQueryString(query);
   const base = `${commonUrl}/admin/vendors/${vendorId}/branches`;
   const fullUrl = queryString ? `${base}?${queryString}` : base;
-  const response = await axiosClient.get(fullUrl);
+  // Interceptor returns response body, not AxiosResponse
+  const response = (await axiosClient.get(
+    fullUrl
+  )) as AdminVendorBranchesListResponse;
   return response;
 };
 
