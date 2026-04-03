@@ -3,10 +3,10 @@ import {
   getVendorPaymentsSummary,
   getVendorPaymentById,
   getVendorPaymentPreferences,
-  getVendorPaymentBranches,
+  getAdminVendorBranches,
   type VendorPaymentsQueryParams,
   type VendorPaymentsSummaryQueryParams,
-  type VendorPaymentBranchesQueryParams,
+  type AdminVendorBranchesQueryParams,
   getBanks,
 } from '@/features/services';
 import { useQuery } from '@tanstack/react-query';
@@ -47,14 +47,16 @@ export function vendorPaymentsManagementQueries() {
     });
   }
 
-  function useGetVendorPaymentBranches(
-    query?: VendorPaymentBranchesQueryParams,
+  function useGetAdminVendorBranches(
+    vendorId: string | number,
+    query?: AdminVendorBranchesQueryParams,
     options?: { enabled?: boolean }
   ) {
+    const id = vendorId != null && vendorId !== '' ? String(vendorId) : '';
     return useQuery({
-      queryKey: ['vendor-payments-branches', query],
-      queryFn: () => getVendorPaymentBranches(query),
-      enabled: options?.enabled ?? true,
+      queryKey: ['vendor-payments-admin-vendor-branches', id, query],
+      queryFn: () => getAdminVendorBranches(id, query),
+      enabled: Boolean(id) && (options?.enabled ?? true),
     });
   }
 
@@ -81,7 +83,7 @@ export function vendorPaymentsManagementQueries() {
     useGetBanks,
     useGetVendorPaymentsSummary,
     useGetVendorPaymentById,
-    useGetVendorPaymentBranches,
+    useGetAdminVendorBranches,
     useGetVendorPaymentPreferences,
   };
 }

@@ -207,8 +207,7 @@ export const DEFAULT_QUERY = {
 };
 
 /**
- * Checkout + payout gateways. Process payout API accepts only:
- * paystack | eganow | express_payout
+ * Checkout + payout gateways. Active payout gateway is set in payment provider config.
  */
 export const PAYMENT_GATEWAY_OPTIONS = [
   { label: 'Paystack', value: 'paystack' },

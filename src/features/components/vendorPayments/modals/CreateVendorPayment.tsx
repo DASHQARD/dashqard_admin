@@ -88,6 +88,13 @@ function branchesFromVendorDetails(vd: unknown): BranchRow[] {
     .filter(Boolean) as BranchRow[];
 }
 
+function parseBranchRowId(r: Record<string, unknown>) {
+  const raw = r.branch_id ?? r.id;
+  if (raw == null || raw === '') return NaN;
+  return typeof raw === 'string' ? parseInt(raw, 10) : Number(raw);
+}
+
+/** Maps admin vendor-branches API rows (branch_name, payment_summary, string id, …) */
 function mapApiBranchRows(rows: unknown[], vendorId: number): BranchRow[] {
   return rows
     .map((row: unknown) => {
@@ -99,15 +106,41 @@ function mapApiBranchRows(rows: unknown[], vendorId: number): BranchRow[] {
       ) {
         return null;
       }
-      const bid = Number(r.branch_id ?? r.id);
-      const loc = String(
-        r.branch_location ?? r.location ?? r.name ?? ''
-      ).trim();
+      const bid = parseBranchRowId(r);
+      const name = String(r.branch_name ?? r.name ?? '').trim();
+      const loc = String(r.branch_location ?? r.location ?? '').trim();
+      const gvid = String(r.gvid ?? '').trim();
       if (!Number.isFinite(bid) || bid <= 0) return null;
+
+      const ps = r.payment_summary as
+        | {
+            pending_count?: number;
+            paid_count?: number;
+            overdue_count?: number;
+            total_count?: number;
+          }
+        | undefined;
+      let summaryHint = '';
+      if (
+        ps &&
+        typeof ps === 'object' &&
+        (Number(ps.total_count) > 0 ||
+          Number(ps.pending_count) > 0 ||
+          Number(ps.paid_count) > 0 ||
+          Number(ps.overdue_count) > 0)
+      ) {
+        summaryHint = ` · ${ps.pending_count ?? 0} pending, ${ps.paid_count ?? 0} paid`;
+      }
+
+      const title =
+        name && loc ? `${name} — ${loc}` : name || loc || (gvid ? gvid : '');
+      const label =
+        (title ? `${title} (ID: ${bid})` : `Branch ${bid}`) + summaryHint;
+
       return {
         branch_id: bid,
-        branch_location: loc || `Branch ${bid}`,
-        label: loc ? `${loc} (ID: ${bid})` : `Branch ${bid}`,
+        branch_location: loc || name || `Branch ${bid}`,
+        label,
       };
     })
     .filter(Boolean) as BranchRow[];
@@ -126,7 +159,7 @@ export function CreateVendorPayment() {
   const createMutation = useCreateVendorPayment();
 
   const { useGetVendors, useGetVendorDetails } = vendorManagementQueries();
-  const { useGetVendorPaymentBranches } = vendorPaymentsManagementQueries();
+  const { useGetAdminVendorBranches } = vendorPaymentsManagementQueries();
   const [vendorSearch, setVendorSearch] = React.useState('');
 
   const { data: vendorsResponse } = useGetVendors(
@@ -150,7 +183,6 @@ export function CreateVendorPayment() {
   });
 
   const vendorId = form.watch('vendor_id');
-  const vendorUserId = form.watch('vendor_user_id');
 
   const { data: vendorDetailsResponse } = useGetVendorDetails(
     vendorId > 0 ? String(vendorId) : '',
@@ -166,15 +198,10 @@ export function CreateVendorPayment() {
   }, [vendorDetailsResponse]);
 
   const { data: branchesApiResponse, isLoading: isLoadingBranches } =
-    useGetVendorPaymentBranches(
-      {
-        limit: 100,
-        ...(vendorId > 0 ? { vendor_id: vendorId } : {}),
-        ...(vendorUserId > 0 ? { vendor_user_id: vendorUserId } : {}),
-      },
-      {
-        enabled: isOpen && vendorId > 0 && vendorUserId > 0,
-      }
+    useGetAdminVendorBranches(
+      vendorId > 0 ? vendorId : '',
+      { limit: 100 },
+      { enabled: isOpen && vendorId > 0 }
     );
 
   const branchRows = React.useMemo(() => {

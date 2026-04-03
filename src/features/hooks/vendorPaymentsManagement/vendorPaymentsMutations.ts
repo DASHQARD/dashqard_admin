@@ -29,6 +29,9 @@ export function vendorPaymentsManagementMutations() {
         queryClient.invalidateQueries({
           queryKey: ['vendor-payments-summary'],
         });
+        queryClient.invalidateQueries({
+          queryKey: ['vendor-payments-admin-vendor-branches'],
+        });
         success('Vendor payment updated successfully');
       },
       onError: (err: any) => {
@@ -47,6 +50,9 @@ export function vendorPaymentsManagementMutations() {
         queryClient.invalidateQueries({ queryKey: ['vendor-payment'] });
         queryClient.invalidateQueries({
           queryKey: ['vendor-payments-summary'],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['vendor-payments-admin-vendor-branches'],
         });
         success('Vendor payment deleted successfully');
       },
@@ -93,7 +99,7 @@ export function vendorPaymentsManagementMutations() {
           queryKey: ['vendor-payments-summary'],
         });
         queryClient.invalidateQueries({
-          queryKey: ['vendor-payments-branches'],
+          queryKey: ['vendor-payments-admin-vendor-branches'],
         });
         success(response?.message || 'Vendor payment created successfully');
       },
@@ -113,6 +119,9 @@ export function vendorPaymentsManagementMutations() {
         queryClient.invalidateQueries({ queryKey: ['vendor-payment'] });
         queryClient.invalidateQueries({
           queryKey: ['vendor-payments-summary'],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['vendor-payments-admin-vendor-branches'],
         });
         success(response.message || 'Vendor payment processed successfully');
       },

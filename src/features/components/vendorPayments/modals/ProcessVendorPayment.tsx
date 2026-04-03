@@ -24,7 +24,15 @@ const MOBILE_PROVIDER_LABELS: Record<string, string> = {
   mtn: 'MTN Mobile Money',
   vodafone: 'Vodafone Cash',
   airtel: 'AirtelTigo Money',
+  'airtel-tigo': 'AirtelTigo Money',
 };
+
+function normalizeInternationalPhone(value: string) {
+  return value
+    .replace(/^\+\s*/, '')
+    .replace(/\s/g, '')
+    .trim();
+}
 
 function formatMobileProvider(provider: string) {
   const key = provider?.toLowerCase?.() ?? '';
@@ -61,17 +69,6 @@ export function ProcessVendorPayment() {
   const { data: paymentProviderConfig } = useGetPaymentProviderConfig({
     enabled: isOpen,
   });
-
-  const payoutGatewayOptions = React.useMemo(
-    () => [
-      { label: 'Use system default', value: '' },
-      ...PAYMENT_GATEWAY_OPTIONS.map((o) => ({
-        label: o.label,
-        value: o.value,
-      })),
-    ],
-    []
-  );
 
   const systemPayoutLabel = React.useMemo(() => {
     const v = paymentProviderConfig?.payout_service;
@@ -124,7 +121,6 @@ export function ProcessVendorPayment() {
     resolver: zodResolver(PaymentFormSchema),
     defaultValues: {
       payment_method: 'bank',
-      payment_service: '',
       bank_code: '',
       account_number: '',
       mobile_money_provider: '',
@@ -149,7 +145,6 @@ export function ProcessVendorPayment() {
 
     form.reset({
       payment_method: paymentData.payment_method || 'bank',
-      payment_service: '',
       bank_code: '',
       account_number: '',
       mobile_money_provider: '',
@@ -168,13 +163,11 @@ export function ProcessVendorPayment() {
   const onSubmit: SubmitHandler<z.infer<typeof PaymentFormSchema>> = (data) => {
     if (!paymentData) return;
 
-    const paymentService = data.payment_service?.trim();
-
+    const notes = (data.notes ?? '').trim();
     const base = {
       id: Number(paymentData.id),
       payment_date: new Date().toISOString(),
-      notes: data.notes ?? '',
-      ...(paymentService ? { payment_service: paymentService } : {}),
+      ...(notes ? { notes } : {}),
     };
 
     if (data.payment_method === 'bank') {
@@ -183,7 +176,7 @@ export function ProcessVendorPayment() {
           ...base,
           payment_method: 'bank',
           bank_code: data.bank_code ?? '',
-          account_number: data.account_number ?? '',
+          account_number: (data.account_number ?? '').replace(/\s/g, ''),
         },
         {
           onSuccess: () => {
@@ -202,7 +195,9 @@ export function ProcessVendorPayment() {
       {
         ...base,
         payment_method: 'mobile_money',
-        mobile_money_number: data.mobile_money_number ?? '',
+        mobile_money_number: normalizeInternationalPhone(
+          data.mobile_money_number ?? ''
+        ),
         mobile_money_provider: data.mobile_money_provider ?? '',
       },
       {
@@ -554,28 +549,13 @@ export function ProcessVendorPayment() {
                   )}
                 />
 
-                <Controller
-                  control={form.control}
-                  name="payment_service"
-                  render={({ field }) => (
-                    <div className="space-y-1.5">
-                      <Combobox
-                        label="Payout gateway"
-                        placeholder="Select gateway"
-                        options={payoutGatewayOptions}
-                        value={field.value ?? ''}
-                        onChange={(value: string) => field.onChange(value)}
-                        name={field.name}
-                        error={form.formState.errors.payment_service?.message}
-                      />
-                      <Text variant="span" className="text-xs text-gray-500">
-                        {systemPayoutLabel
-                          ? `System default: ${systemPayoutLabel}. Choose another to override for this payout only.`
-                          : 'System default is set in Payment Provider Config. Leave as above to use it.'}
-                      </Text>
-                    </div>
-                  )}
-                />
+                <div className="rounded-md border border-blue-100 bg-blue-50/80 px-4 py-3">
+                  <Text variant="span" className="text-sm text-blue-900">
+                    {systemPayoutLabel
+                      ? `Payout gateway (from system config): ${systemPayoutLabel}. Bank codes and mobile providers are interpreted for this gateway.`
+                      : 'The active payout gateway is read from Payment Provider Config. Configure it there if payouts fail.'}
+                  </Text>
+                </div>
 
                 {/* Bank Transfer Fields */}
                 {form.watch('payment_method') === 'bank' && (
@@ -630,7 +610,10 @@ export function ProcessVendorPayment() {
                           options={[
                             { label: 'MTN Mobile Money', value: 'mtn' },
                             { label: 'Vodafone Cash', value: 'vodafone' },
-                            { label: 'AirtelTigo Money', value: 'airtel' }, // Fixed value to match enum
+                            {
+                              label: 'AirtelTigo Money',
+                              value: 'airtel-tigo',
+                            },
                           ]}
                         />
                       )}
@@ -639,7 +622,7 @@ export function ProcessVendorPayment() {
                       <Input
                         label="Mobile Money Number"
                         {...form.register('mobile_money_number')}
-                        placeholder="Enter mobile money number"
+                        placeholder="e.g. 233559617908 or +233559617908"
                       />
                     </div>
                   </div>
