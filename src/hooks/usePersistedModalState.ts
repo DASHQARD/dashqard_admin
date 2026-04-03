@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { useLocation, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import type {
   PersistedModalStateOptions,
@@ -12,51 +12,54 @@ export function usePersistedModalState<TModalData = unknown>({
   resetOnRouteChange = false,
 }: PersistedModalStateOptions = {}): PersistedModalStateReturn<TModalData> {
   const location = useLocation();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   const previousPathRef = useRef(location.pathname);
 
-  // Get values from URL
-  const modalState = searchParams.get(paramName) ?? defaultValue ?? '';
-  const modalDataFromUrl = searchParams.get('modalData') ?? '';
+  // Read from location.search so state stays in sync with navigation (incl. nuqs + Link clicks).
+  const { modalState, modalDataFromUrl } = useMemo(() => {
+    const params = new URLSearchParams(location.search);
+    return {
+      modalState: params.get(paramName) ?? defaultValue ?? '',
+      modalDataFromUrl: params.get('modalData') ?? '',
+    };
+  }, [location.search, paramName, defaultValue]);
 
   const openModal = useCallback(
     (modalName: string, data?: TModalData) => {
-      setSearchParams(
-        (prev) => {
-          const newParams = new URLSearchParams(prev);
-          newParams.set(paramName, modalName);
+      const newParams = new URLSearchParams(location.search);
+      newParams.set(paramName, modalName);
 
-          if (data !== undefined) {
-            try {
-              newParams.set('modalData', JSON.stringify(data));
-            } catch (error) {
-              console.warn('Failed to serialize modal data:', error);
-              newParams.delete('modalData');
-            }
-          } else {
-            newParams.delete('modalData');
-          }
+      if (data !== undefined) {
+        try {
+          newParams.set('modalData', JSON.stringify(data));
+        } catch (error) {
+          console.warn('Failed to serialize modal data:', error);
+          newParams.delete('modalData');
+        }
+      } else {
+        newParams.delete('modalData');
+      }
 
-          return newParams;
-        },
+      const search = newParams.toString();
+      navigate(
+        { pathname: location.pathname, search: search ? `?${search}` : '' },
         { replace: true }
       );
     },
-    [paramName, setSearchParams]
+    [paramName, navigate, location.pathname, location.search]
   );
 
   const closeModal = useCallback(() => {
-    setSearchParams(
-      (prev) => {
-        const newParams = new URLSearchParams(prev);
-        newParams.delete(paramName);
-        newParams.delete('modalData');
-        return newParams;
-      },
+    const newParams = new URLSearchParams(location.search);
+    newParams.delete(paramName);
+    newParams.delete('modalData');
+    const search = newParams.toString();
+    navigate(
+      { pathname: location.pathname, search: search ? `?${search}` : '' },
       { replace: true }
     );
-  }, [paramName, setSearchParams]);
+  }, [paramName, navigate, location.pathname, location.search]);
 
   const isModalOpen = useCallback(
     (modalName?: string) => {

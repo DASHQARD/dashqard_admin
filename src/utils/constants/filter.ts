@@ -35,7 +35,7 @@ export const OPTIONS = {
   USER_TYPE: ['individual', 'agent', 'merchant'],
   TRANSACTION_TYPE: ['credit', 'debit'],
   VENDOR_PAYMENT_STATUS: ['pending', 'paid', 'overdue'],
-  VENDOR_PAYMENT_FREQUENCY: ['daily', 'weekly', 'monthly'],
+  VENDOR_PAYMENT_FREQUENCY: ['daily', 'weekly', 'bi-weekly', 'monthly'],
   SUPER_ADMIN_INVITATIONS_STATUS: ['pending', 'accepted'],
   PAYMENT_STATUS: ['pending', 'paid'],
 };

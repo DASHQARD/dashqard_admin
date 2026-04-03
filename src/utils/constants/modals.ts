@@ -133,7 +133,10 @@ export const MODALS = {
     PARAM_NAME: 'vendor-payment-modal',
     CHILDREN: {
       VIEW: 'view-vendor-payment',
+      /** Process payout (existing) */
       CREATE: 'create-vendor-payment',
+      /** POST new vendor payment record */
+      ADD_RECORD: 'add-vendor-payment',
       UPDATE: 'update-vendor-payment',
       DELETE: 'delete-vendor-payment',
       DOWNLOAD_INVOICE: 'download-invoice',

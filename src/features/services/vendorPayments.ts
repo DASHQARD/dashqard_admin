@@ -1,7 +1,6 @@
 import {
   getList,
   getMethod,
-  patchMethod,
   deleteMethod,
   putMethod,
   postMethod,
@@ -47,6 +46,30 @@ export const getVendorPayments = async (
   return response;
 };
 
+export type VendorPaymentBranchesQueryParams = {
+  limit?: number;
+  after?: string;
+  vendor_id?: number;
+  /** Required by API when filtering branches for a vendor context */
+  vendor_user_id?: number;
+  status?: string;
+  payment_frequency?: string;
+  date_from?: string;
+  date_to?: string;
+  search?: string;
+};
+
+export const getVendorPaymentBranches = async (
+  query?: VendorPaymentBranchesQueryParams
+): Promise<any> => {
+  const queryString = getQueryString(query);
+  const fullUrl = queryString
+    ? `${commonUrl}/branches?${queryString}`
+    : `${commonUrl}/branches`;
+  const response = await axiosClient.get(fullUrl);
+  return response;
+};
+
 export const getVendorPaymentsSummary = async (
   query?: VendorPaymentsSummaryQueryParams
 ): Promise<any> => {
@@ -54,9 +77,91 @@ export const getVendorPaymentsSummary = async (
   return response?.data || response;
 };
 
-export const getVendorPaymentById = async (id: string): Promise<any> => {
-  const response = await getMethod(commonUrl, id);
-  return response?.data || response;
+/** Mobile money entry under `payment_methods` on GET /vendor-payments/:id */
+export type VendorPaymentMethodsMobileMoney = {
+  id: number;
+  provider: string;
+  number: string;
+};
+
+/** Bank account entry (shape may vary by API) */
+export type VendorPaymentMethodsBankAccount = {
+  id?: number;
+  bank_name?: string;
+  account_number?: string;
+  account_name?: string;
+  [key: string]: unknown;
+};
+
+/** Nested `payment_methods` on GET /vendor-payments/:id */
+export type VendorPaymentMethodsPayload = {
+  bank_accounts: VendorPaymentMethodsBankAccount[];
+  mobile_money: VendorPaymentMethodsMobileMoney[];
+};
+
+/** Record inside `data` for GET /vendor-payments/:id success response */
+export type VendorPaymentDetail = {
+  id: number;
+  vendor_id: number;
+  vendor_user_id: number;
+  invoice_number: string;
+  payment_frequency: string;
+  branch_location: string;
+  branch_id: number;
+  payment_amount: string | number;
+  payment_period: string;
+  status: string;
+  due_date: string;
+  paid_date: string | null;
+  description: string;
+  created_at: string;
+  updated_at: string;
+  transaction_reference: string | null;
+  notes: string | null;
+  payment_method: string | null;
+  vendor_name: string;
+  vendor_gvid: string;
+  branch_manager_user_id?: number;
+  branch_manager_phone_number?: string | null;
+  branch_phone_number?: string | null;
+  payment_methods?: VendorPaymentMethodsPayload;
+};
+
+type VendorPaymentByIdEnvelope = {
+  status: string;
+  statusCode: number;
+  message: string;
+  data: VendorPaymentDetail;
+  url?: string;
+};
+
+function isVendorPaymentByIdEnvelope(
+  raw: unknown
+): raw is VendorPaymentByIdEnvelope {
+  return (
+    typeof raw === 'object' &&
+    raw !== null &&
+    'data' in raw &&
+    'statusCode' in raw &&
+    typeof (raw as VendorPaymentByIdEnvelope).data === 'object' &&
+    (raw as VendorPaymentByIdEnvelope).data !== null &&
+    'id' in (raw as VendorPaymentByIdEnvelope).data
+  );
+}
+
+/** Normalizes GET /vendor-payments/:id whether the client receives the envelope or inner `data`. */
+function unwrapVendorPaymentDetail(raw: unknown): VendorPaymentDetail {
+  if (isVendorPaymentByIdEnvelope(raw)) {
+    return raw.data;
+  }
+  return raw as VendorPaymentDetail;
+}
+
+export const getVendorPaymentById = async (
+  id: string
+): Promise<VendorPaymentDetail> => {
+  const raw = await getMethod<unknown>(commonUrl, id);
+  return unwrapVendorPaymentDetail(raw);
 };
 
 export type UpdateVendorPaymentData = {
@@ -68,12 +173,32 @@ export type UpdateVendorPaymentData = {
   payment_period?: string;
 };
 
+/** PUT /vendor-payments/:id */
 export const updateVendorPayment = async (
   id: string,
   data: UpdateVendorPaymentData
 ): Promise<any> => {
-  const response = await patchMethod(`${commonUrl}/${id}`, data);
+  const response = await putMethod(`${commonUrl}/${id}`, data);
   return response?.data || response;
+};
+
+export type CreateVendorPaymentPayload = {
+  vendor_id: number;
+  vendor_user_id: number;
+  payment_frequency: 'daily' | 'weekly' | 'bi-weekly' | 'monthly';
+  branch_location: string;
+  branch_id: number;
+  payment_amount: number;
+  payment_period: string;
+  due_date: string;
+  description: string;
+};
+
+/** POST /vendor-payments — create payment record (invoice is assigned server-side). */
+export const createVendorPayment = async (
+  data: CreateVendorPaymentPayload
+): Promise<any> => {
+  return await postMethod(commonUrl, data);
 };
 
 export const deleteVendorPayment = async (id: string): Promise<any> => {
@@ -117,15 +242,26 @@ export const updateVendorPaymentPreferences = async (
   return response?.data || response;
 };
 
-export const processVendorPayment = async (data: {
+/**
+ * POST /vendor-payments/process-payment — payout via configured gateway (Paystack, Eganow, etc.).
+ * Omit `payment_service` to use system payment provider configuration.
+ */
+export type ProcessVendorPaymentPayload = {
   id: number;
   payment_method: 'bank' | 'mobile_money';
-  bank_code: string;
-  account_number: string;
-  mobile_money_number: string;
-  mobile_money_provider: 'mtn' | 'vodafone' | 'airtel';
+  /** ISO 8601 datetime */
   payment_date: string;
-  notes: string;
-}): Promise<any> => {
+  notes?: string;
+  /** Override active payout gateway (e.g. paystack, eganow, kowri, expresspay) */
+  payment_service?: string;
+  bank_code?: string;
+  account_number?: string;
+  mobile_money_number?: string;
+  mobile_money_provider?: string;
+};
+
+export const processVendorPayment = async (
+  data: ProcessVendorPaymentPayload
+): Promise<any> => {
   return await postMethod(`${commonUrl}/process-payment`, data);
 };

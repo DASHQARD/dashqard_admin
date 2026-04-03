@@ -8,6 +8,7 @@ import {
   paymentProviderConfigManagementMutations,
   paymentProviderConfigManagementQueries,
 } from '@/features/hooks/paymentProviderConfigManagement';
+import { PAYMENT_GATEWAY_OPTIONS } from '@/utils/constants';
 
 type PaymentProviderConfigForm = {
   checkout_gateway: string;
@@ -40,12 +41,7 @@ export default function PaymentProviderConfig() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paymentProviderConfig]);
 
-  const gateways = [
-    { label: 'Paystack', value: 'paystack' },
-    { label: 'Eganow', value: 'eganow' },
-    { label: 'Kowri', value: 'kowri' },
-    { label: 'ExpressPay', value: 'expresspay' },
-  ];
+  const gateways = [...PAYMENT_GATEWAY_OPTIONS];
 
   const payoutServices = gateways;
 

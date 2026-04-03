@@ -6,18 +6,25 @@ import {
 import { useQuery } from '@tanstack/react-query';
 
 export function vendorManagementQueries() {
-  function useGetVendors(queryParams?: Record<string, any>) {
+  function useGetVendors(
+    queryParams?: Record<string, any>,
+    options?: { enabled?: boolean }
+  ) {
     return useQuery({
       queryKey: ['vendors', queryParams],
       queryFn: () => getVendorsList(queryParams),
+      enabled: options?.enabled ?? true,
     });
   }
 
-  function useGetVendorDetails(id: string | number) {
+  function useGetVendorDetails(
+    id: string | number,
+    options?: { enabled?: boolean }
+  ) {
     return useQuery({
       queryKey: ['vendor-details', id],
       queryFn: () => getVendorDetails(id),
-      enabled: !!id,
+      enabled: !!id && (options?.enabled ?? true),
     });
   }
 

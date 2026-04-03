@@ -41,6 +41,28 @@ export function useVendorPaymentsManagementBase() {
     if (frequencyField) {
       apiParams.payment_frequency = frequencyField;
     }
+    const q = query as Record<string, unknown>;
+    if (q.vendor_id != null && q.vendor_id !== '') {
+      apiParams.vendor_id = Number(q.vendor_id);
+    }
+    if (q.vendor_user_id != null && q.vendor_user_id !== '') {
+      apiParams.vendor_user_id = Number(q.vendor_user_id);
+    }
+    if (q.branch_id != null && q.branch_id !== '') {
+      apiParams.branch_id = Number(q.branch_id);
+    }
+    if (q.branch_location) {
+      apiParams.branch_location = String(q.branch_location);
+    }
+    if (q.payment_period) {
+      apiParams.payment_period = String(q.payment_period);
+    }
+    if (q.dateFrom) {
+      apiParams.date_from = String(q.dateFrom);
+    }
+    if (q.dateTo) {
+      apiParams.date_to = String(q.dateTo);
+    }
     return apiParams;
   }, [query]);
 

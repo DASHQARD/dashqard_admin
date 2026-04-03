@@ -3,8 +3,10 @@ import {
   getVendorPaymentsSummary,
   getVendorPaymentById,
   getVendorPaymentPreferences,
+  getVendorPaymentBranches,
   type VendorPaymentsQueryParams,
   type VendorPaymentsSummaryQueryParams,
+  type VendorPaymentBranchesQueryParams,
   getBanks,
 } from '@/features/services';
 import { useQuery } from '@tanstack/react-query';
@@ -33,11 +35,26 @@ export function vendorPaymentsManagementQueries() {
     });
   }
 
-  function useGetVendorPaymentById(id: string) {
+  function useGetVendorPaymentById(
+    id: string,
+    options?: { enabled?: boolean }
+  ) {
+    const enabledById = Boolean(id);
     return useQuery({
       queryKey: ['vendor-payment', id],
       queryFn: () => getVendorPaymentById(id),
-      enabled: !!id,
+      enabled: enabledById && (options?.enabled ?? true),
+    });
+  }
+
+  function useGetVendorPaymentBranches(
+    query?: VendorPaymentBranchesQueryParams,
+    options?: { enabled?: boolean }
+  ) {
+    return useQuery({
+      queryKey: ['vendor-payments-branches', query],
+      queryFn: () => getVendorPaymentBranches(query),
+      enabled: options?.enabled ?? true,
     });
   }
 
@@ -64,6 +81,7 @@ export function vendorPaymentsManagementQueries() {
     useGetBanks,
     useGetVendorPaymentsSummary,
     useGetVendorPaymentById,
+    useGetVendorPaymentBranches,
     useGetVendorPaymentPreferences,
   };
 }

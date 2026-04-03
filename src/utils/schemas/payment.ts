@@ -60,11 +60,12 @@ export const PaymentInfoSchema = z
 export const PaymentFormSchema = z
   .object({
     payment_method: getRequiredStringSchema('Payment method'),
+    /** Optional override; backend uses payment provider config when empty */
+    payment_service: z.string().optional(),
     mobile_money_provider: z.string().optional(),
     mobile_money_number: z.string().optional(),
     bank_code: z.string().optional(),
     account_number: z.string().optional(),
-    payment_date: getRequiredStringSchema('Payment date'),
     notes: z.string().optional(),
   })
   .refine(
@@ -101,5 +102,16 @@ export const PaymentFormSchema = z
     {
       message: 'All bank details are required',
       path: ['bank_code'],
+    }
+  )
+  .refine(
+    (data) => {
+      const v = data.payment_service?.trim();
+      if (!v) return true;
+      return ['paystack', 'eganow', 'express_payout'].includes(v);
+    },
+    {
+      message: 'Payment service must be paystack, eganow, or express_payout',
+      path: ['payment_service'],
     }
   );

@@ -2,8 +2,10 @@ import {
   updateVendorPayment,
   deleteVendorPayment,
   updateVendorPaymentPreferences,
+  createVendorPayment,
   type UpdateVendorPaymentData,
   type UpdateVendorPaymentPreferencesData,
+  type CreateVendorPaymentPayload,
   processVendorPayment,
 } from '@/features/services';
 import { useToast } from '@/hooks';
@@ -79,6 +81,28 @@ export function vendorPaymentsManagementMutations() {
     });
   }
 
+  function useCreateVendorPayment() {
+    const queryClient = useQueryClient();
+    const { error, success } = useToast();
+    return useMutation({
+      mutationFn: (data: CreateVendorPaymentPayload) =>
+        createVendorPayment(data),
+      onSuccess: (response: any) => {
+        queryClient.invalidateQueries({ queryKey: ['vendor-payments'] });
+        queryClient.invalidateQueries({
+          queryKey: ['vendor-payments-summary'],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['vendor-payments-branches'],
+        });
+        success(response?.message || 'Vendor payment created successfully');
+      },
+      onError: (err: any) => {
+        error(err?.message || 'Failed to create vendor payment');
+      },
+    });
+  }
+
   function useProcessVendorPayment() {
     const queryClient = useQueryClient();
     const { error, success } = useToast();
@@ -102,6 +126,7 @@ export function vendorPaymentsManagementMutations() {
     useUpdateVendorPayment,
     useDeleteVendorPayment,
     useUpdateVendorPaymentPreferences,
+    useCreateVendorPayment,
     useProcessVendorPayment,
   };
 }

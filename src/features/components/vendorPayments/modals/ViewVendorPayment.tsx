@@ -288,12 +288,6 @@ export function ViewVendorPayment() {
               Last updated:{' '}
               {modalData.updated_at ? formatDate(modalData.updated_at) : 'N/A'}
             </Text>
-            <div className="flex items-center gap-2">
-              <Icon icon="bi:shield-check" className="text-green-500" />
-              <Text variant="span" className="text-gray-500">
-                Verified Payment Record
-              </Text>
-            </div>
           </div>
         </div>
       </div>
