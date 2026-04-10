@@ -269,15 +269,7 @@ export function PaginatedTable({
     }
 
     setExportPending(null);
-  }, [
-    data,
-    exportPending,
-    loading,
-    query,
-    printTitle,
-    csvHeaders,
-    setQuery,
-  ]);
+  }, [data, exportPending, loading, query, printTitle, csvHeaders, setQuery]);
 
   return (
     <div className={cn('grid gap-4', className)}>

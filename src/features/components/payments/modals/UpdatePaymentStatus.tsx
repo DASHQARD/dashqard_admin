@@ -38,8 +38,7 @@ export function UpdatePaymentStatus() {
   });
 
   const isUpdateModalOpen =
-    modal.modalState ===
-    MODALS.PAYMENTS_MANAGEMENT.CHILDREN.UPDATE_STATUS;
+    modal.modalState === MODALS.PAYMENTS_MANAGEMENT.CHILDREN.UPDATE_STATUS;
 
   // Reset when this modal opens or row data changes. Do not put `form` in deps —
   // useCustomForm returns a new object every render, which retriggers the effect
@@ -51,11 +50,7 @@ export function UpdatePaymentStatus() {
       status: modal.modalData.status || '',
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- see comment above
-  }, [
-    isUpdateModalOpen,
-    modal.modalData?.id,
-    modal.modalData?.status,
-  ]);
+  }, [isUpdateModalOpen, modal.modalData?.id, modal.modalData?.status]);
 
   const onSubmit: SubmitHandler<UpdatePaymentStatusSchemaType> = (data) => {
     if (!modal.modalData?.id) return;

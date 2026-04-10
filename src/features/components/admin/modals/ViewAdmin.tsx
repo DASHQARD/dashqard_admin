@@ -36,7 +36,7 @@ function getAdminRoleName(admin: AdminData | null | undefined): string {
     admin.role_name ??
     admin.roleName ??
     (typeof admin.role === 'object' && admin.role !== null
-      ? admin.role.name ?? admin.role.role_name
+      ? (admin.role.name ?? admin.role.role_name)
       : null) ??
     (typeof admin.role === 'string' ? admin.role : null);
   if (direct != null && String(direct).trim() !== '') {
@@ -185,7 +185,10 @@ export function ViewAdmin() {
                     <Text variant="p" className="text-gray-400 text-xs">
                       Role
                     </Text>
-                    <Text variant="p" className="text-sm text-gray-800 font-medium">
+                    <Text
+                      variant="p"
+                      className="text-sm text-gray-800 font-medium"
+                    >
                       {roleName || '-'}
                     </Text>
                     {roleId ? (

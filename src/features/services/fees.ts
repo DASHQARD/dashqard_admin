@@ -23,7 +23,9 @@ function pickNumber(
  * Unwraps common API shapes (camelCase / snake_case, optional `data` wrapper)
  * so the Fees UI always receives stable numeric fields.
  */
-export function normalizeServiceFeesResponse(body: unknown): ServiceFeesPayload {
+export function normalizeServiceFeesResponse(
+  body: unknown
+): ServiceFeesPayload {
   if (body === null || body === undefined) {
     return { serviceFeeRate: null, vendorMarkupRate: null };
   }

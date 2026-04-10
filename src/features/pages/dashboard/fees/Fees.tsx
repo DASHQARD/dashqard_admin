@@ -113,7 +113,9 @@ export default function Fees() {
           {readOnly ? (
             <Text variant="span" className="text-gray-600 text-sm block">
               You have view-only access. An administrator with{' '}
-              <code className="text-xs bg-gray-100 px-1 rounded">fees:manage</code>{' '}
+              <code className="text-xs bg-gray-100 px-1 rounded">
+                fees:manage
+              </code>{' '}
               can change these rates.
             </Text>
           ) : null}
@@ -123,9 +125,9 @@ export default function Fees() {
             className="bg-white rounded-lg border border-gray-200 p-6 space-y-6 max-w-2xl"
           >
             <Text variant="span" className="text-gray-600 text-sm block -mt-2">
-              Enter each rate as a percentage (for example,{' '}
-              <strong>2.5</strong> for 2.5%). Values are not capped in the admin
-              app—use the range your policy and API allow.
+              Enter each rate as a percentage (for example, <strong>2.5</strong>{' '}
+              for 2.5%). Values are not capped in the admin app—use the range
+              your policy and API allow.
             </Text>
 
             <Input

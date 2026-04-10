@@ -50,11 +50,7 @@ export function UpdateTicketStatus() {
       status: modal.modalData.status || '',
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- see comment above
-  }, [
-    isUpdateModalOpen,
-    modal.modalData?.id,
-    modal.modalData?.status,
-  ]);
+  }, [isUpdateModalOpen, modal.modalData?.id, modal.modalData?.status]);
 
   const onSubmit: SubmitHandler<UpdateTicketStatusSchemaType> = (data) => {
     if (!modal.modalData?.id) return;
