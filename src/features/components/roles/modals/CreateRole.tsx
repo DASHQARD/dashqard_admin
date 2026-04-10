@@ -11,11 +11,27 @@ import { Controller } from 'react-hook-form';
 import { Checkbox } from '@/components';
 
 const createRoleSchema = z.object({
-  role: z.string().min(1, 'Role name is required'),
-  description: z.string().min(1, 'Description is required'),
+  role: z
+    .string()
+    .transform((s) => s.trim())
+    .pipe(
+      z
+        .string()
+        .min(1, 'Role name is required')
+        .max(200, 'Role name must be at most 200 characters')
+    ),
+  description: z
+    .string()
+    .transform((s) => s.trim())
+    .pipe(
+      z
+        .string()
+        .min(1, 'Description is required')
+        .max(2000, 'Description must be at most 2000 characters')
+    ),
   permissions: z
-    .array(z.number())
-    .min(1, 'At least one permission is required'),
+    .array(z.number().int().positive())
+    .min(1, 'Select at least one permission'),
 });
 
 type CreateRoleSchemaType = z.infer<typeof createRoleSchema>;
@@ -28,9 +44,7 @@ export function CreateRole() {
   const { useCreateRole } = rolesManagementMutations();
   const createRoleMutation = useCreateRole();
   const { useGetAllPermissions } = permissionsManagementQueries();
-  const { data: permissionsData } = useGetAllPermissions();
-  // Extract data - getList returns res.data, which is the full response {status, data: [...]}
-  // So we need to extract the data array from the response
+  const { data: permissionsData } = useGetAllPermissions({ limit: 500 });
   const permissionsList = Array.isArray(permissionsData)
     ? permissionsData
     : permissionsData?.data || [];

@@ -1,5 +1,6 @@
 import { DateCell } from '@/components';
 import type { CsvHeader } from '@/types/shared';
+import { formatDate } from '@/utils';
 import { PermissionActionCell } from './PermissionActionCell';
 
 export const permissionListColumns = [
@@ -52,5 +53,7 @@ export const permissionListCsvHeaders: Array<CsvHeader> = [
   {
     name: 'Created At',
     accessor: 'created_at',
+    transform: (value: string) =>
+      value ? formatDate(value, 'MMM DD, YYYY', 'Africa/Lagos') : '-',
   },
 ];

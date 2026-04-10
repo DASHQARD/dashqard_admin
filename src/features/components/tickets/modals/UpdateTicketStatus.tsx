@@ -38,13 +38,23 @@ export function UpdateTicketStatus() {
     },
   });
 
+  const isUpdateModalOpen =
+    modal.modalState === MODALS.TICKETS_MANAGEMENT.CHILDREN.UPDATE_STATUS;
+
+  // Reset when this modal opens or row data changes. Do not put `form` in deps —
+  // useCustomForm returns a new object every render (see ProcessVendorPayment).
   useEffect(() => {
-    if (modal.modalData) {
-      form.reset({
-        status: modal.modalData.status || '',
-      });
-    }
-  }, [modal.modalData, form]);
+    if (!isUpdateModalOpen || !modal.modalData) return;
+
+    form.reset({
+      status: modal.modalData.status || '',
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- see comment above
+  }, [
+    isUpdateModalOpen,
+    modal.modalData?.id,
+    modal.modalData?.status,
+  ]);
 
   const onSubmit: SubmitHandler<UpdateTicketStatusSchemaType> = (data) => {
     if (!modal.modalData?.id) return;

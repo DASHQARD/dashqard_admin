@@ -30,13 +30,20 @@ import { useState } from 'react';
 export default function Permissions() {
   const [activeTab, setActiveTab] = useState('roles');
 
-  const { query, setQuery, permissionsList, isLoadingPermissions } =
-    usePermissionsManagementBase();
+  const {
+    query,
+    setQuery,
+    permissionsList,
+    isLoadingPermissions,
+    paginationInfo,
+    handleNextPage,
+    handlePreviousPage,
+  } = usePermissionsManagementBase();
   const { rolesList, isLoadingRoles } = useRolesManagementBase();
 
-  const modal = usePersistedModalState({
-    paramName: MODALS.PERMISSIONS_MANAGEMENT.PARAM_NAME,
-  });
+  // const modal = usePersistedModalState({
+  //   paramName: MODALS.PERMISSIONS_MANAGEMENT.PARAM_NAME,
+  // });
 
   const roleModal = usePersistedModalState({
     paramName: MODALS.ROLES_MANAGEMENT.PARAM_NAME,
@@ -50,7 +57,7 @@ export default function Permissions() {
             <Text variant="h2" weight="semibold" className="text-primary-900">
               Roles & Permissions
             </Text>
-            {activeTab === 'permissions' && (
+            {/* {activeTab === 'permissions' && (
               <Button
                 variant="secondary"
                 onClick={() =>
@@ -59,7 +66,7 @@ export default function Permissions() {
               >
                 Create Permission
               </Button>
-            )}
+            )} */}
             {activeTab === 'roles' && (
               <Button
                 variant="secondary"
@@ -96,7 +103,32 @@ export default function Permissions() {
                   setQuery={setQuery}
                   searchPlaceholder="Search by permission or category..."
                   csvHeaders={permissionListCsvHeaders}
+                  exportFetchLimit={1000}
                   printTitle="Permissions"
+                  hasNextPage={paginationInfo.hasNextPage}
+                  hasPreviousPage={paginationInfo.hasPreviousPage}
+                  currentAfter={
+                    (query as any).after
+                      ? String((query as any).after)
+                      : undefined
+                  }
+                  previousCursor={
+                    paginationInfo.previous != null
+                      ? String(paginationInfo.previous)
+                      : null
+                  }
+                  onNextPage={handleNextPage}
+                  onPreviousPage={handlePreviousPage}
+                  onSetAfter={(afterParam: string) => {
+                    const q = query as any;
+                    if (afterParam) {
+                      setQuery({ ...query, after: afterParam } as any);
+                    } else {
+                      const nextQuery = { ...q };
+                      delete nextQuery.after;
+                      setQuery(nextQuery);
+                    }
+                  }}
                 />
               </TabsContent>
             </Tabs>

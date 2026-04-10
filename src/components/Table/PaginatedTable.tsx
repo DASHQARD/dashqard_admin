@@ -63,6 +63,12 @@ type Props = Readonly<{
   currentAfter?: string;
   previousCursor?: string | null;
   onSetAfter?: (after: string) => void;
+  /**
+   * When set, CSV/PDF export fetches this many rows from page 1 (cursor cleared)
+   * so the file matches the full filtered list, not just the current page.
+   * Omit to keep legacy behavior: export uses `total` (often current page size only).
+   */
+  exportFetchLimit?: number;
 }>;
 
 // Helper to remove page from query object
@@ -100,7 +106,13 @@ export function PaginatedTable({
   currentAfter,
   previousCursor,
   onSetAfter,
+  exportFetchLimit,
 }: Props) {
+  const shouldShowPagination =
+    typeof hasNextPage === 'boolean' && typeof hasPreviousPage === 'boolean'
+      ? hasNextPage || hasPreviousPage
+      : true;
+
   const memoisedColumns = React.useMemo(() => columns, [columns]);
   const memoisedData = React.useMemo(() => data ?? [], [data]);
 
@@ -161,84 +173,109 @@ export function PaginatedTable({
     [query, setQuery]
   );
 
+  const [exportPending, setExportPending] = React.useState<
+    'csv' | 'pdf' | null
+  >(null);
+
+  const exportRequestedLimitRef = React.useRef<number | null>(null);
+  const exportRestoreQueryRef = React.useRef<{
+    limit: number;
+    after?: string;
+  } | null>(null);
+
+  const beginExport = React.useCallback(
+    (kind: 'csv' | 'pdf') => {
+      const rowCountOnPage = Number(total) || 0;
+      const fullListExport = exportFetchLimit != null;
+      const targetLimit = fullListExport
+        ? Math.max(1, exportFetchLimit)
+        : Math.max(1, rowCountOnPage || 1);
+
+      exportRequestedLimitRef.current = targetLimit;
+      const q = query as QueryType & { after?: string };
+      exportRestoreQueryRef.current = {
+        limit: Number(query.limit) || 10,
+        after:
+          q.after != null && String(q.after).length > 0
+            ? String(q.after)
+            : undefined,
+      };
+
+      setExportPending(kind);
+      const queryWithoutPage = removePageFromQuery(query);
+      const next = {
+        ...queryWithoutPage,
+        limit: targetLimit,
+        ...(fullListExport ? { after: '' } : {}),
+      } as QueryType;
+      setQuery(next);
+    },
+    [exportFetchLimit, query, setQuery, total]
+  );
+
   const actions = [
     ...(csvHeaders
       ? [
           {
             label: 'Export as CSV',
-            onClickFn: () => {
-              setExportPending('csv');
-              setPreviousLimit(query.limit);
-              const queryWithoutPage = removePageFromQuery(query);
-              setQuery({
-                ...queryWithoutPage,
-                limit: Number(total),
-              } as QueryType);
-            },
+            onClickFn: () => beginExport('csv'),
           },
         ]
       : []),
     {
       label: 'Export as PDF',
-      onClickFn: () => {
-        setExportPending('pdf');
-        setPreviousLimit(query.limit);
-        const queryWithoutPage = removePageFromQuery(query);
-        setQuery({ ...queryWithoutPage, limit: Number(total) } as QueryType);
-      },
+      onClickFn: () => beginExport('pdf'),
     },
   ];
 
-  const [exportPending, setExportPending] = React.useState<
-    'csv' | 'pdf' | null
-  >(null);
-  const [previousLimit, setPreviousLimit] = React.useState<number | null>(null);
-
   // Watch for data changes and export when ready
   React.useEffect(() => {
-    // Only proceed if:
-    // 1. Export is pending
-    // 2. Data is loaded (not loading)
-    // 3. Query limit has been updated to total (indicating fetch with new limit)
-    // 4. Data length matches total (all records fetched)
+    const requested = exportRequestedLimitRef.current;
     if (
-      exportPending &&
-      !loading &&
-      data &&
-      query.limit === total &&
-      data.length === total
+      !exportPending ||
+      loading ||
+      requested === null ||
+      Number(query.limit) !== requested
     ) {
-      if (exportPending === 'csv') {
-        const queryWithoutPage = removePageFromQuery(query);
-        generateAndDownloadCsv({
-          data: data ?? [],
-          fileName:
-            printTitle ??
-            `Afri-transfer${printTitle ?? ''}-${getQueryString(queryWithoutPage)}`,
-          headers: csvHeaders ?? [],
-        });
-      } else if (exportPending === 'pdf') {
-        globalThis.print();
-      }
-
-      // Reset the limit to previous value after export
-      if (previousLimit !== null) {
-        const queryWithoutPage = removePageFromQuery(query);
-        setQuery({ ...queryWithoutPage, limit: previousLimit } as QueryType);
-      }
-
-      setExportPending(null);
-      setPreviousLimit(null);
+      return;
     }
+
+    const rows = data ?? [];
+
+    if (exportPending === 'csv' && csvHeaders) {
+      const queryWithoutPage = removePageFromQuery(query);
+      generateAndDownloadCsv({
+        data: rows,
+        fileName:
+          printTitle ??
+          `Afri-transfer${printTitle ?? ''}-${getQueryString(queryWithoutPage)}`,
+        headers: csvHeaders,
+      });
+    } else if (exportPending === 'pdf') {
+      globalThis.print();
+    }
+
+    exportRequestedLimitRef.current = null;
+
+    const restore = exportRestoreQueryRef.current;
+    exportRestoreQueryRef.current = null;
+    if (restore) {
+      const queryWithoutPage = removePageFromQuery(query);
+      setQuery({
+        ...queryWithoutPage,
+        limit: restore.limit,
+        after: restore.after ?? '',
+      } as QueryType);
+    }
+
+    setExportPending(null);
   }, [
     data,
-    total,
     exportPending,
     loading,
     query,
     printTitle,
     csvHeaders,
-    previousLimit,
     setQuery,
   ]);
 
@@ -369,19 +406,21 @@ export function PaginatedTable({
               />
             )}
 
-            <div className="no-print mt-5">
-              <Pagination
-                total={Number(total)}
-                limit={Number(query.limit)}
-                onNextPage={onNextPage}
-                onPreviousPage={onPreviousPage}
-                hasNextPage={hasNextPage}
-                hasPreviousPage={hasPreviousPage}
-                currentAfter={currentAfter}
-                previousCursor={previousCursor}
-                onSetAfter={onSetAfter}
-              />
-            </div>
+            {shouldShowPagination ? (
+              <div className="no-print mt-5">
+                <Pagination
+                  total={Number(total)}
+                  limit={Number(query.limit)}
+                  onNextPage={onNextPage}
+                  onPreviousPage={onPreviousPage}
+                  hasNextPage={hasNextPage}
+                  hasPreviousPage={hasPreviousPage}
+                  currentAfter={currentAfter}
+                  previousCursor={previousCursor}
+                  onSetAfter={onSetAfter}
+                />
+              </div>
+            ) : null}
           </div>
         </PrintView>
       )}

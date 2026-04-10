@@ -17,8 +17,17 @@ export function generateCsv(options: generateCsvParams) {
     rows.push(
       headers
         .map((h: any) => {
-          const transform = h.transform ?? String;
-          return `"${transform(h.accessor ? getTarget(row, h.accessor) : row)}"`;
+          const raw = h.accessor ? getTarget(row, h.accessor) : row;
+          const transformed = h.transform
+            ? h.transform(raw)
+            : raw === null || raw === undefined
+              ? ''
+              : String(raw);
+          const cell =
+            transformed === null || transformed === undefined
+              ? ''
+              : String(transformed);
+          return `"${cell}"`;
         })
         .join(separator)
     );

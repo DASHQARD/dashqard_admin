@@ -199,8 +199,12 @@ export default function AdminSidebar() {
             )}
           >
             <div className="shrink-0">
-              <div className="w-12 h-12 rounded-full bg-linear-to-br from-[#402D87] to-[#2d1a72] flex items-center justify-center text-white text-xl shadow-[0_4px_12px_rgba(64,45,135,0.25)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_6px_16px_rgba(64,45,135,0.35)]">
-                <Icon icon="bi:shield-check" />
+              <div className="w-12 h-12 rounded-full bg-linear-to-br p-2 shadow-[0_4px_12px_rgba(64,45,135,0.25)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_6px_16px_rgba(64,45,135,0.35)]">
+                <img
+                  src="/favicon.svg"
+                  alt="Dashqard logo"
+                  className="h-full w-full object-contain"
+                />
               </div>
             </div>
             {!isCollapsed && (

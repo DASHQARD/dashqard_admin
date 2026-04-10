@@ -13,12 +13,33 @@ import { useEffect } from 'react';
 import { Checkbox } from '@/components';
 
 const editRoleSchema = z.object({
-  id: z.string(),
-  role: z.string().min(1, 'Role name is required'),
-  description: z.string().min(1, 'Description is required'),
+  id: z.string().min(1, 'Role is required'),
+  role: z
+    .string()
+    .transform((s) => s.trim())
+    .pipe(
+      z
+        .string()
+        .min(1, 'Role name is required')
+        .max(200, 'Role name must be at most 200 characters')
+    ),
+  description: z
+    .string()
+    .transform((s) => s.trim())
+    .pipe(
+      z
+        .string()
+        .min(1, 'Description is required')
+        .max(2000, 'Description must be at most 2000 characters')
+    ),
   permissions: z
-    .array(z.string())
-    .min(1, 'At least one permission is required'),
+    .array(
+      z
+        .string()
+        .transform((s) => s.trim())
+        .pipe(z.string().min(1, 'Invalid permission'))
+    )
+    .min(1, 'Select at least one permission'),
 });
 
 type EditRoleSchemaType = z.infer<typeof editRoleSchema>;
@@ -42,8 +63,10 @@ export function EditRole() {
     String(modal.modalData?.id || '')
   );
   const { useGetAllPermissions } = permissionsManagementQueries();
-  const { data: permissionsData } = useGetAllPermissions();
-  const permissionsList = permissionsData || [];
+  const { data: permissionsData } = useGetAllPermissions({ limit: 500 });
+  const permissionsList = Array.isArray(permissionsData)
+    ? permissionsData
+    : permissionsData?.data || [];
 
   const role = roleData || modal.modalData;
 

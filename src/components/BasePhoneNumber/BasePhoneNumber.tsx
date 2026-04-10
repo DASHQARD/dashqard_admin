@@ -1,5 +1,11 @@
 import React from 'react';
-import { PhoneInput, type PhoneInputRefType } from 'react-international-phone';
+import {
+  PhoneInput,
+  type PhoneInputRefType,
+  defaultCountries,
+  parseCountry,
+  type CountryData,
+} from 'react-international-phone';
 import 'react-international-phone/style.css';
 
 import { cn } from '@/libs';
@@ -41,6 +47,19 @@ function toLegacyFormat(phone: string): string {
   return phone;
 }
 
+/** Ghana has no mask in the default dataset, so the library allows 12 digit slots — real mobiles are 9 digits. */
+const GHANA_NATIONAL_MASK = '... ... ...';
+
+const countriesWithGhanaMask: CountryData[] = defaultCountries.map(
+  (country) => {
+    const parsed = parseCountry(country);
+    if (parsed.iso2 === 'gh') {
+      return ['Ghana', 'gh', '233', GHANA_NATIONAL_MASK];
+    }
+    return country;
+  }
+);
+
 export const BasePhoneInput = React.forwardRef<PhoneInputRefType, InputProps>(
   (
     {
@@ -56,6 +75,7 @@ export const BasePhoneInput = React.forwardRef<PhoneInputRefType, InputProps>(
       disabled,
       placeholder = 'Enter number',
       hint,
+      onBlur,
     },
     ref
   ) => {
@@ -84,6 +104,7 @@ export const BasePhoneInput = React.forwardRef<PhoneInputRefType, InputProps>(
           <PhoneInput
             ref={ref}
             defaultCountry="gh"
+            countries={countriesWithGhanaMask}
             value={value}
             onChange={(phone: string) => {
               if (!handleChange) return;
@@ -102,6 +123,7 @@ export const BasePhoneInput = React.forwardRef<PhoneInputRefType, InputProps>(
               {
                 maxLength,
                 'data-testid': 'phoneNumber',
+                onBlur,
               } as React.InputHTMLAttributes<HTMLInputElement>
             }
             className="flex-1 min-w-0"

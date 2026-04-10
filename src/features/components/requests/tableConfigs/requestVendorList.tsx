@@ -9,7 +9,7 @@ export const requestVendorListColumns = [
     accessorKey: 'request_id',
   },
   {
-    header: 'Name',
+    header: 'Full Name',
     accessorKey: 'name',
   },
   {
@@ -52,7 +52,7 @@ export const requestVendorListCsvHeaders: Array<CsvHeader> = [
     accessor: 'request_id',
   },
   {
-    name: 'Name',
+    name: 'Full Name',
     accessor: 'name',
   },
   {

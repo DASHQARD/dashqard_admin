@@ -2,14 +2,15 @@ import {
   getAllPermissions,
   getSinglePermission,
   getPermissionRole,
+  type PermissionsQueryParams,
 } from '@/features/services';
 import { useQuery } from '@tanstack/react-query';
 
 export function permissionsManagementQueries() {
-  function useGetAllPermissions() {
+  function useGetAllPermissions(query?: PermissionsQueryParams) {
     return useQuery({
-      queryKey: ['permissions'],
-      queryFn: getAllPermissions,
+      queryKey: ['permissions', query],
+      queryFn: () => getAllPermissions(query),
     });
   }
 

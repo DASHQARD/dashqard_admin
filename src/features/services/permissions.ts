@@ -1,15 +1,24 @@
-import {
-  deleteMethod,
-  getList,
-  getMethod,
-  patchMethod,
-  postMethod,
-} from '@/services';
+import { axiosClient } from '@/libs/axios';
+import { deleteMethod, getMethod, patchMethod, postMethod } from '@/services';
+import { getQueryString } from '@/utils/helpers';
 
 const commonUrl = '/permissions';
 
-export const getAllPermissions = async (): Promise<any> => {
-  return await getList(`${commonUrl}/all`);
+export type PermissionsQueryParams = {
+  limit?: number;
+  after?: string | number;
+  search?: string;
+};
+
+/**
+ * Full list response includes `data` and `pagination` (do not use getList — it only returns `data`).
+ */
+export const getAllPermissions = async (
+  query?: PermissionsQueryParams
+): Promise<any> => {
+  const qs = getQueryString(query as Record<string, any>);
+  const url = qs ? `${commonUrl}/all?${qs}` : `${commonUrl}/all`;
+  return await axiosClient.get(url);
 };
 
 export const getSinglePermission = async (

@@ -10,11 +10,32 @@ import { ROUTES } from '@/utils/constants';
 import { Controller } from 'react-hook-form';
 import React from 'react';
 
+/** Value from BasePhoneInput is E.164-ish, e.g. +233559617908 */
+function isCompleteInternationalPhone(value: string) {
+  const compact = value.trim().replace(/[\s-]/g, '');
+  if (!compact.startsWith('+')) return false;
+  const digits = compact.slice(1).replace(/\D/g, '');
+  if (digits.length < 10 || digits.length > 15) return false;
+  if (!/^[1-9]\d+$/.test(digits)) return false;
+  // Ghana (+233): national number is exactly 9 digits (not the library’s 12-slot default)
+  if (digits.startsWith('233')) {
+    const national = digits.slice(3);
+    return national.length === 9;
+  }
+  return true;
+}
+
 const inviteAdminSchema = z.object({
   email: z.string().email('Invalid email address'),
   first_name: z.string().min(1, 'First name is required'),
   last_name: z.string().min(1, 'Last name is required'),
-  phone_number: z.string().min(1, 'Phone number is required'),
+  phone_number: z
+    .string()
+    .min(1, 'Phone number is required')
+    .refine(isCompleteInternationalPhone, {
+      message:
+        'Enter a complete phone number with country code (e.g. +233 XX XXX XXXX)',
+    }),
   role_id: z.string().min(1, 'Role is required'),
 });
 
@@ -28,6 +49,9 @@ export default function InviteAdmin() {
 
   const form = useCustomForm({
     resolver: zodResolver(inviteAdminSchema),
+    /** Avoid `mode: 'all'` from useCustomForm defaults — phone was erroring on every keystroke */
+    mode: 'onSubmit',
+    reValidateMode: 'onBlur',
     defaultValues: {
       email: '',
       first_name: '',
@@ -104,6 +128,7 @@ export default function InviteAdmin() {
                     placeholder="Enter phone number"
                     selectedVal={field.value}
                     handleChange={field.onChange}
+                    onBlur={field.onBlur}
                     error={form.formState.errors.phone_number?.message}
                   />
                 )}

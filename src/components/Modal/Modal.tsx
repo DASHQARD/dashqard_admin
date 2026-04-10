@@ -30,9 +30,44 @@ export function Modal(props: Props) {
     position = 'center',
   } = props;
 
+  // Radix Dialog is controlled by `open`. When `isOpen` comes from the URL,
+  // `closeModal()` navigates asynchronously, so `isOpen` can stay true for a
+  // frame after the user dismisses — Radix would then keep the dialog open.
+  // Mirror `isOpen` locally and close immediately on dismiss; resync when the
+  // URL (or any parent state) clears the modal.
+  const [open, setOpen] = React.useState(isOpen);
+  const dismissWhilePropsSayOpenRef = React.useRef(false);
+
+  React.useEffect(() => {
+    if (!isOpen) {
+      setOpen(false);
+      dismissWhilePropsSayOpenRef.current = false;
+      return;
+    }
+    if (dismissWhilePropsSayOpenRef.current) {
+      return;
+    }
+    setOpen(true);
+  }, [isOpen]);
+
+  const handleOpenChange = React.useCallback(
+    (next: boolean) => {
+      if (!next) {
+        if (isOpen) {
+          dismissWhilePropsSayOpenRef.current = true;
+        }
+        setOpen(false);
+      } else {
+        setOpen(true);
+      }
+      setIsOpen(next);
+    },
+    [isOpen, setIsOpen]
+  );
+
   return (
     <AnimatePresence>
-      <Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
+      <Dialog.Root open={open} onOpenChange={handleOpenChange}>
         <Dialog.Portal>
           <Dialog.Overlay
             asChild

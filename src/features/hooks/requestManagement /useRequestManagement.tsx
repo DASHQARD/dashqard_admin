@@ -48,14 +48,26 @@ export function useRequestManagementBase() {
     isLoading: isLoadingRequestCorporatesList,
   } = useGetRequestCorporates(paramsForApi);
 
-  // Extract data from response
+  // Extract data from response and normalize display name for table/CSV (API may use name, full_name, etc.)
   const allRequestsList = React.useMemo(() => {
     if (!allRequestsResponse) return null;
-    // Response is the full object with data array and pagination info
-    if (Array.isArray(allRequestsResponse)) {
-      return allRequestsResponse;
-    }
-    return allRequestsResponse.data || [];
+    const raw = Array.isArray(allRequestsResponse)
+      ? allRequestsResponse
+      : allRequestsResponse.data || [];
+    if (!Array.isArray(raw)) return [];
+    return raw.map((request: Record<string, unknown>) => {
+      const displayName =
+        request.name ??
+        request.full_name ??
+        request.fullName ??
+        request.user_name ??
+        request.userName;
+      const name =
+        displayName === null || displayName === undefined
+          ? ''
+          : String(displayName).trim();
+      return { ...request, name };
+    });
   }, [allRequestsResponse]);
 
   const pagination = React.useMemo(() => {

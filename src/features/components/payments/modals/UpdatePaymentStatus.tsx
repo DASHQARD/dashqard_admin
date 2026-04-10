@@ -37,13 +37,25 @@ export function UpdatePaymentStatus() {
     },
   });
 
+  const isUpdateModalOpen =
+    modal.modalState ===
+    MODALS.PAYMENTS_MANAGEMENT.CHILDREN.UPDATE_STATUS;
+
+  // Reset when this modal opens or row data changes. Do not put `form` in deps —
+  // useCustomForm returns a new object every render, which retriggers the effect
+  // and causes "Maximum update depth exceeded" with form.reset().
   useEffect(() => {
-    if (modal.modalData) {
-      form.reset({
-        status: modal.modalData.status || '',
-      });
-    }
-  }, [modal.modalData, form]);
+    if (!isUpdateModalOpen || !modal.modalData) return;
+
+    form.reset({
+      status: modal.modalData.status || '',
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- see comment above
+  }, [
+    isUpdateModalOpen,
+    modal.modalData?.id,
+    modal.modalData?.status,
+  ]);
 
   const onSubmit: SubmitHandler<UpdatePaymentStatusSchemaType> = (data) => {
     if (!modal.modalData?.id) return;
@@ -62,9 +74,18 @@ export function UpdatePaymentStatus() {
     );
   };
 
+  // {
+  //   "status": "error",
+  //     "statusCode": 422,
+  //       "message": "\"status\" must be one of [pending, completed, failed, refunded]",
+  //         "url": "/api/v1/payments/271/status"
+  // }
+
   const statusOptions = [
     { label: 'Pending', value: 'pending' },
-    { label: 'Paid', value: 'paid' },
+    { label: 'Completed', value: 'completed' },
+    { label: 'Failed', value: 'failed' },
+    { label: 'Refunded', value: 'refunded' },
   ];
 
   return (
@@ -98,8 +119,8 @@ export function UpdatePaymentStatus() {
                     placeholder="Select status"
                     options={statusOptions}
                     value={field.value}
-                    onChange={(option: { value: string }) => {
-                      field.onChange(option.value);
+                    onChange={(e: { target: { value: string } }) => {
+                      field.onChange(e.target.value);
                     }}
                     error={form.formState.errors.status?.message}
                   />

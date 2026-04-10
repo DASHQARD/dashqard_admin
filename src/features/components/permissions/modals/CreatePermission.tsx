@@ -8,10 +8,22 @@ import { permissionsManagementMutations } from '@/features/hooks/permissionsMana
 import { z } from 'zod';
 import { useFieldArray } from 'react-hook-form';
 
+function trimmedNonEmptyField(label: string, max: number) {
+  return z
+    .string()
+    .transform((s) => s.trim())
+    .pipe(
+      z
+        .string()
+        .min(1, `${label} is required`)
+        .max(max, `${label} must be at most ${max} characters`)
+    );
+}
+
 const permissionSchema = z.object({
-  permission: z.string().min(1, 'Permission is required'),
-  category: z.string().min(1, 'Category is required'),
-  description: z.string().min(1, 'Description is required'),
+  permission: trimmedNonEmptyField('Permission', 200),
+  category: trimmedNonEmptyField('Category', 100),
+  description: trimmedNonEmptyField('Description', 2000),
 });
 
 const createPermissionsSchema = z.object({

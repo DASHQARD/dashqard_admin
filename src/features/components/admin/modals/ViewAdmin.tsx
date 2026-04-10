@@ -5,6 +5,12 @@ import { adminManagementQueries } from '@/features/hooks/adminManagement';
 import { formatDate } from '@/utils';
 import React from 'react';
 
+type AdminRoleRef = {
+  id?: number | string;
+  name?: string;
+  role_name?: string;
+};
+
 type AdminData = {
   id: number | string;
   email?: string;
@@ -14,10 +20,35 @@ type AdminData = {
   status?: string;
   type?: string;
   role_id?: number | null;
+  /** Human-readable role label when API provides it */
+  role_name?: string | null;
+  roleName?: string | null;
+  role?: AdminRoleRef | string | null;
+  roles?: Array<AdminRoleRef | string> | null;
   avatar?: string | null;
   created_at?: string;
   updated_at?: string;
 };
+
+function getAdminRoleName(admin: AdminData | null | undefined): string {
+  if (!admin) return '';
+  const direct =
+    admin.role_name ??
+    admin.roleName ??
+    (typeof admin.role === 'object' && admin.role !== null
+      ? admin.role.name ?? admin.role.role_name
+      : null) ??
+    (typeof admin.role === 'string' ? admin.role : null);
+  if (direct != null && String(direct).trim() !== '') {
+    return String(direct).trim();
+  }
+  const first = Array.isArray(admin.roles) ? admin.roles[0] : undefined;
+  if (first != null) {
+    if (typeof first === 'string' && first.trim() !== '') return first.trim();
+    if (typeof first === 'object' && first.name) return String(first.name);
+  }
+  return '';
+}
 
 export function ViewAdmin() {
   const modal = usePersistedModalState<AdminData>({
@@ -38,6 +69,12 @@ export function ViewAdmin() {
 
   const fullName =
     `${admin.first_name || ''} ${admin.last_name || ''}`.trim() || 'N/A';
+
+  const roleName = getAdminRoleName(admin);
+  const roleId =
+    admin.role_id !== null && admin.role_id !== undefined
+      ? String(admin.role_id)
+      : '';
 
   return (
     <Modal
@@ -146,11 +183,16 @@ export function ViewAdmin() {
 
                   <div className="space-y-1">
                     <Text variant="p" className="text-gray-400 text-xs">
-                      Role ID
+                      Role
                     </Text>
-                    <Text variant="p" className="text-sm text-gray-800">
-                      {admin.role_id || '-'}
+                    <Text variant="p" className="text-sm text-gray-800 font-medium">
+                      {roleName || '-'}
                     </Text>
+                    {roleId ? (
+                      <Text variant="p" className="text-xs text-gray-500">
+                        Role ID: {roleId}
+                      </Text>
+                    ) : null}
                   </div>
 
                   <div className="space-y-1">
