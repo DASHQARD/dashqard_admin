@@ -18,8 +18,6 @@ export function ViewCustomerDetailsModal() {
   const { data: onboardingProgress, isLoading: isLoadingProgress } =
     useUserOnboardingProgress(customerId);
 
-  console.log('onboardingProgress', onboardingProgress);
-
   const progressData = onboardingProgress;
   const customer = customerData;
 

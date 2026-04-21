@@ -19,14 +19,7 @@ export function useAutoRefreshToken() {
   const refreshPromiseRef = useRef<Promise<void> | null>(null);
 
   useEffect(() => {
-    console.log('[useAutoRefreshToken] effect triggered', {
-      hasToken: !!token,
-      hasRefreshToken: !!refreshToken,
-    });
     if (!token || !refreshToken) {
-      console.log(
-        '[useAutoRefreshToken] missing token or refresh token, skipping setup'
-      );
       return;
     }
 
@@ -35,7 +28,6 @@ export function useAutoRefreshToken() {
     const safeDecode = (jwtToken: string): JwtPayload | null => {
       try {
         const decodedPayload = jwtDecode<JwtPayload>(jwtToken);
-        console.log('[useAutoRefreshToken] decoded token', decodedPayload);
         return decodedPayload;
       } catch (error) {
         console.error('[useAutoRefreshToken] failed to decode token', error);
@@ -45,9 +37,7 @@ export function useAutoRefreshToken() {
 
     const runRefresh = async (activeRefreshToken: string) => {
       try {
-        console.log('[useAutoRefreshToken] starting refresh');
         const response = await refreshTokenService(activeRefreshToken);
-        console.log('[useAutoRefreshToken] refresh response', response);
         const nextAccessToken = response?.data?.accessToken;
         const nextRefreshToken = response?.data?.refreshToken;
 
@@ -63,7 +53,6 @@ export function useAutoRefreshToken() {
           role: currentState.role,
           permissions: currentState.permissions,
         });
-        console.log('[useAutoRefreshToken] refresh succeeded');
       } catch (error) {
         console.error('Failed to refresh token', error);
         logout();
@@ -74,23 +63,14 @@ export function useAutoRefreshToken() {
     const scheduleRefresh = () => {
       const decoded = safeDecode(token);
       if (!decoded?.exp) {
-        console.warn(
-          '[useAutoRefreshToken] no exp on token, cannot schedule refresh'
-        );
         return;
       }
       const expiresAt = decoded.exp * 1000;
       const refreshAt = expiresAt - REFRESH_THRESHOLD_MS;
       const delay = refreshAt - Date.now();
-      console.log('[useAutoRefreshToken] scheduling refresh', {
-        expiresAt,
-        refreshAt,
-        delay,
-      });
 
       const trigger = () => {
         if (!refreshPromiseRef.current) {
-          console.log('[useAutoRefreshToken] triggering refresh now');
           refreshPromiseRef.current = runRefresh(refreshToken);
         }
         refreshPromiseRef.current.finally(() => {

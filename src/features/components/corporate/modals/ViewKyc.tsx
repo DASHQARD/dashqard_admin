@@ -158,7 +158,6 @@ export const ViewKYC = ({ corporate, noProfile }: Props) => {
   };
 
   const handleViewDocument = (document: (typeof businessDocuments)[0]) => {
-    console.log('document', document);
     if (!document?.file_url) return;
 
     // Open the ViewKycDocument modal with the document data

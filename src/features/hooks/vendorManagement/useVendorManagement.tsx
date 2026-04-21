@@ -63,7 +63,6 @@ export function useVendorManagementBase() {
 
   const pagination = data?.pagination;
 
-  console.log('vendorDetails inside', vendorsList);
   const vendorInfo = React.useMemo(() => {
     if (!vendorDetails) return [];
 
@@ -124,7 +123,6 @@ export function useVendorManagementBase() {
     userPermissions: string[];
     navigate?: ReturnType<typeof import('react-router').useNavigate>;
   }) {
-    console.log('vendor stuff check', vendor);
     if (!vendor) return [];
 
     const actions = [];

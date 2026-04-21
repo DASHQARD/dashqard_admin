@@ -21,9 +21,6 @@ export const ViewKycDocument = () => {
 
   React.useEffect(() => {
     const fileUrl = modal.modalData?.file_url;
-    console.log('ViewKycDocument useEffect triggered');
-    console.log('Modal data:', modal.modalData);
-    console.log('File URL from modal:', fileUrl);
 
     if (!fileUrl) {
       setDocumentUrl(null);
@@ -45,7 +42,6 @@ export const ViewKycDocument = () => {
     const fetchDocumentUrl = async () => {
       try {
         const response = await getPresignedURL(fileUrl);
-        console.log('Presigned URL response:', response);
 
         // Handle different response structures (string, object with data, object with url)
         const url: string =
@@ -56,7 +52,6 @@ export const ViewKycDocument = () => {
                 (response as any)?.url ||
                 String(response)
               : String(response)) || fileUrl;
-        console.log('fetched url', url);
 
         if (!cancelled) {
           setDocumentUrl(url);

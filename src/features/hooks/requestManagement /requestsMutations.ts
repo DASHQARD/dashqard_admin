@@ -11,7 +11,6 @@ export function requestManagementMutations() {
     return useMutation({
       mutationFn: updateRequestStatus,
       onSuccess: (response: any) => {
-        console.log('response', response);
         queryClient.invalidateQueries({ queryKey: ['request-corporates'] });
         options?.onSuccess?.(response);
       },

@@ -13,3 +13,4 @@ export * from './tickets';
 export * from './paymentDetails';
 export * from './payments';
 export * from './users';
+export * from './RouteGuard';

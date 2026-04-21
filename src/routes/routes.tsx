@@ -1,6 +1,11 @@
 import { Navigate, type RouteObject } from 'react-router-dom';
 import { CustomErrorBoundary } from '@/components';
-import { AdminLayout, DashboardLayout, RootLayout } from '@/features';
+import {
+  AdminLayout,
+  DashboardLayout,
+  RootLayout,
+  RouteGuard,
+} from '@/features';
 import { adminRoutes, authRoutes, dashboardRoutes } from '@/features/routes';
 import { AdminOnboarding } from '@/features/pages';
 
@@ -30,13 +35,21 @@ export const routes: RouteObject[] = [
       },
       {
         path: 'dashboard',
-        element: <DashboardLayout />,
+        element: (
+          <RouteGuard>
+            <DashboardLayout />
+          </RouteGuard>
+        ),
         errorElement: <CustomErrorBoundary />,
         children: dashboardRoutes,
       },
       {
         path: 'admin',
-        element: <AdminLayout />,
+        element: (
+          <RouteGuard>
+            <AdminLayout />
+          </RouteGuard>
+        ),
         errorElement: <CustomErrorBoundary />,
         children: adminRoutes,
       },
