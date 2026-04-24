@@ -62,11 +62,8 @@ export function EditRole() {
   const { data: roleData } = useGetSingleRole(
     String(modal.modalData?.id || '')
   );
-  const { useGetAllPermissions } = permissionsManagementQueries();
-  const { data: permissionsData } = useGetAllPermissions({ limit: 500 });
-  const permissionsList = Array.isArray(permissionsData)
-    ? permissionsData
-    : permissionsData?.data || [];
+  const { useGetAllPermissionsList } = permissionsManagementQueries();
+  const { data: permissionsList = [] } = useGetAllPermissionsList();
 
   const role = roleData || modal.modalData;
 

@@ -43,11 +43,8 @@ export function CreateRole() {
 
   const { useCreateRole } = rolesManagementMutations();
   const createRoleMutation = useCreateRole();
-  const { useGetAllPermissions } = permissionsManagementQueries();
-  const { data: permissionsData } = useGetAllPermissions({ limit: 500 });
-  const permissionsList = Array.isArray(permissionsData)
-    ? permissionsData
-    : permissionsData?.data || [];
+  const { useGetAllPermissionsList } = permissionsManagementQueries();
+  const { data: permissionsList = [] } = useGetAllPermissionsList();
 
   const form = useCustomForm({
     resolver: zodResolver(createRoleSchema),

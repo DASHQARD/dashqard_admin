@@ -12,8 +12,16 @@ import {
 } from '@/features/components/countries';
 
 export default function Countries() {
-  const { query, setQuery, countriesList, isLoadingCountries } =
-    useCountriesManagementBase();
+  const {
+    query,
+    setQuery,
+    countriesList,
+    isLoadingCountries,
+    pagination,
+    handleNextPage,
+    handlePreviousPage,
+    handleSetAfter,
+  } = useCountriesManagementBase();
 
   const modal = usePersistedModalState({
     paramName: MODALS.COUNTRIES_MANAGEMENT.PARAM_NAME,
@@ -53,29 +61,15 @@ export default function Countries() {
               searchPlaceholder="Search by country name, code, or currency..."
               csvHeaders={countryListCsvHeaders}
               printTitle="Countries"
-              hasNextPage={false}
-              hasPreviousPage={false}
+              hasNextPage={pagination.hasNextPage}
+              hasPreviousPage={pagination.hasPreviousPage}
               currentAfter={
                 (query as any).after ? String((query as any).after) : undefined
               }
-              previousCursor={null}
-              onNextPage={() => {
-                // Pagination will be implemented when hook supports it
-              }}
-              onPreviousPage={() => {
-                // Pagination will be implemented when hook supports it
-              }}
-              onSetAfter={(afterParam: string) => {
-                // Pagination will be implemented when hook supports it
-                const queryWithAfter = query as any;
-                if (afterParam) {
-                  setQuery({ ...query, after: afterParam } as any);
-                } else {
-                  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                  const { after, ...rest } = queryWithAfter;
-                  setQuery(rest);
-                }
-              }}
+              previousCursor={pagination.previous}
+              onNextPage={handleNextPage}
+              onPreviousPage={handlePreviousPage}
+              onSetAfter={handleSetAfter}
             />
           </div>
         </div>

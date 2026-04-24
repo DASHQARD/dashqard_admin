@@ -5,14 +5,66 @@ import {
   postMethod,
   putMethod,
 } from '@/services';
+import { axiosClient } from '@/libs/axios';
 
 const commonUrl = '/countries';
 
-export const getCountriesList = async (): Promise<any> => {
-  const response = await getMethod(commonUrl);
-  // Response structure: { status, statusCode, message, data: [...], pagination: {...} }
-  // Extract the data array from the response
-  return response?.data || response;
+export type CountriesListQuery = {
+  limit?: number;
+  after?: string;
+  search?: string;
+  status?: string;
+};
+
+export type CountriesListResponse = {
+  status?: string;
+  statusCode?: number;
+  message?: string;
+  data?: any[];
+  pagination?: {
+    hasNextPage?: boolean;
+    hasPreviousPage?: boolean;
+    next?: string | null;
+    previous?: string | null;
+  };
+};
+
+export const getCountriesList = async (
+  query?: CountriesListQuery
+): Promise<any> => {
+  const response = await axiosClient.get<any>(commonUrl, {
+    params: query,
+  });
+  return response;
+};
+
+export const getAllCountriesList = async (): Promise<any[]> => {
+  const countries: any[] = [];
+  let nextCursor: string | undefined;
+  let hasNextPage = true;
+  const pageLimit = 100;
+  let pagesFetched = 0;
+  const maxPages = 100;
+
+  while (hasNextPage && pagesFetched < maxPages) {
+    const response = await axiosClient.get<CountriesListResponse>(commonUrl, {
+      params: {
+        limit: pageLimit,
+        after: nextCursor,
+      },
+    });
+    const pageData = response.data;
+
+    if (Array.isArray(pageData?.data)) {
+      countries.push(...pageData.data);
+    }
+
+    hasNextPage = Boolean(pageData?.pagination?.hasNextPage);
+    nextCursor = pageData?.pagination?.next ?? undefined;
+    pagesFetched += 1;
+  }
+
+  return countries;
 };
 
 export const getCountryById = async (id: string): Promise<any> => {

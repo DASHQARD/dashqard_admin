@@ -95,7 +95,7 @@ export const BasePhoneInput = React.forwardRef<PhoneInputRefType, InputProps>(
         ) : null}
         <div
           className={cn(
-            'flex h-12 w-full min-w-0 items-center rounded-lg border border-gray-300 px-3 transition-colors overflow-hidden',
+            'flex h-12 w-full min-w-0 items-center rounded-lg border border-[#d0d5dd] px-3 transition-colors',
             'focus-within:border-primary-400 focus-within:outline-none focus-within:ring-1 focus-within:ring-primary-400',
             error && 'border-red-500',
             disabled && 'cursor-not-allowed bg-gray-50 opacity-50'
@@ -134,17 +134,17 @@ export const BasePhoneInput = React.forwardRef<PhoneInputRefType, InputProps>(
             countrySelectorStyleProps={{
               buttonStyle: {
                 border: 'none',
-                borderTop: 'none',
-                borderBottom: 'none',
-                borderLeft: 'none',
-                borderRight: 'none',
+                borderRight: '1px solid #e5e7eb',
+                paddingRight: '12px',
+                marginRight: '12px',
+                borderRadius: 0,
               },
               buttonClassName:
-                '!border-0 flex shrink-0 items-center gap-2 bg-transparent px-0 cursor-pointer outline-none',
+                '!border-0 flex h-full shrink-0 items-center gap-2 bg-transparent cursor-pointer outline-none',
             }}
             dialCodePreviewStyleProps={{
               style: { border: 'none', marginRight: 0 },
-              className: '!border-0',
+              className: '!border-0 text-sm text-gray-800',
             }}
             style={
               {
@@ -154,6 +154,8 @@ export const BasePhoneInput = React.forwardRef<PhoneInputRefType, InputProps>(
                   'transparent',
                 '--react-international-phone-dial-code-preview-border-color':
                   'transparent',
+                '--react-international-phone-country-selector-arrow-color':
+                  '#6b7280',
               } as React.CSSProperties
             }
           />

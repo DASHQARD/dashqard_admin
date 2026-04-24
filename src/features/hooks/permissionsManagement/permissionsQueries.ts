@@ -1,4 +1,5 @@
 import {
+  getAllPermissionsList,
   getAllPermissions,
   getSinglePermission,
   getPermissionRole,
@@ -11,6 +12,13 @@ export function permissionsManagementQueries() {
     return useQuery({
       queryKey: ['permissions', query],
       queryFn: () => getAllPermissions(query),
+    });
+  }
+
+  function useGetAllPermissionsList() {
+    return useQuery({
+      queryKey: ['permissions', 'all-list'],
+      queryFn: () => getAllPermissionsList(),
     });
   }
 
@@ -32,6 +40,7 @@ export function permissionsManagementQueries() {
 
   return {
     useGetAllPermissions,
+    useGetAllPermissionsList,
     useGetSinglePermission,
     useGetPermissionRole,
   };

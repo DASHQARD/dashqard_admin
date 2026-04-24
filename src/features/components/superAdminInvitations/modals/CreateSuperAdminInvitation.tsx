@@ -27,8 +27,8 @@ export function CreateSuperAdminInvitation() {
     superAdminInvitationsManagementMutations();
   const createInvitationMutation = useCreateSuperAdminInvitation();
 
-  const { useGetCountries } = countriesManagementQueries();
-  const { data: countriesData } = useGetCountries();
+  const { useGetAllCountries } = countriesManagementQueries();
+  const { data: countriesData } = useGetAllCountries();
 
   const form = useCustomForm({
     resolver: zodResolver(createInvitationSchema),

@@ -10,6 +10,14 @@ export type PermissionsQueryParams = {
   search?: string;
 };
 
+export type PermissionsListResponse = {
+  data?: any[];
+  pagination?: {
+    hasNextPage?: boolean;
+    next?: string | null;
+  };
+};
+
 /**
  * Full list response includes `data` and `pagination` (do not use getList — it only returns `data`).
  */
@@ -19,6 +27,38 @@ export const getAllPermissions = async (
   const qs = getQueryString(query as Record<string, any>);
   const url = qs ? `${commonUrl}/all?${qs}` : `${commonUrl}/all`;
   return await axiosClient.get(url);
+};
+
+export const getAllPermissionsList = async (): Promise<any[]> => {
+  const permissions: any[] = [];
+  let hasNextPage = true;
+  let nextCursor: string | undefined;
+  const pageLimit = 100;
+  let pagesFetched = 0;
+  const maxPages = 100;
+
+  while (hasNextPage && pagesFetched < maxPages) {
+    const response = await axiosClient.get<PermissionsListResponse>(
+      `${commonUrl}/all`,
+      {
+        params: {
+          limit: pageLimit,
+          after: nextCursor,
+        },
+      }
+    );
+    const pageData = response.data;
+
+    if (Array.isArray(pageData?.data)) {
+      permissions.push(...pageData.data);
+    }
+
+    hasNextPage = Boolean(pageData?.pagination?.hasNextPage);
+    nextCursor = pageData?.pagination?.next ?? undefined;
+    pagesFetched += 1;
+  }
+
+  return permissions;
 };
 
 export const getSinglePermission = async (
