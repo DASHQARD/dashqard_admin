@@ -137,8 +137,7 @@ export function useVendorManagementBase() {
       ) ||
         userToCheck?.isSuperAdmin)
     ) {
-      const vendorId =
-        vendor.vendor_account_id || vendor.vendor_id || vendor.id || '';
+      const vendorId = vendor.vendor_account_id || vendor.id || '';
       actions.push({
         label: 'View',
         onClickFn: () => {
