@@ -56,9 +56,7 @@ export function useVendorManagementBase() {
 
   const vendorsList = React.useMemo(() => {
     if (!data?.data) return [];
-    return data.data.filter((vendor: any) =>
-      vendor.vendor_user_type?.toLowerCase().includes('vendor')
-    );
+    return data.data;
   }, [data]);
 
   const pagination = data?.pagination;
