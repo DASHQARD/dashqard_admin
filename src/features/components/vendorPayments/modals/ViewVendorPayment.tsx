@@ -264,9 +264,9 @@ export function ViewVendorPayment() {
                   Payment Method
                 </Text>
                 <Text variant="span" weight="medium" className="text-gray-800">
-                  {modalData.payment_method
-                    ? modalData.payment_method.charAt(0).toUpperCase() +
-                      modalData.payment_method.slice(1).replace('_', ' ')
+                  {modalData.vendor_preferred_payment_method
+                    ? modalData.vendor_preferred_payment_method.charAt(0).toUpperCase() +
+                      modalData.vendor_preferred_payment_method.slice(1).replace('_', ' ')
                     : '-'}
                 </Text>
               </div>

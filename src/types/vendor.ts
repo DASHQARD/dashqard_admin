@@ -160,4 +160,5 @@ export type VendorPaymentData = {
   bank_branch: string;
   bank_account_name: string;
   bank_account_number: string;
+  vendor_preferred_payment_method: string;
 };
