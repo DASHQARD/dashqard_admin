@@ -13,8 +13,8 @@ const commonUrl = '/vendor-payments';
 export type VendorPaymentsQueryParams = {
   limit?: number;
   after?: string;
-  vendor_id?: number;
-  vendor_user_id?: number;
+  vendor_id?: number | string;
+  vendor_user_id?: number | string;
   status?: 'pending' | 'paid' | 'overdue';
   payment_frequency?: 'daily' | 'weekly' | 'bi-weekly' | 'monthly';
   branch_location?: string;
@@ -26,8 +26,8 @@ export type VendorPaymentsQueryParams = {
 };
 
 export type VendorPaymentsSummaryQueryParams = {
-  vendor_id?: number;
-  vendor_user_id?: number;
+  vendor_id?: number | string;
+  vendor_user_id?: number | string;
   payment_frequency?: 'daily' | 'weekly' | 'bi-weekly' | 'monthly';
   branch_location?: string;
   branch_id?: number;
@@ -149,8 +149,8 @@ export type VendorPaymentMethodsPayload = {
 /** Record inside `data` for GET /vendor-payments/:id success response */
 export type VendorPaymentDetail = {
   id: number;
-  vendor_id: number;
-  vendor_user_id: number;
+  vendor_id: number | string;
+  vendor_user_id: number | string;
   invoice_number: string;
   payment_frequency: string;
   branch_location: string;
@@ -230,8 +230,8 @@ export const updateVendorPayment = async (
 };
 
 export type CreateVendorPaymentPayload = {
-  vendor_id: number;
-  vendor_user_id: number;
+  vendor_id: number | string;
+  vendor_user_id: number | string;
   payment_frequency: 'daily' | 'weekly' | 'bi-weekly' | 'monthly';
   branch_location: string;
   branch_id: number;

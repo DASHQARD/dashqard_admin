@@ -19,11 +19,12 @@ export function useAutoRefreshToken() {
   const refreshPromiseRef = useRef<Promise<void> | null>(null);
 
   useEffect(() => {
-    if (!token || !refreshToken) {
+    if (!token) {
       return;
     }
 
-    let timeoutId: number | null = null;
+    let refreshTimeoutId: number | null = null;
+    let sessionTimeoutId: number | null = null;
 
     const safeDecode = (jwtToken: string): JwtPayload | null => {
       try {
@@ -33,6 +34,11 @@ export function useAutoRefreshToken() {
         console.error('[useAutoRefreshToken] failed to decode token', error);
         return null;
       }
+    };
+
+    const forceLogout = () => {
+      logout();
+      toast.error('Session expired. Please log in again.');
     };
 
     const runRefresh = async (activeRefreshToken: string) => {
@@ -55,12 +61,32 @@ export function useAutoRefreshToken() {
         });
       } catch (error) {
         console.error('Failed to refresh token', error);
-        logout();
-        toast.error('Session expired. Please log in again.');
+        forceLogout();
       }
     };
 
+    const scheduleSessionExpiryLogout = () => {
+      // Prefer refresh token expiry as overall session lifetime.
+      // If unavailable, fall back to access token expiry.
+      const refreshDecoded = refreshToken ? safeDecode(refreshToken) : null;
+      const accessDecoded = safeDecode(token);
+      const expirySeconds = refreshDecoded?.exp ?? accessDecoded?.exp;
+      if (!expirySeconds) return;
+
+      const expiresAt = expirySeconds * 1000;
+      const delay = expiresAt - Date.now();
+      if (delay <= 0) {
+        forceLogout();
+        return;
+      }
+
+      sessionTimeoutId = window.setTimeout(() => {
+        forceLogout();
+      }, delay);
+    };
+
     const scheduleRefresh = () => {
+      if (!refreshToken) return;
       const decoded = safeDecode(token);
       if (!decoded?.exp) {
         return;
@@ -83,14 +109,18 @@ export function useAutoRefreshToken() {
         return;
       }
 
-      timeoutId = window.setTimeout(trigger, delay);
+      refreshTimeoutId = window.setTimeout(trigger, delay);
     };
 
+    scheduleSessionExpiryLogout();
     scheduleRefresh();
 
     return () => {
-      if (timeoutId) {
-        window.clearTimeout(timeoutId);
+      if (refreshTimeoutId) {
+        window.clearTimeout(refreshTimeoutId);
+      }
+      if (sessionTimeoutId) {
+        window.clearTimeout(sessionTimeoutId);
       }
     };
   }, [token, refreshToken, authenticate, logout, toast]);

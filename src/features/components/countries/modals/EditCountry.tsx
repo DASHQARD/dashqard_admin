@@ -1,6 +1,6 @@
-import type { SubmitHandler } from 'react-hook-form';
+import { Controller, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Input, Modal } from '@/components';
+import { Button, Combobox, Input, Modal } from '@/components';
 import { usePersistedModalState } from '@/hooks';
 import { useCustomForm } from '@/libs';
 import { MODALS } from '@/utils/constants';
@@ -22,7 +22,9 @@ const editCountrySchema = z.object({
     .string()
     .min(1, 'Currency is required')
     .max(10, 'Currency must be 10 characters or less'),
-  status: z.string().min(1, 'Status is required'),
+  status: z.enum(['active', 'inactive'], {
+    message: 'Status must be either active or inactive',
+  }),
 });
 
 type EditCountrySchemaType = z.infer<typeof editCountrySchema>;
@@ -35,6 +37,11 @@ type CountryData = {
   currency: string;
   status?: string;
 };
+
+const statusOptions = [
+  { label: 'Active', value: 'active' },
+  { label: 'Inactive', value: 'inactive' },
+];
 
 export function EditCountry() {
   const modal = usePersistedModalState<CountryData>({
@@ -134,11 +141,21 @@ export function EditCountry() {
                 error={form.formState.errors.currency?.message}
               />
 
-              <Input
-                label="Status"
-                placeholder="Enter status (active/inactive)"
-                {...form.register('status')}
-                error={form.formState.errors.status?.message}
+              <Controller
+                control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <Combobox
+                    label="Status"
+                    placeholder="Select status"
+                    options={statusOptions}
+                    value={field.value}
+                    onChange={(e: { target: { value: string } }) => {
+                      field.onChange(e.target.value);
+                    }}
+                    error={form.formState.errors.status?.message}
+                  />
+                )}
               />
             </div>
           </div>

@@ -212,6 +212,8 @@ export default function VendorDetails() {
     'utility_bill',
   ];
 
+  const paymentDetails = vendorDetails?.payment_details;
+
   const displayStatus =
     vendorDetails?.approval_status || vendorDetails?.status || 'N/A';
 
@@ -381,6 +383,9 @@ export default function VendorDetails() {
                   <TabsTrigger value="vendor">Vendor Information</TabsTrigger>
                   <TabsTrigger value="business">Business Profile</TabsTrigger>
                   <TabsTrigger value="documents">Documents</TabsTrigger>
+                  <TabsTrigger value="payment-details">
+                    Payment Details
+                  </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="vendor" className="mt-6">
@@ -514,6 +519,70 @@ export default function VendorDetails() {
                             </Text>
                           </div>
                         )}
+                    </div>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="payment-details" className="mt-6">
+                  <div className="border border-gray-200 rounded-lg">
+                    <div className="flex justify-between items-center bg-[#FAFAFA] p-3">
+                      <h2 className="text-gray-500 font-medium">
+                        Payment Details
+                      </h2>
+                    </div>
+
+                    <div className="space-y-5 p-3">
+                      <div className="text-sm flex justify-between items-center">
+                        <Text className="capitalize text-sm text-gray-400">
+                          Default Payment Option:
+                        </Text>
+                        <Text className="text-primary-800 capitalize">
+                          {paymentDetails?.default_payment_option
+                            ? paymentDetails.default_payment_option.replace(
+                                /_/g,
+                                ' '
+                              )
+                            : 'N/A'}
+                        </Text>
+                      </div>
+
+                      <div className="pt-3 border-t border-gray-200 space-y-3">
+                        <Text className="text-sm text-gray-500 font-medium">
+                          Mobile Money
+                        </Text>
+                        <div className="text-sm flex justify-between items-center">
+                          <Text className="capitalize text-sm text-gray-400">
+                            Provider:
+                          </Text>
+                          <Text className="text-primary-800 capitalize">
+                            {paymentDetails?.momo_account?.provider || 'N/A'}
+                          </Text>
+                        </div>
+                        <div className="text-sm flex justify-between items-center">
+                          <Text className="capitalize text-sm text-gray-400">
+                            Number:
+                          </Text>
+                          <Text className="text-primary-800">
+                            {paymentDetails?.momo_account?.momo_number || 'N/A'}
+                          </Text>
+                        </div>
+                      </div>
+
+                      <div className="pt-3 border-t border-gray-200 space-y-3">
+                        <Text className="text-sm text-gray-500 font-medium">
+                          Bank Account
+                        </Text>
+                        <div className="text-sm flex justify-between items-center">
+                          <Text className="capitalize text-sm text-gray-400">
+                            Status:
+                          </Text>
+                          <Text className="text-primary-800">
+                            {paymentDetails?.bank_account
+                              ? 'Configured'
+                              : 'Not configured'}
+                          </Text>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </TabsContent>

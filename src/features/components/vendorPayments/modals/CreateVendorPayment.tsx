@@ -14,8 +14,8 @@ import {
 import { z } from 'zod';
 
 const createVendorPaymentSchema = z.object({
-  vendor_id: z.number().min(1, 'Select a vendor'),
-  vendor_user_id: z.number().min(1, 'Vendor user ID is required'),
+  vendor_id: z.string().min(1, 'Select a vendor'),
+  vendor_user_id: z.string().min(1, 'Vendor user ID is required'),
   payment_frequency: z.enum(['daily', 'weekly', 'bi-weekly', 'monthly']),
   branch_location: z.string().min(1, 'Branch location is required'),
   branch_id: z.number().min(1, 'Branch ID is required'),
@@ -95,14 +95,18 @@ function parseBranchRowId(r: Record<string, unknown>) {
 }
 
 /** Maps admin vendor-branches API rows (branch_name, payment_summary, string id, …) */
-function mapApiBranchRows(rows: unknown[], vendorId: number): BranchRow[] {
+function mapApiBranchRows(
+  rows: unknown[],
+  vendorId?: string | number
+): BranchRow[] {
   return rows
     .map((row: unknown) => {
       const r = row as Record<string, unknown>;
       if (
-        vendorId > 0 &&
+        vendorId != null &&
+        String(vendorId).trim() !== '' &&
         r.vendor_id != null &&
-        Number(r.vendor_id) !== vendorId
+        String(r.vendor_id) !== String(vendorId)
       ) {
         return null;
       }
@@ -170,8 +174,8 @@ export function CreateVendorPayment() {
   const form = useCustomForm<CreateVendorPaymentForm>({
     resolver: zodResolver(createVendorPaymentSchema),
     defaultValues: {
-      vendor_id: 0,
-      vendor_user_id: 0,
+      vendor_id: '',
+      vendor_user_id: '',
       payment_frequency: 'daily',
       branch_location: '',
       branch_id: 0,
@@ -185,8 +189,8 @@ export function CreateVendorPayment() {
   const vendorId = form.watch('vendor_id');
 
   const { data: vendorDetailsResponse } = useGetVendorDetails(
-    vendorId > 0 ? String(vendorId) : '',
-    { enabled: isOpen && vendorId > 0 }
+    vendorId || '',
+    { enabled: isOpen && !!vendorId }
   );
 
   const vendorDetails = React.useMemo(() => {
@@ -199,9 +203,9 @@ export function CreateVendorPayment() {
 
   const { data: branchesApiResponse, isLoading: isLoadingBranches } =
     useGetAdminVendorBranches(
-      vendorId > 0 ? vendorId : '',
+      vendorId || '',
       { limit: 100 },
-      { enabled: isOpen && vendorId > 0 }
+      { enabled: isOpen && !!vendorId }
     );
 
   const branchRows = React.useMemo(() => {
@@ -226,8 +230,8 @@ export function CreateVendorPayment() {
     if (!isOpen || !vendorDetails || typeof vendorDetails !== 'object') return;
     const v = vendorDetails as Record<string, unknown>;
     const uid = v.vendor_user_id ?? v.user_id;
-    if (uid != null && Number(uid) > 0) {
-      form.setValue('vendor_user_id', Number(uid));
+    if (uid != null && String(uid).trim() !== '') {
+      form.setValue('vendor_user_id', String(uid));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- form methods stable enough; avoid loop with form object
   }, [isOpen, vendorDetails]);
@@ -259,7 +263,7 @@ export function CreateVendorPayment() {
 
   React.useEffect(() => {
     if (!isOpen) return;
-    form.setValue('vendor_user_id', 0);
+    form.setValue('vendor_user_id', '');
     form.setValue('branch_id', 0);
     form.setValue('branch_location', '');
     // eslint-disable-next-line react-hooks/exhaustive-deps -- `form` identity is unstable from useCustomForm
@@ -267,8 +271,8 @@ export function CreateVendorPayment() {
 
   const resetForm = React.useCallback(() => {
     form.reset({
-      vendor_id: 0,
-      vendor_user_id: 0,
+      vendor_id: '',
+      vendor_user_id: '',
       payment_frequency: 'daily',
       branch_location: '',
       branch_id: 0,
@@ -360,10 +364,9 @@ export function CreateVendorPayment() {
                   label="Vendor"
                   placeholder="Select vendor"
                   options={vendorOptions}
-                  value={field.value > 0 ? String(field.value) : ''}
+                  value={field.value || ''}
                   onChange={(e: { target?: { value?: unknown } }) => {
-                    const n = comboboxNumericValue(e);
-                    field.onChange(n > 0 ? n : 0);
+                    field.onChange(comboboxStringValue(e));
                   }}
                   error={form.formState.errors.vendor_id?.message}
                 />
@@ -386,7 +389,7 @@ export function CreateVendorPayment() {
               )}
             />
 
-            {vendorId === 0 ? (
+            {!vendorId ? (
               <Text variant="span" className="text-sm text-gray-500">
                 Select a vendor to load branches.
               </Text>
