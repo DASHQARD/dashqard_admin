@@ -25,7 +25,6 @@ function usePresignedURL() {
   return useMutation({
     mutationFn: getPresignedURL,
     onSuccess: (response: PresignedURLResponse) => {
-      console.log('response', response);
       return response;
     },
     onError: (error: { status: number; message: string }) => {
