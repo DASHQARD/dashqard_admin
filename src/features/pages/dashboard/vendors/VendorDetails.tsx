@@ -245,27 +245,51 @@ export default function VendorDetails() {
                 </p>
               </div>
             </div>
-            <Button
-              variant="outline"
-              size="medium"
-              className="border-amber-500 text-amber-700 shrink-0"
-              onClick={() =>
-                paymentPreferencesModal.openModal(
-                  MODALS.VENDOR_PAYMENT_MANAGEMENT.CHILDREN.MANAGE_PREFERENCES,
-                  {
-                    id: vendorDetails?.id ?? vendorDetails?.vendor_id,
-                    vendor_id: vendorDetails?.vendor_id ?? vendorDetails?.id,
-                    vendor_name:
-                      vendorDetails?.vendor_name ||
-                      vendorDetails?.business_name ||
-                      vendorDetails?.vendor_email,
-                  }
-                )
-              }
-            >
-              <CustomIcon name="Settings" width={20} height={20} />
-              Set payment preferences
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-3 shrink-0">
+              <Button
+                variant="outline"
+                size="medium"
+                className="border-amber-500 text-amber-700"
+                onClick={() =>
+                  paymentPreferencesModal.openModal(
+                    MODALS.VENDOR_PAYMENT_MANAGEMENT.CHILDREN.MANAGE_PREFERENCES,
+                    {
+                      id: vendorDetails?.id ?? vendorDetails?.vendor_id,
+                      vendor_id: vendorDetails?.vendor_id ?? vendorDetails?.id,
+                      vendor_name:
+                        vendorDetails?.vendor_name ||
+                        vendorDetails?.business_name ||
+                        vendorDetails?.vendor_email,
+                    }
+                  )
+                }
+              >
+                <CustomIcon name="Settings" width={20} height={20} />
+                Set payment preferences
+              </Button>
+              <Button
+                variant="secondary"
+                size="medium"
+                onClick={() =>
+                  activateModal.openModal(
+                    MODALS.VENDOR_MANAGEMENT.CHILDREN.ACTIVATE,
+                    {
+                      vendor_account_id: Number(
+                        vendorDetails?.id ?? vendorDetails?.vendor_id ?? 0
+                      ),
+                      vendor_id: vendorDetails?.vendor_id ?? vendorDetails?.id,
+                      vendor_name:
+                        vendorDetails?.vendor_name ||
+                        vendorDetails?.business_name ||
+                        vendorDetails?.vendor_email,
+                    }
+                  )
+                }
+              >
+                <CustomIcon name="CheckMarkCircle" width={20} height={20} />
+                Approve vendor
+              </Button>
+            </div>
           </div>
         )}
 

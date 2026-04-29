@@ -10,7 +10,15 @@ export function vendorManagementMutations() {
   function useApproveVendor() {
     const queryClient = useQueryClient();
     const { error, success } = useToast();
-    return useMutation({
+    return useMutation<
+      any,
+      any,
+      {
+        vendor_account_id: string | number;
+        approval_status: 'approved' | 'rejected';
+        rejection_reason?: string;
+      }
+    >({
       mutationFn: approveVendor,
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['vendors'] });
@@ -28,7 +36,7 @@ export function vendorManagementMutations() {
     const { error, success } = useToast();
     return useMutation({
       mutationFn: (data: {
-        vendor_account_id: number;
+        vendor_account_id: string | number;
         rejection_reason?: string;
       }) =>
         approveVendor({

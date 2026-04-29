@@ -28,7 +28,7 @@ export const getVendorQrCode = async (id: string | number): Promise<any> => {
 };
 
 export const approveVendor = async (data: {
-  vendor_account_id: number;
+  vendor_account_id: string | number;
   approval_status: 'approved' | 'rejected';
   rejection_reason?: string;
 }): Promise<any> => {
@@ -36,7 +36,7 @@ export const approveVendor = async (data: {
 };
 
 export const updateVendorAccountStatus = async (data: {
-  vendor_account_id: number;
+  vendor_account_id: string | number;
   approval_status: 'approved' | 'rejected';
   rejection_reason?: string;
 }): Promise<any> => {

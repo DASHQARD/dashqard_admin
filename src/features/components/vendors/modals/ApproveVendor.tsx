@@ -10,9 +10,9 @@ import { z } from 'zod';
 import { useCustomForm } from '@/libs';
 
 type VendorData = {
-  id?: number;
-  vendor_account_id?: number;
-  vendor_id?: number;
+  id?: string | number;
+  vendor_account_id?: string | number;
+  vendor_id?: string | number;
 };
 
 export function ApproveVendor() {
@@ -26,35 +26,43 @@ export function ApproveVendor() {
   const form = useCustomForm({
     resolver: zodResolver(
       z.object({
-        vendor_account_id: z.number(),
+        vendor_account_id: z.string().min(1),
       })
     ),
     defaultValues: {
-      vendor_account_id: 0,
+      vendor_account_id: '',
     },
   });
 
   useEffect(() => {
     if (modal.modalData) {
-      // The vendor_account_id is the id field in the vendor account data
+      // Vendor account ids are UUIDs in this module.
       const vendorAccountId =
-        modal.modalData?.vendor_account_id || modal.modalData?.id || 0;
+        modal.modalData?.vendor_account_id ??
+        modal.modalData?.id ??
+        modal.modalData?.vendor_id;
       form.reset({
-        vendor_account_id: vendorAccountId,
+        vendor_account_id: vendorAccountId ? String(vendorAccountId) : '',
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [modal.modalData]);
 
-  const onSubmit: SubmitHandler<{ vendor_account_id: number }> = (data) => {
+  const onSubmit: SubmitHandler<{ vendor_account_id: string }> = (data) => {
+    const vendorAccountId = data.vendor_account_id?.trim();
+    if (!vendorAccountId) {
+      return;
+    }
+
     approveVendorMutation.mutate(
       {
-        ...data,
+        vendor_account_id: vendorAccountId as any,
         approval_status: 'approved',
       },
       {
         onSuccess: () => {
           modal.closeModal();
+          window.location.reload();
         },
       }
     );

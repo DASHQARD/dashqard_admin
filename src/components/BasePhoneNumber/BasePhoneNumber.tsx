@@ -95,7 +95,7 @@ export const BasePhoneInput = React.forwardRef<PhoneInputRefType, InputProps>(
         ) : null}
         <div
           className={cn(
-            'flex h-12 w-full min-w-0 items-center rounded-lg border border-[#d0d5dd] px-3 transition-colors',
+            'flex h-12 w-full min-w-0 items-center rounded-lg border border-[#d0d5dd] px-3 transition-colors overflow-hidden',
             'focus-within:border-primary-400 focus-within:outline-none focus-within:ring-1 focus-within:ring-primary-400',
             error && 'border-red-500',
             disabled && 'cursor-not-allowed bg-gray-50 opacity-50'
@@ -126,7 +126,7 @@ export const BasePhoneInput = React.forwardRef<PhoneInputRefType, InputProps>(
                 onBlur,
               } as React.InputHTMLAttributes<HTMLInputElement>
             }
-            className="flex-1 min-w-0"
+            className="flex-1 min-w-0 [&_.react-international-phone-input-container]:border-0! [&_.react-international-phone-input-container]:rounded-none! [&_.react-international-phone-input-container]:bg-transparent! [&_.react-international-phone-country-selector-button]:border-0! [&_.react-international-phone-country-selector-button]:bg-transparent! [&_.react-international-phone-input]:border-0! [&_.react-international-phone-input]:outline-none! [&_.react-international-phone-input]:shadow-none!"
             inputClassName={cn(
               '!border-0 min-w-0 flex-1 bg-transparent text-sm font-light outline-none placeholder:text-gray-400'
             )}
