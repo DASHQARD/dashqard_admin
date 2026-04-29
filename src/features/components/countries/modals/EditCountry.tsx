@@ -43,6 +43,12 @@ const statusOptions = [
   { label: 'Inactive', value: 'inactive' },
 ];
 
+const normalizeStatus = (
+  status?: string
+): EditCountrySchemaType['status'] => {
+  return status === 'inactive' ? 'inactive' : 'active';
+};
+
 export function EditCountry() {
   const modal = usePersistedModalState<CountryData>({
     paramName: MODALS.COUNTRIES_MANAGEMENT.PARAM_NAME,
@@ -51,14 +57,14 @@ export function EditCountry() {
   const { useUpdateCountry } = countriesManagementMutations();
   const updateCountryMutation = useUpdateCountry();
 
-  const form = useCustomForm({
+  const form = useCustomForm<EditCountrySchemaType>({
     resolver: zodResolver(editCountrySchema),
     defaultValues: {
       code: '',
       iso_code: '',
       name: '',
       currency: '',
-      status: 'active',
+      status: normalizeStatus(),
     },
   });
 
@@ -69,7 +75,7 @@ export function EditCountry() {
         iso_code: modal.modalData.iso_code || '',
         name: modal.modalData.name || '',
         currency: modal.modalData.currency || '',
-        status: modal.modalData.status || 'active',
+        status: normalizeStatus(modal.modalData.status),
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
