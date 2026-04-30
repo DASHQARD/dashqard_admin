@@ -30,7 +30,12 @@ const createRoleSchema = z.object({
         .max(2000, 'Description must be at most 2000 characters')
     ),
   permissions: z
-    .array(z.number().int().positive())
+    .array(
+      z
+        .string()
+        .transform((s) => s.trim())
+        .pipe(z.string().min(1, 'Invalid permission'))
+    )
     .min(1, 'Select at least one permission'),
 });
 
@@ -56,7 +61,7 @@ export function CreateRole() {
   });
 
   const onSubmit: SubmitHandler<CreateRoleSchemaType> = (data) => {
-    createRoleMutation.mutate(data, {
+    createRoleMutation.mutate(data as any, {
       onSuccess: () => {
         modal.closeModal();
         form.reset();
@@ -111,7 +116,9 @@ export function CreateRole() {
                   render={({ field }) => (
                     <Checkbox
                       label={`${permission.permission} - ${permission.description}`}
-                      checked={field.value?.includes(permission.id) || false}
+                      checked={
+                        field.value?.includes(permission.id) || false
+                      }
                       onChange={(e) => {
                         const currentPermissions = field.value || [];
                         if (e.target.checked) {
@@ -122,7 +129,7 @@ export function CreateRole() {
                         } else {
                           field.onChange(
                             currentPermissions.filter(
-                              (p: number) => p !== permission.id
+                              (p: string) => p !== permission.id
                             )
                           );
                         }

@@ -21,6 +21,8 @@ import {
   Users,
 } from '../pages';
 import VendorDetails from '../pages/dashboard/vendors/VendorDetails';
+import VendorBranches from '../pages/dashboard/vendors/VendorBranches';
+import VendorBranchDetails from '../pages/dashboard/vendors/VendorBranchDetails';
 import { CorporateRequests, VendorRequests } from '../pages/dashboard/requests';
 import InviteAdmin from '../pages/dashboard/admins/InviteAdmin';
 
@@ -44,6 +46,22 @@ export const adminRoutes: RouteObject[] = [
   {
     path: 'vendors/:vendorId',
     element: <VendorDetails />,
+  },
+  {
+    path: 'vendors/:vendorId/branches',
+    element: <VendorBranches />,
+  },
+  {
+    path: 'vendors/:vendorId/branches/:branchId',
+    element: <VendorBranchDetails />,
+  },
+  {
+    path: 'vendors/branches',
+    element: <VendorBranches />,
+  },
+  {
+    path: 'vendors/branches/:branchId',
+    element: <VendorBranchDetails />,
   },
   {
     path: 'corporates',

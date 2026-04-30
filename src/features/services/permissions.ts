@@ -18,6 +18,17 @@ export type PermissionsListResponse = {
   };
 };
 
+type PermissionsApiEnvelope = {
+  status?: string;
+  statusCode?: number;
+  message?: string;
+  data?: any[];
+  pagination?: {
+    hasNextPage?: boolean;
+    next?: string | null;
+  };
+};
+
 /**
  * Full list response includes `data` and `pagination` (do not use getList — it only returns `data`).
  */
@@ -38,16 +49,18 @@ export const getAllPermissionsList = async (): Promise<any[]> => {
   const maxPages = 100;
 
   while (hasNextPage && pagesFetched < maxPages) {
-    const response = await axiosClient.get<PermissionsListResponse>(
-      `${commonUrl}/all`,
-      {
-        params: {
-          limit: pageLimit,
-          after: nextCursor,
-        },
-      }
-    );
-    const pageData = response.data;
+    const response = await axiosClient.get(`${commonUrl}/all`, {
+      params: {
+        limit: pageLimit,
+        after: nextCursor,
+      },
+    });
+    // Some axios clients return the payload directly; others return AxiosResponse.
+    const pageData: PermissionsApiEnvelope = Array.isArray(response?.data)
+      ? { data: response.data }
+      : Array.isArray(response?.data?.data)
+        ? response.data
+        : response;
 
     if (Array.isArray(pageData?.data)) {
       permissions.push(...pageData.data);

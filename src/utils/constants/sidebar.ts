@@ -39,6 +39,12 @@ export const ADMIN_NAV_ITEMS = [
             icon: 'bi:wallet2',
             permission: 'vendor_payments:get',
           },
+          {
+            path: ROUTES.IN_APP.ADMIN.VENDOR_BRANCHES,
+            label: 'Branches',
+            icon: 'bi:shop',
+            permission: 'vendors:view',
+          },
         ],
       },
       {

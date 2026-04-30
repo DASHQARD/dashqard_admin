@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 
 import {
   Button,
@@ -28,6 +28,7 @@ import { ManageVendorPaymentPreferences } from '@/features/components/vendorPaym
 
 export default function VendorDetails() {
   const navigate = useNavigate();
+  const { vendorId: routeVendorId } = useParams();
   const [activeTab, setActiveTab] = useState('vendor');
 
   const activateModal = usePersistedModalState({
@@ -409,6 +410,16 @@ export default function VendorDetails() {
                   <TabsTrigger value="documents">Documents</TabsTrigger>
                   <TabsTrigger value="payment-details">
                     Payment Details
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="branches"
+                    onClick={() => {
+                      if (routeVendorId) {
+                        navigate(`/admin/vendors/${routeVendorId}/branches`);
+                      }
+                    }}
+                  >
+                    Branches
                   </TabsTrigger>
                 </TabsList>
 

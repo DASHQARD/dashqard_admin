@@ -32,6 +32,7 @@ export const ROUTES = {
       CUSTOMERS: '/admin/customers',
       USERS: '/admin/users',
       VENDORS: '/admin/vendors',
+      VENDOR_BRANCHES: '/admin/vendors/branches',
       VENDOR_DETAILS: '/admin/vendors/:vendorId',
       CORPORATES: '/admin/corporates',
       ADMINS: '/admin/admins',

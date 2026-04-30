@@ -81,7 +81,6 @@ export function RoleCard({ role }: RoleCardProps) {
           </h3>
           <p className="text-sm text-gray-600 mb-2">{role.description}</p>
           <div className="flex items-center gap-4 text-xs text-gray-500">
-            <span>ID: {role.id}</span>
             {role.created_at && (
               <span>
                 Created: {new Date(role.created_at).toLocaleDateString()}

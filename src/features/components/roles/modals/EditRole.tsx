@@ -58,8 +58,11 @@ export function EditRole() {
 
   const { useUpdateRole } = rolesManagementMutations();
   const updateRoleMutation = useUpdateRole();
-  const { useGetSingleRole } = rolesManagementQueries();
+  const { useGetSingleRole, useGetRolePermissions } = rolesManagementQueries();
   const { data: roleData } = useGetSingleRole(
+    String(modal.modalData?.id || '')
+  );
+  const { data: rolePermissionsData } = useGetRolePermissions(
     String(modal.modalData?.id || '')
   );
   const { useGetAllPermissionsList } = permissionsManagementQueries();
@@ -79,11 +82,32 @@ export function EditRole() {
 
   useEffect(() => {
     if (role) {
-      const rolePermissions = Array.isArray(role.permissions)
-        ? role.permissions.map((p: any) =>
-            typeof p === 'string' ? p : p.permission
-          )
+      const rolePermissionsRows = Array.isArray(rolePermissionsData)
+        ? rolePermissionsData
+        : Array.isArray((rolePermissionsData as any)?.data)
+          ? (rolePermissionsData as any).data
+          : [];
+
+      const fromRolePermissionsApi = rolePermissionsRows.length
+        ? rolePermissionsRows
+            .map((p: any) =>
+              String(p?.permission_id || p?.id || '').trim()
+            )
+            .filter(Boolean)
         : [];
+
+      const fromRoleObject = Array.isArray(role.permissions)
+        ? role.permissions
+            .map((p: any) =>
+              typeof p === 'string'
+                ? p
+                : String(p?.permission_id || p?.id || p?.permission || '').trim()
+            )
+            .filter(Boolean)
+        : [];
+
+      const rolePermissions =
+        fromRolePermissionsApi.length > 0 ? fromRolePermissionsApi : fromRoleObject;
 
       form.reset({
         id: String(role.id),
@@ -93,7 +117,7 @@ export function EditRole() {
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [role]);
+  }, [role, rolePermissionsData]);
 
   const onSubmit: SubmitHandler<EditRoleSchemaType> = (data) => {
     updateRoleMutation.mutate(data, {
@@ -154,20 +178,19 @@ export function EditRole() {
                         <Checkbox
                           label={`${permission.permission} - ${permission.description}`}
                           checked={
-                            field.value?.includes(permission.permission) ||
-                            false
+                            field.value?.includes(permission.id) || false
                           }
                           onChange={(e) => {
                             const currentPermissions = field.value || [];
                             if (e.target.checked) {
                               field.onChange([
                                 ...currentPermissions,
-                                permission.permission,
+                                permission.id,
                               ]);
                             } else {
                               field.onChange(
                                 currentPermissions.filter(
-                                  (p: string) => p !== permission.permission
+                                  (p: string) => p !== permission.id
                                 )
                               );
                             }
