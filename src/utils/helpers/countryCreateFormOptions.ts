@@ -1,9 +1,11 @@
-import type { CountryCode } from 'libphonenumber-js/core';
 import { getCountries, getCountryCallingCode } from 'react-phone-number-input';
 import countries from 'world-countries';
 import type { Country as WorldCountry } from 'world-countries';
 
 import type { DropdownOption } from '@/types';
+
+/** ISO2 values supported by `react-phone-number-input` (no direct `libphonenumber-js` import; works with pnpm hoisting). */
+type SupportedPhoneCountry = ReturnType<typeof getCountries>[number];
 
 export type CountryCreatePayload = {
   name: string;
@@ -26,7 +28,7 @@ function primaryCurrencyCode(country: WorldCountry): string | null {
 function dialCodeDigits(country: WorldCountry): string {
   const iso2 = country.cca2;
   if (phoneSupportedIso2.has(iso2)) {
-    return getCountryCallingCode(iso2 as CountryCode);
+    return getCountryCallingCode(iso2 as SupportedPhoneCountry);
   }
 
   const root = (country.idd?.root ?? '').replace(/\D/g, '');
