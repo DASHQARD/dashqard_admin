@@ -38,7 +38,6 @@ export function useAutoRefreshToken() {
 
     const forceLogout = () => {
       logout();
-      toast.error('Session expired. Please log in again.');
     };
 
     const runRefresh = async (activeRefreshToken: string) => {
