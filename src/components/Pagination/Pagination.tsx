@@ -65,22 +65,26 @@ export function Pagination({
   }
 
   function handlePreviousPage() {
-    // For cursor-based pagination, handle the previous cursor logic first
-    if (
-      onSetAfter &&
-      currentAfter !== undefined &&
-      previousCursor !== undefined
-    ) {
-      const currentAfterValue = currentAfter || '';
-      const previousCursorValue = previousCursor || '';
+    // Cursor pagination: prefer onSetAfter when we have a current cursor (previous may be omitted/null from API).
+    const currentAfterValue =
+      currentAfter !== undefined && currentAfter !== ''
+        ? String(currentAfter)
+        : '';
+    if (onSetAfter && currentAfterValue) {
+      const previousCursorValue =
+        previousCursor == null || previousCursor === ''
+          ? ''
+          : String(previousCursor);
 
-      // If previous is null or empty, or if it matches current after, go to first page (clear after)
       const newAfter =
         !previousCursorValue || previousCursorValue === currentAfterValue
           ? ''
           : previousCursorValue;
       onSetAfter(newAfter);
-    } else if (onPreviousPage) {
+      return;
+    }
+
+    if (onPreviousPage) {
       onPreviousPage();
     } else if (page > 1) {
       setInternalPage(page - 1);
@@ -96,23 +100,26 @@ export function Pagination({
   }
 
   return (
-    <div className="flex gap-2 justify-between items-center">
-      <Button
-        size="small"
-        variant="outline"
-        icon={'hugeicons:arrow-left-01'}
-        iconPosition="left"
-        iconProps={{ width: '16px' }}
-        className="text-xs leading-6 mr-2.5"
-        disabled={!hasPreviousPage}
-        onClick={handlePreviousPage}
-      >
-        <span className="hidden lg:inline-block">Prev</span>
-      </Button>
+    <div className="flex w-full items-center gap-2">
+      <div className="flex min-h-9 flex-1 justify-start">
+        {hasPreviousPage ? (
+          <Button
+            size="small"
+            variant="outline"
+            icon={'hugeicons:arrow-left-01'}
+            iconPosition="left"
+            iconProps={{ width: '16px' }}
+            className="text-xs leading-6"
+            onClick={handlePreviousPage}
+          >
+            <span className="hidden lg:inline-block">Prev</span>
+          </Button>
+        ) : null}
+      </div>
 
       {/* Only show page numbers if NOT using cursor-based pagination */}
-      {!isCursorBasedPagination && (
-        <div className="space-x-2">
+      {!isCursorBasedPagination ? (
+        <div className="flex shrink-0 justify-center space-x-2">
           {pageList.map((pageItem, index) => {
             if (pageItem === DOT_REPRESENTATION) {
               return (
@@ -138,20 +145,23 @@ export function Pagination({
             );
           })}
         </div>
-      )}
+      ) : null}
 
-      <Button
-        size="small"
-        variant="outline"
-        icon={'hugeicons:arrow-right-01'}
-        iconPosition="right"
-        iconProps={{ width: '16px' }}
-        className="text-xs leading-6"
-        onClick={handleNextPage}
-        disabled={!hasNextPage}
-      >
-        <span className="hidden lg:inline-block">Next</span>
-      </Button>
+      <div className="flex min-h-9 flex-1 justify-end">
+        {hasNextPage ? (
+          <Button
+            size="small"
+            variant="outline"
+            icon={'hugeicons:arrow-right-01'}
+            iconPosition="right"
+            iconProps={{ width: '16px' }}
+            className="text-xs leading-6"
+            onClick={handleNextPage}
+          >
+            <span className="hidden lg:inline-block">Next</span>
+          </Button>
+        ) : null}
+      </div>
     </div>
   );
 }

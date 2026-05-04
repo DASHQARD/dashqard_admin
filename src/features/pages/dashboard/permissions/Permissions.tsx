@@ -120,13 +120,10 @@ export default function Permissions() {
                   onNextPage={handleNextPage}
                   onPreviousPage={handlePreviousPage}
                   onSetAfter={(afterParam: string) => {
-                    const q = query as any;
                     if (afterParam) {
                       setQuery({ ...query, after: afterParam } as any);
                     } else {
-                      const nextQuery = { ...q };
-                      delete nextQuery.after;
-                      setQuery(nextQuery);
+                      setQuery({ ...query, after: '' } as any);
                     }
                   }}
                 />

@@ -40,13 +40,22 @@ export function usePermissionsManagementBase() {
       };
     }
     const pagination = data.pagination;
+    const q = query as { after?: string };
+    const afterSet = q.after != null && q.after !== '';
+    const previous = pagination?.previous ?? null;
+    const hasPreviousFromApi = pagination?.hasPreviousPage ?? false;
+
+    // API may report hasPreviousPage while previous is null; if `after` is set we can still go back (clear cursor).
+    const hasPreviousPage =
+      afterSet || (hasPreviousFromApi && previous != null);
+
     return {
       hasNextPage: pagination?.hasNextPage ?? false,
-      hasPreviousPage: pagination?.hasPreviousPage ?? false,
+      hasPreviousPage,
       next: pagination?.next ?? null,
-      previous: pagination?.previous ?? null,
+      previous,
     };
-  }, [data]);
+  }, [data, query]);
 
   const handleNextPage = React.useCallback(() => {
     if (paginationInfo.hasNextPage && paginationInfo.next != null) {
@@ -55,17 +64,16 @@ export function usePermissionsManagementBase() {
   }, [paginationInfo, query, setQuery]);
 
   const handlePreviousPage = React.useCallback(() => {
-    if (paginationInfo.hasPreviousPage && paginationInfo.previous != null) {
+    const q = query as { after?: string };
+    if (q.after && paginationInfo.previous != null) {
       setQuery({ ...query, after: paginationInfo.previous } as any);
       return;
     }
-    if (!paginationInfo.hasPreviousPage) {
-      const q = query as any;
-      const nextQuery = { ...q };
-      delete nextQuery.after;
-      setQuery(nextQuery);
+    if (q.after) {
+      // useReducerSpread merges partial state — must set `after: ''`, omitting the key leaves the old cursor.
+      setQuery({ ...query, after: '' } as any);
     }
-  }, [paginationInfo, query, setQuery]);
+  }, [paginationInfo.previous, query, setQuery]);
 
   return {
     query,

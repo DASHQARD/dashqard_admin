@@ -1,7 +1,7 @@
 import { Controller, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMemo } from 'react';
-import { Button, Combobox, Modal } from '@/components';
+import { Button, Combobox, Input, Modal } from '@/components';
 import { usePersistedModalState } from '@/hooks';
 import { useCustomForm } from '@/libs';
 import { MODALS } from '@/utils/constants';
@@ -11,6 +11,12 @@ import { z } from 'zod';
 
 const createCountrySchema = z.object({
   country_iso: z.string().min(1, 'Please select a country'),
+  code: z
+    .string()
+    .trim()
+    .min(1, 'Country calling code is required')
+    .regex(/^\d+$/, 'Use digits only (e.g. 233)')
+    .max(6, 'Country code is too long'),
 });
 
 type CreateCountrySchemaType = z.infer<typeof createCountrySchema>;
@@ -37,6 +43,7 @@ export function CreateCountry() {
     resolver: zodResolver(createCountrySchema),
     defaultValues: {
       country_iso: '',
+      code: '',
     },
   });
 
@@ -50,12 +57,20 @@ export function CreateCountry() {
       return;
     }
 
-    createCountryMutation.mutate(payload, {
-      onSuccess: () => {
-        modal.closeModal();
-        form.reset();
+    createCountryMutation.mutate(
+      {
+        name: payload.name,
+        iso_code: payload.iso_code,
+        currency: payload.currency,
+        code: data.code.trim(),
       },
-    });
+      {
+        onSuccess: () => {
+          modal.closeModal();
+          form.reset();
+        },
+      }
+    );
   };
 
   return (
@@ -88,6 +103,15 @@ export function CreateCountry() {
                 error={form.formState.errors.country_iso?.message}
               />
             )}
+          />
+
+          <Input
+            label="Country code"
+            placeholder="e.g. 233"
+            inputMode="numeric"
+            autoComplete="off"
+            {...form.register('code')}
+            error={form.formState.errors.code?.message}
           />
 
           <div className="flex gap-4 justify-end pt-4">

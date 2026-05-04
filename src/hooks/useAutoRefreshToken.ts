@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { jwtDecode } from 'jwt-decode';
 
 import { useAuthStore } from '@/stores';
+import { SESSION_IDLE_TIMEOUT_MS } from '@/utils/constants';
 import { useToast } from './useToast';
 import { refreshToken as refreshTokenService } from '@/features/services';
 
@@ -10,11 +11,16 @@ type JwtPayload = {
 };
 const REFRESH_THRESHOLD_MS = 60_000; // refresh 1 minute before expiry
 
+const ACTIVITY_EVENTS = ['mousedown', 'keydown', 'click', 'touchstart'] as const;
+
 export function useAutoRefreshToken() {
   const token = useAuthStore((state) => state.token);
   const refreshToken = useAuthStore((state) => state.refreshToken);
+  const sessionAbsoluteExpiresAt = useAuthStore(
+    (state) => state.sessionAbsoluteExpiresAt
+  );
   const authenticate = useAuthStore((state) => state.authenticate);
-  const logout = useAuthStore((state) => state.logout);
+  const reset = useAuthStore((state) => state.reset);
   const toast = useToast();
   const refreshPromiseRef = useRef<Promise<void> | null>(null);
 
@@ -23,21 +29,30 @@ export function useAutoRefreshToken() {
       return;
     }
 
-    let refreshTimeoutId: number | null = null;
-    let sessionTimeoutId: number | null = null;
+    let refreshTimeoutId: ReturnType<typeof window.setTimeout> | null = null;
+    let absoluteTimeoutId: ReturnType<typeof window.setTimeout> | null = null;
+    let idleTimeoutId: ReturnType<typeof window.setTimeout> | null = null;
 
     const safeDecode = (jwtToken: string): JwtPayload | null => {
       try {
-        const decodedPayload = jwtDecode<JwtPayload>(jwtToken);
-        return decodedPayload;
+        return jwtDecode<JwtPayload>(jwtToken);
       } catch (error) {
         console.error('[useAutoRefreshToken] failed to decode token', error);
         return null;
       }
     };
 
-    const forceLogout = () => {
-      logout();
+    const forceLogout = (reason: 'session' | 'idle') => {
+      reset();
+      if (reason === 'idle') {
+        toast.error('You were signed out due to inactivity.');
+      } else {
+        toast.error('Your session has expired. Please sign in again.');
+      }
+      const path = window.location.pathname;
+      if (!path.includes('auth')) {
+        window.location.assign('/auth/login');
+      }
     };
 
     const runRefresh = async (activeRefreshToken: string) => {
@@ -50,7 +65,6 @@ export function useAutoRefreshToken() {
           throw new Error('Unable to refresh access token');
         }
 
-        // Preserve existing role and permissions when refreshing token
         const currentState = useAuthStore.getState();
         authenticate({
           token: nextAccessToken,
@@ -60,28 +74,42 @@ export function useAutoRefreshToken() {
         });
       } catch (error) {
         console.error('Failed to refresh token', error);
-        forceLogout();
+        forceLogout('session');
       }
     };
 
-    const scheduleSessionExpiryLogout = () => {
-      // Prefer refresh token expiry as overall session lifetime.
-      // If unavailable, fall back to access token expiry.
-      const refreshDecoded = refreshToken ? safeDecode(refreshToken) : null;
-      const accessDecoded = safeDecode(token);
-      const expirySeconds = refreshDecoded?.exp ?? accessDecoded?.exp;
-      if (!expirySeconds) return;
+    const scheduleAbsoluteLogout = () => {
+      if (absoluteTimeoutId) {
+        window.clearTimeout(absoluteTimeoutId);
+        absoluteTimeoutId = null;
+      }
+      const deadline = useAuthStore.getState().sessionAbsoluteExpiresAt;
+      if (deadline == null) return;
 
-      const expiresAt = expirySeconds * 1000;
-      const delay = expiresAt - Date.now();
+      const delay = deadline - Date.now();
       if (delay <= 0) {
-        forceLogout();
+        forceLogout('session');
         return;
       }
 
-      sessionTimeoutId = window.setTimeout(() => {
-        forceLogout();
+      absoluteTimeoutId = window.setTimeout(() => {
+        forceLogout('session');
       }, delay);
+    };
+
+    const clearIdle = () => {
+      if (idleTimeoutId) {
+        window.clearTimeout(idleTimeoutId);
+        idleTimeoutId = null;
+      }
+    };
+
+    const armIdle = () => {
+      clearIdle();
+      if (SESSION_IDLE_TIMEOUT_MS <= 0) return;
+      idleTimeoutId = window.setTimeout(() => {
+        forceLogout('idle');
+      }, SESSION_IDLE_TIMEOUT_MS);
     };
 
     const scheduleRefresh = () => {
@@ -111,16 +139,41 @@ export function useAutoRefreshToken() {
       refreshTimeoutId = window.setTimeout(trigger, delay);
     };
 
-    scheduleSessionExpiryLogout();
+    scheduleAbsoluteLogout();
     scheduleRefresh();
+
+    let removeActivityListeners: (() => void) | undefined;
+    if (SESSION_IDLE_TIMEOUT_MS > 0) {
+      armIdle();
+      const onActivity = () => {
+        armIdle();
+      };
+      ACTIVITY_EVENTS.forEach((evt) => {
+        window.addEventListener(evt, onActivity, { passive: true });
+      });
+      removeActivityListeners = () => {
+        ACTIVITY_EVENTS.forEach((evt) => {
+          window.removeEventListener(evt, onActivity);
+        });
+      };
+    }
 
     return () => {
       if (refreshTimeoutId) {
         window.clearTimeout(refreshTimeoutId);
       }
-      if (sessionTimeoutId) {
-        window.clearTimeout(sessionTimeoutId);
+      if (absoluteTimeoutId) {
+        window.clearTimeout(absoluteTimeoutId);
       }
+      clearIdle();
+      removeActivityListeners?.();
     };
-  }, [token, refreshToken, authenticate, logout, toast]);
+  }, [
+    token,
+    refreshToken,
+    sessionAbsoluteExpiresAt,
+    authenticate,
+    reset,
+    toast,
+  ]);
 }

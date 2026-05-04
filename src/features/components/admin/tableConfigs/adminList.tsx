@@ -33,10 +33,19 @@ export const adminListColumns = [
   },
 ];
 
+function adminFullNameForExport(row: any): string {
+  if (!row || typeof row !== 'object') return '';
+  return (
+    row.full_name ??
+    `${row.first_name ?? ''} ${row.last_name ?? ''}`.trim()
+  ) || '';
+}
+
 export const adminListCsvHeaders: Array<CsvHeader> = [
   {
     name: 'Full Name',
-    accessor: 'full_name',
+    accessor: '',
+    transform: adminFullNameForExport,
   },
   {
     name: 'Email',

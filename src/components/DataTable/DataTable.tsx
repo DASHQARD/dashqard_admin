@@ -238,14 +238,15 @@ export function DataTable<TData, TValue>({
                 </div>
               )}
               <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => table.previousPage()}
-                  disabled={!table.getCanPreviousPage()}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-600 transition hover:border-[#402D87] hover:text-[#402D87] disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  <IconChevronLeft />
-                </button>
+                {table.getCanPreviousPage() ? (
+                  <button
+                    type="button"
+                    onClick={() => table.previousPage()}
+                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-600 transition hover:border-[#402D87] hover:text-[#402D87]"
+                  >
+                    <IconChevronLeft />
+                  </button>
+                ) : null}
                 <span className="text-sm text-gray-700">
                   Page{' '}
                   <span className="font-semibold">
@@ -253,14 +254,15 @@ export function DataTable<TData, TValue>({
                     {table.getPageCount() || 1}
                   </span>
                 </span>
-                <button
-                  type="button"
-                  onClick={() => table.nextPage()}
-                  disabled={!table.getCanNextPage()}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-600 transition hover:border-[#402D87] hover:text-[#402D87] disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  <IconChevronRight />
-                </button>
+                {table.getCanNextPage() ? (
+                  <button
+                    type="button"
+                    onClick={() => table.nextPage()}
+                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-600 transition hover:border-[#402D87] hover:text-[#402D87]"
+                  >
+                    <IconChevronRight />
+                  </button>
+                ) : null}
               </div>
             </div>
           </div>

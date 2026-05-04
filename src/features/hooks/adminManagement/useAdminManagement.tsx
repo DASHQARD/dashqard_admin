@@ -96,7 +96,7 @@ export function useAdminManagementBase() {
         value: adminsList?.status || '-',
       },
       {
-        label: 'First Name',
+        label: 'Full Name',
         value: adminsList?.first_name || '-',
       },
       {

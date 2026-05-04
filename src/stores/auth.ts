@@ -5,6 +5,8 @@ import { persist } from 'zustand/middleware';
 type State = {
   token: string | null;
   refreshToken: string | null;
+  /** Wall-clock session end from JWT `exp` (refresh preferred). Opaque refresh: seeded from access `exp` at login / refresh rotation only. */
+  sessionAbsoluteExpiresAt: number | null;
   user: Record<string, any> | null;
   isAuthenticated: boolean;
   role: Record<string, any> | null;
@@ -38,31 +40,64 @@ const decodeUser = (token: string | null) => {
 const initialState: State = {
   token: null,
   refreshToken: null,
+  sessionAbsoluteExpiresAt: null,
   isAuthenticated: false,
   user: null,
   role: null,
   permissions: null,
 };
 
+function jwtExpiryMs(jwt: string | null): number | null {
+  if (!jwt) return null;
+  try {
+    const payload = jwtDecode<{ exp?: number }>(jwt);
+    return payload.exp != null ? payload.exp * 1000 : null;
+  } catch {
+    return null;
+  }
+}
+
 const authStore: StateCreator<State & Actions> = (set, get) => ({
   ...initialState,
   reset: () => set(initialState),
   authenticate: ({ token, refreshToken, role, permissions }) => {
-    // Preserve existing role and permissions if not provided (e.g., during token refresh)
     const currentState = get();
+    const nextRefreshToken =
+      refreshToken !== undefined ? refreshToken ?? null : currentState.refreshToken;
+
+    const oldRefresh = currentState.refreshToken;
+    const refreshTokenChanged =
+      (nextRefreshToken ?? '') !== (oldRefresh ?? '') &&
+      !(oldRefresh == null && nextRefreshToken == null);
+
+    const refreshJwtExp = jwtExpiryMs(nextRefreshToken);
+    const accessJwtExp = jwtExpiryMs(token);
+
+    let sessionAbsoluteExpiresAt = currentState.sessionAbsoluteExpiresAt;
+
+    if (refreshJwtExp != null) {
+      sessionAbsoluteExpiresAt = refreshJwtExp;
+    } else if (refreshTokenChanged && accessJwtExp != null) {
+      sessionAbsoluteExpiresAt = accessJwtExp;
+    } else if (sessionAbsoluteExpiresAt == null && accessJwtExp != null) {
+      sessionAbsoluteExpiresAt = accessJwtExp;
+    }
+
     set({
       user: decodeUser(token),
       token,
-      refreshToken: refreshToken ?? null,
+      refreshToken: nextRefreshToken,
       role: role ?? currentState.role,
       permissions: permissions ?? currentState.permissions,
       isAuthenticated: true,
+      sessionAbsoluteExpiresAt,
     });
   },
   logout: () => {
     set({
       token: null,
       refreshToken: null,
+      sessionAbsoluteExpiresAt: null,
       user: null,
       role: null,
       permissions: null,

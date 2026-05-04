@@ -12,7 +12,8 @@ const feeFieldSchema = z
   .trim()
   .min(1, 'Enter a rate')
   .refine((val) => !Number.isNaN(Number(val)), 'Must be a valid number')
-  .refine((val) => Number(val) >= 0, 'Must be 0 or greater');
+  .refine((val) => Number(val) >= 0, 'Must be 0 or greater')
+  .refine((val) => Number(val) <= 1, 'Must be at most 1 (100%)');
 
 const feesFormSchema = z.object({
   service_fee_rate: feeFieldSchema,
@@ -125,9 +126,11 @@ export default function Fees() {
             className="bg-white rounded-lg border border-gray-200 p-6 space-y-6 max-w-2xl"
           >
             <Text variant="span" className="text-gray-600 text-sm block -mt-2">
-              Enter each rate as a percentage (for example, <strong>2.5</strong>{' '}
-              for 2.5%). Values are not capped in the admin app—use the range
-              your policy and API allow.
+              Enter each rate as a proportion from <strong>0</strong> to{' '}
+              <strong>1</strong>, where <strong>1</strong> equals 100%. For
+              example, <strong>0.025</strong> is 2.5% and <strong>0.09</strong> is
+              9%. The maximum value allowed here is <strong>1</strong>; your API
+              may enforce stricter limits.
             </Text>
 
             <Input
@@ -135,14 +138,10 @@ export default function Fees() {
               type="number"
               step="any"
               min={0}
-              placeholder="e.g. 1 for 1%"
+              max={1}
+              placeholder="e.g. 0.09"
               readOnly={readOnly}
               disabled={readOnly}
-              suffix={
-                <span className="text-sm font-medium text-gray-600 shrink-0">
-                  %
-                </span>
-              }
               {...form.register('service_fee_rate')}
               error={form.formState.errors.service_fee_rate?.message}
             />
@@ -152,14 +151,10 @@ export default function Fees() {
               type="number"
               step="any"
               min={0}
-              placeholder="e.g. 0.1 for 0.1%"
+              max={1}
+              placeholder="e.g. 0.3"
               readOnly={readOnly}
               disabled={readOnly}
-              suffix={
-                <span className="text-sm font-medium text-gray-600 shrink-0">
-                  %
-                </span>
-              }
               {...form.register('vendor_markup_rate')}
               error={form.formState.errors.vendor_markup_rate?.message}
             />
