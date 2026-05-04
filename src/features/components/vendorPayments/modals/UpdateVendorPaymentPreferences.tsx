@@ -93,7 +93,7 @@ export function UpdateVendorPaymentPreferences() {
       //   auto_payout: data.auto_payout,
       //   minimum_payout_amount: data.minimum_payout_amount,
       // })
-      console.log('Updating vendor payment preferences:', data);
+      console.log(data);
       await new Promise((resolve) => setTimeout(resolve, 1000));
       return {
         success: true,
