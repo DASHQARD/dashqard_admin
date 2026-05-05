@@ -1,7 +1,6 @@
-import React from 'react';
 import { Button, Modal, Tag, Text } from '@/components';
 import { requestManagementQueries } from '@/features/hooks/requestManagement ';
-import { usePersistedModalState, usePresignedURL } from '@/hooks';
+import { usePersistedModalState } from '@/hooks';
 import { MODALS } from '@/utils/constants';
 import { formatDate, getStatusVariant } from '@/utils/helpers';
 
@@ -63,121 +62,13 @@ export function ViewRequestDetails() {
     String(requestData?.id || '')
   );
 
-  const { mutateAsync: getPresignedURL } = usePresignedURL();
-  const [logoUrlPresigned, setLogoUrlPresigned] = React.useState<string | null>(
-    null
-  );
-  const [currentLogoPresigned, setCurrentLogoPresigned] = React.useState<
-    string | null
-  >(null);
-
-  // Fetch presigned URL for proposed logo
-  React.useEffect(() => {
-    const logoUrl = requestCorporateDetails?.request_data?.logo_url;
-    if (!logoUrl) {
-      setLogoUrlPresigned(null);
-      return;
-    }
-
-    // If it's already a full HTTP URL, use it directly
-    if (logoUrl.startsWith('http')) {
-      setLogoUrlPresigned(logoUrl);
-      return;
-    }
-
-    let cancelled = false;
-
-    const fetchLogoPresignedUrl = async () => {
-      try {
-        // Remove leading slash if present for S3 key format
-        const fileKey = logoUrl.startsWith('/') ? logoUrl.slice(1) : logoUrl;
-        const response = await getPresignedURL(fileKey);
-        const url =
-          (typeof response === 'string'
-            ? response
-            : typeof response === 'object' && response
-              ? (response as any)?.data || (response as any)?.url
-              : String(response)) || null;
-        if (!cancelled && url) {
-          setLogoUrlPresigned(url);
-        } else if (!cancelled) {
-          console.warn(`Invalid presigned URL response for ${logoUrl}`);
-          setLogoUrlPresigned(null);
-        }
-      } catch (error) {
-        console.error(
-          `Failed to fetch presigned URL for logo ${logoUrl}:`,
-          error
-        );
-        if (!cancelled) {
-          setLogoUrlPresigned(null);
-        }
-      }
-    };
-
-    fetchLogoPresignedUrl();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [requestCorporateDetails?.request_data?.logo_url, getPresignedURL]);
-
-  // Fetch presigned URL for current logo
-  React.useEffect(() => {
-    const currentLogo =
-      requestCorporateDetails?.request_data?.current_data?.logo;
-    if (!currentLogo || typeof currentLogo !== 'string') {
-      setCurrentLogoPresigned(null);
-      return;
-    }
-
-    // If it's already a full HTTP URL, use it directly
-    if (currentLogo.startsWith('http')) {
-      setCurrentLogoPresigned(currentLogo);
-      return;
-    }
-
-    let cancelled = false;
-
-    const fetchCurrentLogoPresignedUrl = async () => {
-      try {
-        // Remove leading slash if present for S3 key format
-        const fileKey = currentLogo.startsWith('/')
-          ? currentLogo.slice(1)
-          : currentLogo;
-        const response = await getPresignedURL(fileKey);
-        const url =
-          (typeof response === 'string'
-            ? response
-            : typeof response === 'object' && response
-              ? (response as any)?.data || (response as any)?.url
-              : String(response)) || null;
-        if (!cancelled && url) {
-          setCurrentLogoPresigned(url);
-        } else if (!cancelled) {
-          console.warn(`Invalid presigned URL response for ${currentLogo}`);
-          setCurrentLogoPresigned(null);
-        }
-      } catch (error) {
-        console.error(
-          `Failed to fetch presigned URL for current logo ${currentLogo}:`,
-          error
-        );
-        if (!cancelled) {
-          setCurrentLogoPresigned(null);
-        }
-      }
-    };
-
-    fetchCurrentLogoPresignedUrl();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [
-    requestCorporateDetails?.request_data?.current_data?.logo,
-    getPresignedURL,
-  ]);
+  const logoUrlPresigned =
+    (requestCorporateDetails?.request_data?.logo_url as string) ?? null;
+  const currentLogoPresigned =
+    typeof requestCorporateDetails?.request_data?.current_data?.logo ===
+    'string'
+      ? (requestCorporateDetails.request_data.current_data.logo as string)
+      : null;
 
   return (
     <Modal

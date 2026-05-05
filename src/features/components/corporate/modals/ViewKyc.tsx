@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Avatar, CustomIcon, Modal, Tag, Text } from '@/components';
-import { usePersistedModalState, usePresignedURL } from '@/hooks';
+import { usePersistedModalState } from '@/hooks';
 import { getStatusVariant, MODALS } from '@/utils';
 import { ViewKycDocument } from './ViewKycDocument';
 
@@ -73,8 +73,6 @@ export const ViewKYC = ({ corporate, noProfile }: Props) => {
     paramName: MODALS.CORPORATE_MANAGEMENT.CHILDREN.VIEW_KYC_DOCUMENT,
   });
 
-  const { mutateAsync: getPresignedURL } = usePresignedURL();
-
   // Use prop if provided, otherwise use modal data
   const corporateData =
     corporate?.data || corporate || modal.modalData?.data || modal.modalData;
@@ -95,48 +93,7 @@ export const ViewKYC = ({ corporate, noProfile }: Props) => {
     return groups;
   }, [businessDocuments]);
 
-  // State to store presigned logo URL
-  const [logoPresignedUrl, setLogoPresignedUrl] = React.useState<
-    string | undefined
-  >(undefined);
-
-  // Fetch presigned URL only for the logo document
-  React.useEffect(() => {
-    const logoDoc = documentGroups['logo']?.[0];
-    if (!logoDoc?.file_url || logoDoc.file_url.startsWith('http')) {
-      setLogoPresignedUrl(logoDoc?.file_url);
-      return;
-    }
-
-    let cancelled = false;
-
-    const fetchLogoPresignedUrl = async () => {
-      try {
-        const response = await getPresignedURL(logoDoc.file_url);
-        const url =
-          (typeof response === 'string'
-            ? response
-            : response?.data || response?.url) || logoDoc.file_url;
-        if (!cancelled) {
-          setLogoPresignedUrl(url);
-        }
-      } catch (error) {
-        console.error(
-          `Failed to fetch presigned URL for logo ${logoDoc.file_url}:`,
-          error
-        );
-        if (!cancelled) {
-          setLogoPresignedUrl(logoDoc.file_url);
-        }
-      }
-    };
-
-    fetchLogoPresignedUrl();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [documentGroups, getPresignedURL]);
+  const logoUrl = documentGroups['logo']?.[0]?.file_url;
 
   if (!corporateData) {
     return null;
@@ -197,7 +154,7 @@ export const ViewKYC = ({ corporate, noProfile }: Props) => {
             <Avatar
               size="lg"
               name={fullname}
-              src={logoPresignedUrl}
+              src={logoUrl}
               className="rounded-lg flex justify-center items-center h-[90px] w-[90px]"
             />
             <div className="space-y-1 flex flex-col items-center">

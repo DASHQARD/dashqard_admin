@@ -15,13 +15,6 @@ const uploadFiles = async (data: File[]) => {
   return response.data;
 };
 
-const getPresignedURL = async (file: string) => {
-  const response = await postMethod(`/file/generate/signed-url`, {
-    file,
-  });
-  return response.data;
-};
-
 const paymentInfo = async (data: PaymentInfoData) => {
   const response = await axiosClient.post(`/auth/payment-details`, data);
   return response.data;
@@ -47,7 +40,6 @@ const refreshToken = async (refreshToken: string) => {
 
 export {
   uploadFiles,
-  getPresignedURL,
   paymentInfo,
   getPaymentInfo,
   getPaymentById,

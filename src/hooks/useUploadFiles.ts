@@ -1,4 +1,4 @@
-import { uploadFiles, getPresignedURL } from '@/services';
+import { uploadFiles } from '@/services';
 import { useMutation } from '@tanstack/react-query';
 
 function useUploadFiles() {
@@ -13,23 +13,4 @@ function useUploadFiles() {
   });
 }
 
-type PresignedURLResponse = {
-  status: string;
-  statusCode: number;
-  message: string;
-  data: string;
-  url: string;
-};
-
-function usePresignedURL() {
-  return useMutation({
-    mutationFn: getPresignedURL,
-    onSuccess: (response: PresignedURLResponse) => {
-      return response;
-    },
-    onError: (error: { status: number; message: string }) => {
-      return error;
-    },
-  });
-}
-export { useUploadFiles, usePresignedURL };
+export { useUploadFiles };

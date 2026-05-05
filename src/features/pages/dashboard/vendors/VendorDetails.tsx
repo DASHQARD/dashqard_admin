@@ -13,7 +13,7 @@ import {
   TabsContent,
   Text,
 } from '@/components';
-import { usePersistedModalState, usePresignedURL } from '@/hooks';
+import { usePersistedModalState } from '@/hooks';
 import { MODALS } from '@/utils/constants';
 import { getStatusVariant } from '@/utils';
 
@@ -79,14 +79,6 @@ export default function VendorDetails() {
     (paymentPreferences as { id?: number; payment_frequency?: string }).id !=
       null;
 
-  const { mutateAsync: getPresignedURL } = usePresignedURL();
-  const [logoPresignedUrl, setLogoPresignedUrl] = React.useState<
-    string | undefined
-  >(undefined);
-  const [avatarPresignedUrl, setAvatarPresignedUrl] = React.useState<
-    string | undefined
-  >(undefined);
-
   const businessDocuments = React.useMemo(() => {
     return vendorDetails?.business_documents || [];
   }, [vendorDetails?.business_documents]);
@@ -126,85 +118,8 @@ export default function VendorDetails() {
     );
   };
 
-  React.useEffect(() => {
-    const logoDoc = documentGroups['logo']?.[0];
-    if (!logoDoc?.file_url) {
-      setLogoPresignedUrl(undefined);
-      return;
-    }
-
-    if (logoDoc.file_url.startsWith('http')) {
-      setLogoPresignedUrl(logoDoc.file_url);
-      return;
-    }
-
-    let cancelled = false;
-
-    const fetchLogoPresignedUrl = async () => {
-      try {
-        const response = await getPresignedURL(logoDoc.file_url);
-        const url =
-          (typeof response === 'string'
-            ? response
-            : typeof response === 'object' && response
-              ? (response as any)?.data || (response as any)?.url
-              : String(response)) || logoDoc.file_url;
-        if (!cancelled) {
-          setLogoPresignedUrl(url);
-        }
-      } catch {
-        if (!cancelled) {
-          setLogoPresignedUrl(undefined);
-        }
-      }
-    };
-
-    fetchLogoPresignedUrl();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [documentGroups, getPresignedURL]);
-
-  React.useEffect(() => {
-    const avatarFile = vendorDetails?.vendor_avatar;
-    if (!avatarFile) {
-      setAvatarPresignedUrl(undefined);
-      return;
-    }
-
-    if (avatarFile.startsWith('http')) {
-      setAvatarPresignedUrl(avatarFile);
-      return;
-    }
-
-    let cancelled = false;
-
-    const fetchAvatarPresignedUrl = async () => {
-      try {
-        const response = await getPresignedURL(avatarFile);
-        const url =
-          (typeof response === 'string'
-            ? response
-            : typeof response === 'object' && response
-              ? (response as any)?.data || (response as any)?.url
-              : String(response)) || avatarFile;
-        if (!cancelled) {
-          setAvatarPresignedUrl(url);
-        }
-      } catch {
-        if (!cancelled) {
-          setAvatarPresignedUrl(undefined);
-        }
-      }
-    };
-
-    fetchAvatarPresignedUrl();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [vendorDetails?.vendor_avatar, getPresignedURL]);
+  const logoUrl = documentGroups['logo']?.[0]?.file_url;
+  const avatarUrl = vendorDetails?.vendor_avatar;
 
   const requiredDocumentTypes = [
     'certificate_of_incorporation',
@@ -400,7 +315,7 @@ export default function VendorDetails() {
             }
             businessName={vendorDetails?.business_name || 'N/A'}
             status={displayStatus}
-            logo={avatarPresignedUrl ?? logoPresignedUrl}
+            logo={avatarUrl ?? logoUrl}
           >
             <div className="flex flex-col gap-6 w-full">
               <Tabs value={activeTab} onValueChange={setActiveTab}>

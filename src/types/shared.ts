@@ -90,6 +90,7 @@ export type FileType = {
   file_name: string;
   file_type: string;
   file_url: string;
+  file_key?: string;
   uploaded_at: string;
   status: string;
 };

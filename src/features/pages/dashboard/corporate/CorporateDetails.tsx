@@ -13,7 +13,7 @@ import {
   TabsContent,
   Text,
 } from '@/components';
-import { usePersistedModalState, usePresignedURL } from '@/hooks';
+import { usePersistedModalState } from '@/hooks';
 import { MODALS } from '@/utils/constants';
 import { getStatusVariant } from '@/utils';
 
@@ -50,11 +50,6 @@ export default function CorporateDetails() {
     businessInfo,
     isLoadingCorporateDetails,
   } = useCorporateManagementBase();
-
-  const { mutateAsync: getPresignedURL } = usePresignedURL();
-  const [logoPresignedUrl, setLogoPresignedUrl] = React.useState<
-    string | undefined
-  >(undefined);
 
   const corporateData = corporateDetails?.data || corporateDetails;
 
@@ -118,51 +113,7 @@ export default function CorporateDetails() {
     );
   };
 
-  // Fetch presigned URL for logo
-  React.useEffect(() => {
-    const logoDoc = documentGroups['logo']?.[0];
-    if (!logoDoc?.file_url) {
-      setLogoPresignedUrl(undefined);
-      return;
-    }
-
-    // If it's already a full HTTP URL, use it directly
-    if (logoDoc.file_url.startsWith('http')) {
-      setLogoPresignedUrl(logoDoc.file_url);
-      return;
-    }
-
-    let cancelled = false;
-
-    const fetchLogoPresignedUrl = async () => {
-      try {
-        const response = await getPresignedURL(logoDoc.file_url);
-        const url =
-          (typeof response === 'string'
-            ? response
-            : typeof response === 'object' && response
-              ? (response as any)?.data || (response as any)?.url
-              : String(response)) || logoDoc.file_url;
-        if (!cancelled) {
-          setLogoPresignedUrl(url);
-        }
-      } catch (error) {
-        console.error(
-          `Failed to fetch presigned URL for logo ${logoDoc.file_url}:`,
-          error
-        );
-        if (!cancelled) {
-          setLogoPresignedUrl(undefined);
-        }
-      }
-    };
-
-    fetchLogoPresignedUrl();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [documentGroups, getPresignedURL]);
+  const logoUrl = documentGroups['logo']?.[0]?.file_url;
 
   const requiredDocumentTypes = [
     'certificate_of_incorporation',
@@ -236,7 +187,7 @@ export default function CorporateDetails() {
             name={corporateData?.fullname || 'N/A'}
             businessName={corporateData?.business_name || 'N/A'}
             status={corporateData?.status || 'N/A'}
-            logo={logoPresignedUrl}
+            logo={logoUrl}
           >
             <div className="flex flex-col gap-6 w-full">
               <Tabs value={activeTab} onValueChange={setActiveTab}>

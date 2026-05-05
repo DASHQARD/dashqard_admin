@@ -37,8 +37,3 @@ export const putMethod = async (customUrl: string, payload?: any) => {
   const res = await axiosClient.put(customUrl, payload);
   return res;
 };
-
-export const fetchFileUrl = async (key: string) => {
-  const res = await axiosClient.get(`shared/s3/signed-url?key=${key}`);
-  return res.data;
-};
