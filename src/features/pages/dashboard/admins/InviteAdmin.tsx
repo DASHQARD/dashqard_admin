@@ -46,6 +46,8 @@ export default function InviteAdmin() {
   const { mutate: inviteAdmin, isPending } = useInviteAdmin();
   const { useGetAllRoles } = rolesManagementQueries();
   const { data: rolesData, isLoading: isLoadingRoles } = useGetAllRoles();
+  const [rateLimitMessage, setRateLimitMessage] = React.useState<string | null>(null);
+  const [rateLimitedEmail, setRateLimitedEmail] = React.useState<string | null>(null);
 
   const form = useCustomForm({
     resolver: zodResolver(inviteAdminSchema),
@@ -69,10 +71,20 @@ export default function InviteAdmin() {
     }));
   }, [rolesData]);
 
+  const watchedEmail = form.watch('email');
+  const isRateLimited =
+    rateLimitMessage !== null && watchedEmail === rateLimitedEmail;
+
   const onSubmit: SubmitHandler<InviteAdminSchemaType> = (data) => {
     inviteAdmin(data, {
       onSuccess: () => {
         navigate(ROUTES.IN_APP.ADMIN.ADMINS);
+      },
+      onError: (error) => {
+        if (error?.status === 429) {
+          setRateLimitMessage(error.message);
+          setRateLimitedEmail(data.email);
+        }
       },
     });
   };
@@ -152,6 +164,10 @@ export default function InviteAdmin() {
                 )}
               />
 
+              {isRateLimited && rateLimitMessage && (
+                <p className="text-sm text-red-600">{rateLimitMessage}</p>
+              )}
+
               <div className="flex items-center gap-3 pt-4">
                 <Button
                   type="button"
@@ -164,6 +180,7 @@ export default function InviteAdmin() {
                 <Button
                   variant="secondary"
                   loading={isPending}
+                  disabled={isPending || isRateLimited}
                   type="submit"
                   className="grow"
                 >

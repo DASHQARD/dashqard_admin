@@ -14,11 +14,18 @@ import AdminOtpLoginModal from './AdminOtpLoginModal';
 export default function LoginForm() {
   const { useAdminLoginMutation } = useAuth();
   const [steps, setSteps] = React.useState(1);
+  const [sessionId, setSessionId] = React.useState<string | null>(null);
   const { mutate, isPending } = useAdminLoginMutation();
 
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
   });
+
+  const handleBackToLogin = () => {
+    setSessionId(null);
+    setSteps(1);
+  };
+
   const onSubmit = (data: z.infer<typeof LoginSchema>) => {
     const payload = {
       email: data.email,
@@ -26,7 +33,8 @@ export default function LoginForm() {
     };
 
     mutate(payload, {
-      onSuccess: () => {
+      onSuccess: (response: any) => {
+        setSessionId(response?.data?.session_id ?? null);
         setSteps(2);
       },
     });
@@ -88,16 +96,17 @@ export default function LoginForm() {
           </form>
         </>
       )}
-      {steps === 2 && (
-        <>
-          <Modal
-            isOpen={true}
-            setIsOpen={() => setSteps(1)}
-            panelClass="max-w-[546px] p-8"
-          >
-            <AdminOtpLoginModal />
-          </Modal>
-        </>
+      {steps === 2 && sessionId && (
+        <Modal
+          isOpen={true}
+          setIsOpen={handleBackToLogin}
+          panelClass="max-w-[546px] p-8"
+        >
+          <AdminOtpLoginModal
+            sessionId={sessionId}
+            onBackToLogin={handleBackToLogin}
+          />
+        </Modal>
       )}
     </>
   );
