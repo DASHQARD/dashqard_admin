@@ -1,3 +1,12 @@
+export type AdminLoginResponse = {
+  status: string;
+  statusCode: number;
+  message: string;
+  data: {
+    session_id: string;
+  };
+};
+
 export type InviteAdminPayload = {
   email: string;
   first_name: string;

@@ -36,7 +36,7 @@ export function useAuth() {
     return useMutation<
       VerifyLoginTokenResponse,
       { status: number; message: string },
-      string
+      { session_id: string; token: string }
     >({
       mutationFn: verifyLoginToken,
       onSuccess: (response) => {

@@ -20,10 +20,14 @@ const adminLogin = async (data: {
   return await postMethod(`${ROUTES.ENDPOINT.ADMIN.ROOT}/login`, data);
 };
 
-const verifyLoginToken = async (token: string): Promise<any> => {
-  return await postMethod(`${ROUTES.ENDPOINT.ADMIN.ROOT}/verify-login-token`, {
-    token,
-  });
+const verifyLoginToken = async (payload: {
+  session_id: string;
+  token: string;
+}): Promise<any> => {
+  return await postMethod(
+    `${ROUTES.ENDPOINT.ADMIN.ROOT}/verify-login-token`,
+    payload
+  );
 };
 
 const getVendorInfo = async (id: string): Promise<VendorDetailsResponse> => {
