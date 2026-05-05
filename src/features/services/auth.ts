@@ -120,6 +120,14 @@ const refreshToken = async (refreshToken: string) => {
   });
 };
 
+const adminLogout = async (refreshToken?: string | null) => {
+  const payload =
+    refreshToken && refreshToken.trim().length > 0
+      ? { refresh_token: refreshToken }
+      : undefined;
+  return await postMethod(`/admin/logout`, payload);
+};
+
 export {
   adminLogin,
   verifyLoginToken,
@@ -134,4 +142,5 @@ export {
   getRoleDetails,
   getPermissionDetails,
   refreshToken,
+  adminLogout,
 };

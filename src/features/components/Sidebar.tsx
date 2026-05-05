@@ -11,10 +11,11 @@ import { usePendingCustomersCount } from '@/features/hooks/customerManagement';
 import { useInactiveVendorsCount } from '@/features/hooks/vendorManagement';
 import { useOverduePaymentsCount } from '@/features/hooks/vendorPaymentsManagement';
 import { useAdminService } from '@/features/hooks/useAdminService';
+import { adminLogout } from '@/features/services';
 
 export default function AdminSidebar() {
   const location = useLocation();
-  const { user, logout } = useAuthStore();
+  const { user, logout, refreshToken } = useAuthStore();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
 
@@ -40,15 +41,22 @@ export default function AdminSidebar() {
 
   const queryClient = useQueryClient();
 
-  const handleLogout = () => {
-    // Clear auth state
-    logout();
-    // Clear React Query cache
-    queryClient.clear();
-    // Clear sidebar state from localStorage
-    localStorage.removeItem('adminSidebarCollapsed');
-    // Force full page reload to login page - use direct path since ROUTES.IN_APP.AUTH.LOGIN is '/'
-    window.location.href = '/auth/login';
+  const handleLogout = async () => {
+    try {
+      await adminLogout(refreshToken);
+    } catch (error) {
+      // Continue with client logout even if server-side logout fails.
+      console.error('Admin logout endpoint failed', error);
+    } finally {
+      // Clear auth state
+      logout();
+      // Clear React Query cache
+      queryClient.clear();
+      // Clear sidebar state from localStorage
+      localStorage.removeItem('adminSidebarCollapsed');
+      // Force full page reload to login page - use direct path since ROUTES.IN_APP.AUTH.LOGIN is '/'
+      window.location.href = '/auth/login';
+    }
   };
 
   useEffect(() => {
