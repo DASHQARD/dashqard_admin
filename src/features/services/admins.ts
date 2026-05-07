@@ -34,6 +34,15 @@ export const getAdminProfile = async (): Promise<AdminType> => {
   return response?.data || response;
 };
 
+export const updateAdminProfile = async (data: {
+  first_name?: string;
+  last_name?: string;
+  phone_number?: string;
+}) => {
+  const response = await patchMethod(`${ROUTES.ENDPOINT.ADMIN.PROFILE}`, data);
+  return response?.data || response;
+};
+
 export const inviteAdmin = async (data: any) => {
   const response = await postMethod(`${ROUTES.ENDPOINT.ADMIN.INVITE}`, data);
 

@@ -24,6 +24,7 @@ import {
   resendInviteAdmin,
   restoreAdmin,
   toggleAdminStatus,
+  updateAdminProfile,
 } from '../services/admins';
 
 type AdminResponse = {
@@ -69,6 +70,21 @@ export function useAdminService() {
       queryKey: ['admin-profile', { type: 'logged_in' }],
       queryFn: getAdminProfile,
       enabled: isAuthenticated,
+    });
+  }
+
+  function useUpdateAdminProfile() {
+    return useMutation({
+      mutationFn: updateAdminProfile,
+      onSuccess: (response: any) => {
+        queryClient.invalidateQueries({
+          queryKey: ['admin-profile', { type: 'logged_in' }],
+        });
+        success(response?.message || 'Profile updated successfully');
+      },
+      onError: (err: any) => {
+        error(err?.message || 'Failed to update profile');
+      },
     });
   }
 
@@ -311,6 +327,7 @@ export function useAdminService() {
   return {
     useAssignAdminsToRole,
     useAdminProfile,
+    useUpdateAdminProfile,
     useInviteAdmin,
     useGetAdminInfo,
     useDeleteAdmin,

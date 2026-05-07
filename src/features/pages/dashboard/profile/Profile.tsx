@@ -1,11 +1,60 @@
-import { Profile as ProfileComponent, Text, Loader } from '@/components';
+import { zodResolver } from '@hookform/resolvers/zod';
+import {
+  Button,
+  Input,
+  Loader,
+  Profile as ProfileComponent,
+  Text,
+} from '@/components';
 import { useAdminService } from '@/features/hooks/useAdminService';
+import { useToast } from '@/hooks';
+import { useCustomForm } from '@/libs';
 import { formatDate } from '@/utils';
 import React from 'react';
+import { z } from 'zod';
+
+const updateProfileSchema = z.object({
+  first_name: z
+    .string()
+    .transform((val) => val.trim())
+    .pipe(z.string().min(1, 'First name is required')),
+  last_name: z
+    .string()
+    .transform((val) => val.trim())
+    .pipe(z.string().min(1, 'Last name is required')),
+  phone_number: z
+    .string()
+    .transform((val) => val.trim())
+    .pipe(z.string().min(1, 'Phone number is required')),
+});
+
+type UpdateProfileSchemaType = z.infer<typeof updateProfileSchema>;
 
 export default function Profile() {
-  const { useAdminProfile } = useAdminService();
+  const toast = useToast();
+  const { useAdminProfile, useUpdateAdminProfile } = useAdminService();
   const { data: adminProfile, isLoading } = useAdminProfile();
+  const { mutate: updateAdminProfile, isPending: isUpdating } =
+    useUpdateAdminProfile();
+
+  const form = useCustomForm<UpdateProfileSchemaType>({
+    resolver: zodResolver(updateProfileSchema),
+    defaultValues: {
+      first_name: '',
+      last_name: '',
+      phone_number: '',
+    },
+  });
+
+  React.useEffect(() => {
+    if (!adminProfile) return;
+
+    form.reset({
+      first_name: adminProfile.first_name || '',
+      last_name: adminProfile.last_name || '',
+      phone_number: adminProfile.phone_number || '',
+    });
+  }, [adminProfile, form]);
 
   const adminInfo = React.useMemo(() => {
     if (!adminProfile) return [];
@@ -81,6 +130,29 @@ export default function Profile() {
     ? `Role ${adminProfile.role_id}`
     : 'No Role';
 
+  const onSubmit = (values: UpdateProfileSchemaType) => {
+    if (!adminProfile) return;
+
+    const payload: Partial<UpdateProfileSchemaType> = {};
+
+    if (values.first_name !== (adminProfile.first_name || '')) {
+      payload.first_name = values.first_name;
+    }
+    if (values.last_name !== (adminProfile.last_name || '')) {
+      payload.last_name = values.last_name;
+    }
+    if (values.phone_number !== (adminProfile.phone_number || '')) {
+      payload.phone_number = values.phone_number;
+    }
+
+    if (Object.keys(payload).length === 0) {
+      toast.info('No changes to update');
+      return;
+    }
+
+    updateAdminProfile(payload);
+  };
+
   return (
     <div className="lg:py-10">
       <div className="flex flex-col gap-8">
@@ -95,7 +167,72 @@ export default function Profile() {
           businessName={roleName}
           status={adminProfile.status || 'active'}
         >
-          <div className="flex flex-col gap-6 w-full">
+          <div className="flex flex-col gap-8 w-full">
+            <section className="w-full border border-gray-200 rounded-lg p-6">
+              <div className="flex items-center justify-between mb-5">
+                <Text variant="h5" weight="medium">
+                  Update Profile
+                </Text>
+                <Text variant="span" className="text-gray-400">
+                  Email: {adminProfile.email || '-'}
+                </Text>
+              </div>
+
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="flex flex-col gap-5"
+              >
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <Input
+                    label="First Name"
+                    placeholder="Enter first name"
+                    {...form.register('first_name')}
+                    error={form.formState.errors.first_name?.message}
+                  />
+                  <Input
+                    label="Last Name"
+                    placeholder="Enter last name"
+                    {...form.register('last_name')}
+                    error={form.formState.errors.last_name?.message}
+                  />
+                </div>
+
+                <Input
+                  label="Phone Number"
+                  placeholder="Enter phone number"
+                  {...form.register('phone_number')}
+                  error={form.formState.errors.phone_number?.message}
+                />
+
+                <div className="flex items-center gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="grow"
+                    onClick={() => {
+                      if (!adminProfile) return;
+                      form.reset({
+                        first_name: adminProfile.first_name || '',
+                        last_name: adminProfile.last_name || '',
+                        phone_number: adminProfile.phone_number || '',
+                      });
+                    }}
+                  >
+                    Reset
+                  </Button>
+                  <Button
+                    type="submit"
+                    variant="secondary"
+                    className="grow"
+                    loading={isUpdating}
+                    disabled={!form.formState.isDirty}
+                  >
+                    Save Changes
+                  </Button>
+                </div>
+              </form>
+            </section>
+
             <Text variant="h5" weight="medium">
               Personal Information
             </Text>
