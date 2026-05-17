@@ -213,5 +213,5 @@ export const DEFAULT_QUERY = {
 export const PAYMENT_GATEWAY_OPTIONS = [
   { label: 'Paystack', value: 'paystack' },
   { label: 'Eganow', value: 'eganow' },
-  { label: 'ExpressPay', value: 'expresspay' },
+  { label: 'ExpressPay', value: 'express_payout' },
 ] as const;
