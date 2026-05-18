@@ -264,27 +264,94 @@ export const deleteVendorPayment = async (id: string): Promise<any> => {
   return response?.data || response;
 };
 
-/** Normalized bank row from GET /payments/banks for vendor payouts */
-export type PayoutBankOption = {
+/** Row from GET /api/v1/payments/banks */
+export type PayoutBankApi = {
+  id: number;
   name: string;
-  /** Provider / internal code (e.g. Paystack code) */
+  slug: string;
+  code: string;
+  longcode: string;
+  gateway: string | null;
+  pay_with_bank: boolean;
+  supports_transfer: boolean;
+  available_for_direct_debit: boolean;
+  active: boolean;
+  country: string;
+  currency: string;
+  type: 'ghipss' | 'mobile_money' | string;
+  is_deleted: boolean;
+};
+
+/** Normalized bank row for vendor payout bank transfer */
+export type PayoutBankOption = {
+  id: number;
+  name: string;
+  slug: string;
+  /** Provider code from API (Paystack / GhIPSS) */
   code: string;
   /** GhIPSS sort code or ExpressPay package code — sent as `bank_code` on process-payment */
   sortCode: string;
 };
 
+function isPayoutBankEligible(raw: Record<string, unknown>): boolean {
+  if (raw.active === false) return false;
+  if (raw.is_deleted === true) return false;
+  if (raw.supports_transfer === false) return false;
+  const type = String(raw.type ?? '').toLowerCase();
+  if (type === 'mobile_money') return false;
+  return true;
+}
+
 function normalizePayoutBank(raw: Record<string, unknown>): PayoutBankOption {
-  const name = String(raw.name ?? raw.bank_name ?? 'Unknown bank');
+  const name = String(raw.name ?? raw.bank_name ?? 'Unknown bank').trim();
   const code = String(raw.code ?? raw.bank_code ?? '').trim();
+  const longcode = String(raw.longcode ?? '').trim();
   const sortCode = String(
-    raw.sort_code ??
-      raw.sortCode ??
-      raw.sortcode ??
-      raw.package_code ??
-      raw.packageCode ??
+    longcode ||
+      raw.sort_code ||
+      raw.sortCode ||
+      raw.sortcode ||
+      raw.package_code ||
+      raw.packageCode ||
       code
   ).trim();
-  return { name, code, sortCode };
+  return {
+    id: Number(raw.id ?? 0),
+    name,
+    slug: String(raw.slug ?? ''),
+    code,
+    sortCode,
+  };
+}
+
+/** Match vendor on-file bank account to a payout bank sort code */
+export function matchPayoutBankCode(
+  account: Pick<
+    VendorPaymentMethodsBankAccount,
+    'bank_name' | 'sort_code' | 'bank_code'
+  >,
+  options: PayoutBankOption[]
+): string {
+  const sortOrCode = String(account.sort_code ?? account.bank_code ?? '').trim();
+  if (sortOrCode) {
+    const byCode = options.find(
+      (b) => b.sortCode === sortOrCode || b.code === sortOrCode
+    );
+    if (byCode) return byCode.sortCode;
+  }
+
+  const name = (account.bank_name ?? '').trim().toLowerCase();
+  if (!name) return '';
+
+  const byName = options.find((b) => {
+    const bankName = b.name.toLowerCase();
+    return (
+      bankName === name ||
+      bankName.includes(name) ||
+      name.includes(bankName)
+    );
+  });
+  return byName?.sortCode ?? '';
 }
 
 export const getBanks = async (): Promise<PayoutBankOption[]> => {
@@ -292,9 +359,12 @@ export const getBanks = async (): Promise<PayoutBankOption[]> => {
   const list = Array.isArray(raw)
     ? raw
     : ((raw as { data?: unknown[] })?.data ?? []);
-  return list.map((item) =>
-    normalizePayoutBank(item as Record<string, unknown>)
-  );
+
+  return list
+    .filter((item) => isPayoutBankEligible(item as Record<string, unknown>))
+    .map((item) => normalizePayoutBank(item as Record<string, unknown>))
+    .filter((bank) => Boolean(bank.sortCode))
+    .sort((a, b) => a.name.localeCompare(b.name));
 };
 
 export const getVendorPaymentPreferences = async (

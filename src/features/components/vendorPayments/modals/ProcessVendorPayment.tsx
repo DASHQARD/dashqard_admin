@@ -19,9 +19,10 @@ import { formatCurrency, formatDate } from '@/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { PaymentFormSchema } from '@/utils/schemas/payment';
-import type {
-  VendorPaymentDetail,
-  VendorPaymentMethodsMobileMoney,
+import {
+  matchPayoutBankCode,
+  type VendorPaymentDetail,
+  type VendorPaymentMethodsMobileMoney,
 } from '@/features/services/vendorPayments';
 
 const MOBILE_PROVIDER_LABELS: Record<string, string> = {
@@ -117,21 +118,44 @@ export function ProcessVendorPayment() {
     return String(candidate);
   }, [paymentData?.id, paymentIdFromModal, paymentIdStr]);
 
-  const { data: banksData } = useGetBanks();
+  const { data: banksData, isLoading: isBanksLoading } = useGetBanks();
 
   const banks = React.useMemo(() => {
     if (!banksData) return [];
-    return banksData.map((bank) => {
-      const sortCode = bank.sortCode || bank.code;
-      return {
-        label: sortCode ? `${bank.name} — ${sortCode}` : bank.name,
-        value: sortCode,
-        name: bank.name,
-        sortCode,
-        code: bank.code,
-      };
-    });
+    return banksData.map((bank) => ({
+      label: bank.name,
+      value: bank.slug,
+      name: bank.name,
+      sortCode: bank.sortCode || bank.code,
+      slug: bank.slug,
+    }));
   }, [banksData]);
+
+  const defaultBankFields = React.useMemo(() => {
+    const firstBank = paymentData?.payment_methods?.bank_accounts?.[0];
+    if (!firstBank || !banksData?.length) {
+      return { selected_bank: '', bank_code: '' };
+    }
+
+    const sortCode = matchPayoutBankCode(firstBank, banksData);
+    const matched = sortCode
+      ? banksData.find(
+          (b) => b.sortCode === sortCode || b.code === sortCode
+        )
+      : undefined;
+
+    if (matched) {
+      return { selected_bank: matched.slug, bank_code: matched.sortCode };
+    }
+
+    const onFileSort = String(
+      firstBank.sort_code ?? firstBank.bank_code ?? ''
+    ).trim();
+    return {
+      selected_bank: '',
+      bank_code: onFileSort || sortCode,
+    };
+  }, [paymentData?.payment_methods?.bank_accounts, banksData]);
 
   const mobileMoneyOnFile = React.useMemo(() => {
     const raw = paymentData?.payment_methods?.mobile_money ?? [];
@@ -153,6 +177,7 @@ export function ProcessVendorPayment() {
     resolver: zodResolver(PaymentFormSchema),
     defaultValues: {
       payment_method: 'bank',
+      selected_bank: '',
       bank_code: '',
       account_number: '',
       mobile_money_provider: '',
@@ -161,12 +186,11 @@ export function ProcessVendorPayment() {
     },
   });
 
-  // Get selected bank name for display
-  const selectedBankCode = form.watch('bank_code');
+  const selectedBankSlug = form.watch('selected_bank');
   const selectedBank = React.useMemo(() => {
-    if (!selectedBankCode || !banks.length) return null;
-    return banks.find((b) => b.value === selectedBankCode) ?? null;
-  }, [selectedBankCode, banks]);
+    if (!selectedBankSlug || !banks.length) return null;
+    return banks.find((b) => b.value === selectedBankSlug) ?? null;
+  }, [selectedBankSlug, banks]);
 
   // Reset when modal opens or a different payment is loaded.
   // Do not put `form` in deps — useCustomForm returns a new object every render ({ ...formMethods }),
@@ -182,7 +206,8 @@ export function ProcessVendorPayment() {
 
     form.reset({
       payment_method: method,
-      bank_code: '',
+      selected_bank: defaultBankFields.selected_bank,
+      bank_code: defaultBankFields.bank_code,
       account_number: firstBank?.account_number ?? '',
       mobile_money_provider: firstMobile
         ? normalizeMobileProvider(firstMobile.provider)
@@ -197,6 +222,9 @@ export function ProcessVendorPayment() {
     paymentData?.id,
     paymentData?.notes,
     paymentData?.payment_method,
+    defaultBankFields.selected_bank,
+    defaultBankFields.bank_code,
+    banksData,
   ]);
 
   const onInvalid = React.useCallback(
@@ -235,7 +263,7 @@ export function ProcessVendorPayment() {
         {
           ...base,
           payment_method: 'bank',
-          bank_code: data.bank_code ?? '',
+          bank_code: (data.bank_code ?? '').trim(),
           account_number: (data.account_number ?? '').replace(/\s/g, ''),
         },
         {
@@ -616,7 +644,7 @@ export function ProcessVendorPayment() {
                 <div className="rounded-md border border-blue-100 bg-blue-50/80 px-4 py-3">
                   <Text variant="span" className="text-sm text-blue-900">
                     {systemPayoutLabel
-                      ? `Payout gateway (from system config): ${systemPayoutLabel}. Select a bank by its sort / package code — that value is sent as bank_code for the payout.`
+                      ? `Payout gateway (from system config): ${systemPayoutLabel}. Choose a bank or enter the sort / package code manually — it is sent as bank_code for the payout.`
                       : 'The active payout gateway is read from Payment Provider Config. Configure it there if payouts fail.'}
                   </Text>
                 </div>
@@ -626,43 +654,56 @@ export function ProcessVendorPayment() {
                   <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
                     <Controller
                       control={form.control}
-                      name="bank_code"
+                      name="selected_bank"
                       render={({ field }) => (
-                        <div>
-                          <Combobox
-                            label="Bank (sort / package code)"
-                            value={field.value}
-                            onChange={field.onChange}
-                            options={banks.map((bank) => ({
-                              label: bank.label,
-                              value: bank.value,
-                            }))}
-                            placeholder="Select bank"
-                            error={form.formState.errors.bank_code?.message}
-                          />
-                          {selectedBank ? (
-                            <div className="mt-2 rounded-md bg-white px-3 py-2 text-sm text-gray-600 ring-1 ring-gray-200 ring-inset">
-                              <p>
-                                <span className="font-medium text-gray-800">
-                                  {selectedBank.name}
-                                </span>
-                              </p>
-                              <p className="mt-0.5 font-mono text-xs">
-                                Sort code: {selectedBank.sortCode}
-                              </p>
-                            </div>
-                          ) : null}
-                        </div>
+                        <Combobox
+                          label="Bank"
+                          value={field.value}
+                          onChange={field.onChange}
+                          options={banks.map((bank) => ({
+                            label: bank.label,
+                            value: bank.value,
+                          }))}
+                          placeholder={
+                            isBanksLoading
+                              ? 'Loading banks…'
+                              : 'Select bank (optional)'
+                          }
+                          isLoading={isBanksLoading}
+                          isDisabled={isBanksLoading}
+                          extraOnChange={(option: { value?: string } | null) => {
+                            const bank = banks.find(
+                              (b) => b.value === option?.value
+                            );
+                            if (bank?.sortCode) {
+                              form.setValue('bank_code', bank.sortCode, {
+                                shouldValidate: true,
+                              });
+                            }
+                          }}
+                        />
                       )}
                     />
-                    <div>
-                      <Input
-                        label="Account Number"
-                        {...form.register('account_number')}
-                        error={form.formState.errors.account_number?.message}
-                        placeholder="Enter account number"
-                      />
-                    </div>
+                    <Input
+                      label="Sort / package code"
+                      {...form.register('bank_code')}
+                      error={form.formState.errors.bank_code?.message}
+                      placeholder="e.g. 340100"
+                      className="font-mono"
+                    />
+                    {selectedBank ? (
+                      <p className="text-xs text-gray-500 -mt-2">
+                        Suggested for {selectedBank.name}:{' '}
+                        <span className="font-mono">{selectedBank.sortCode}</span>
+                        . You can change the code above if needed.
+                      </p>
+                    ) : null}
+                    <Input
+                      label="Account Number"
+                      {...form.register('account_number')}
+                      error={form.formState.errors.account_number?.message}
+                      placeholder="Enter account number"
+                    />
                   </div>
                 )}
 

@@ -62,6 +62,9 @@ export const PaymentFormSchema = z
     payment_method: getRequiredStringSchema('Payment method'),
     mobile_money_provider: z.string().optional(),
     mobile_money_number: z.string().optional(),
+    /** Selected bank slug (UI only; payout uses bank_code) */
+    selected_bank: z.string().optional(),
+    /** GhIPSS sort code / ExpressPay package code sent as bank_code on payout */
     bank_code: z.string().optional(),
     account_number: z.string().optional(),
     notes: z.string().optional(),
@@ -91,14 +94,13 @@ export const PaymentFormSchema = z
   )
   .refine(
     (data) => {
-      // If payment_method is bank, all bank fields are required
       if (data.payment_method === 'bank') {
-        return !!(data.bank_code && data.account_number);
+        return !!(data.bank_code?.trim() && data.account_number?.trim());
       }
       return true;
     },
     {
-      message: 'All bank details are required',
+      message: 'Sort code and account number are required',
       path: ['bank_code'],
     }
   );
