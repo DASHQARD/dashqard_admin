@@ -48,6 +48,23 @@ function uniqueMobileMoney(items: VendorPaymentMethodsMobileMoney[]) {
   });
 }
 
+/** Map API / preference values to form payment_method */
+function normalizeFormPaymentMethod(
+  value: string | null | undefined
+): 'bank' | 'mobile_money' {
+  const v = (value ?? '').toLowerCase();
+  if (v.includes('mobile') || v === 'momo') return 'mobile_money';
+  if (v.includes('bank')) return 'bank';
+  return 'bank';
+}
+
+function normalizeMobileProvider(provider: string | null | undefined) {
+  const key = (provider ?? '').toLowerCase();
+  if (key === 'airtel' || key === 'tigo') return 'airtel-tigo';
+  if (key === 'mtn' || key === 'vodafone' || key === 'airtel-tigo') return key;
+  return '';
+}
+
 export function ProcessVendorPayment() {
   const modal = usePersistedModalState<Pick<VendorPaymentDetail, 'id'>>({
     paramName: MODALS.VENDOR_PAYMENT_MANAGEMENT.PARAM_NAME,
@@ -90,15 +107,26 @@ export function ProcessVendorPayment() {
     enabled: isOpen && Boolean(paymentIdStr),
   });
 
+  const resolvedPaymentId = React.useMemo(() => {
+    const candidate = paymentData?.id ?? paymentIdFromModal ?? paymentIdStr;
+    if (candidate == null || candidate === '') return '';
+    return String(candidate);
+  }, [paymentData?.id, paymentIdFromModal, paymentIdStr]);
+
   const { data: banksData } = useGetBanks();
 
   const banks = React.useMemo(() => {
     if (!banksData) return [];
-    return banksData.map((bank: any) => ({
-      label: bank.name, // Display name
-      value: bank.code, // Use code as value
-      name: bank.name, // Store name separately
-    }));
+    return banksData.map((bank) => {
+      const sortCode = bank.sortCode || bank.code;
+      return {
+        label: sortCode ? `${bank.name} — ${sortCode}` : bank.name,
+        value: sortCode,
+        name: bank.name,
+        sortCode,
+        code: bank.code,
+      };
+    });
   }, [banksData]);
 
   const mobileMoneyOnFile = React.useMemo(() => {
@@ -131,10 +159,9 @@ export function ProcessVendorPayment() {
 
   // Get selected bank name for display
   const selectedBankCode = form.watch('bank_code');
-  const selectedBankName = React.useMemo(() => {
-    if (!selectedBankCode || !banks.length) return '';
-    const bank = banks.find((b: any) => b.value === selectedBankCode);
-    return bank ? bank.name : '';
+  const selectedBank = React.useMemo(() => {
+    if (!selectedBankCode || !banks.length) return null;
+    return banks.find((b) => b.value === selectedBankCode) ?? null;
   }, [selectedBankCode, banks]);
 
   // Reset when modal opens or a different payment is loaded.
@@ -143,12 +170,20 @@ export function ProcessVendorPayment() {
   React.useEffect(() => {
     if (!isOpen || !paymentData) return;
 
+    const method = normalizeFormPaymentMethod(paymentData.payment_method);
+    const firstBank = paymentData.payment_methods?.bank_accounts?.[0];
+    const firstMobile = uniqueMobileMoney(
+      paymentData.payment_methods?.mobile_money ?? []
+    )[0];
+
     form.reset({
-      payment_method: paymentData.payment_method || 'bank',
+      payment_method: method,
       bank_code: '',
-      account_number: '',
-      mobile_money_provider: '',
-      mobile_money_number: '',
+      account_number: firstBank?.account_number ?? '',
+      mobile_money_provider: firstMobile
+        ? normalizeMobileProvider(firstMobile.provider)
+        : '',
+      mobile_money_number: firstMobile?.number ?? '',
       notes: paymentData.notes ?? '',
     });
     // form: identity changes every render from useCustomForm; paymentData: use id/fields instead of object ref
@@ -160,12 +195,35 @@ export function ProcessVendorPayment() {
     paymentData?.payment_method,
   ]);
 
+  const onInvalid = React.useCallback(
+    (errors: typeof form.formState.errors) => {
+      const firstMessage =
+        errors.payment_method?.message ||
+        errors.bank_code?.message ||
+        errors.account_number?.message ||
+        errors.mobile_money_provider?.message ||
+        errors.mobile_money_number?.message ||
+        errors.notes?.message;
+      if (firstMessage) {
+        toast.error(String(firstMessage));
+      }
+    },
+    [toast]
+  );
+
   const onSubmit: SubmitHandler<z.infer<typeof PaymentFormSchema>> = (data) => {
     if (!paymentData) return;
 
+    if (!resolvedPaymentId) {
+      toast.error(
+        'Missing payment id. Close and open process payment again.'
+      );
+      return;
+    }
+
     const notes = (data.notes ?? '').trim();
     const base = {
-      id: Number(paymentData.id),
+      id: resolvedPaymentId,
       payment_date: new Date().toISOString(),
       ...(notes ? { notes } : {}),
     };
@@ -261,7 +319,7 @@ export function ProcessVendorPayment() {
         </div>
       ) : (
         <form
-          onSubmit={form.handleSubmit(onSubmit)}
+          onSubmit={form.handleSubmit(onSubmit, onInvalid)}
           className="flex flex-col h-full"
         >
           <div className="h-full px-6 flex flex-col gap-6 justify-between">
@@ -503,9 +561,15 @@ export function ProcessVendorPayment() {
                                     {acc.account_name}
                                   </p>
                                 ) : null}
+                                {acc.sort_code || acc.bank_code ? (
+                                  <p className="text-xs font-mono text-gray-600 mt-0.5">
+                                    Sort code:{' '}
+                                    {String(acc.sort_code ?? acc.bank_code)}
+                                  </p>
+                                ) : null}
                                 {acc.account_number ? (
                                   <p className="text-xs font-mono text-gray-600 mt-0.5">
-                                    {acc.account_number}
+                                    Account: {acc.account_number}
                                   </p>
                                 ) : null}
                               </li>
@@ -541,9 +605,7 @@ export function ProcessVendorPayment() {
                         { label: 'Mobile Money', value: 'mobile_money' },
                       ]}
                       value={field.value}
-                      onChange={(value: string) => {
-                        field.onChange(value);
-                      }}
+                      onChange={field.onChange}
                       error={form.formState.errors.payment_method?.message}
                     />
                   )}
@@ -552,7 +614,7 @@ export function ProcessVendorPayment() {
                 <div className="rounded-md border border-blue-100 bg-blue-50/80 px-4 py-3">
                   <Text variant="span" className="text-sm text-blue-900">
                     {systemPayoutLabel
-                      ? `Payout gateway (from system config): ${systemPayoutLabel}. Bank codes and mobile providers are interpreted for this gateway.`
+                      ? `Payout gateway (from system config): ${systemPayoutLabel}. Select a bank by its sort / package code — that value is sent as bank_code for the payout.`
                       : 'The active payout gateway is read from Payment Provider Config. Configure it there if payouts fail.'}
                   </Text>
                 </div>
@@ -566,22 +628,28 @@ export function ProcessVendorPayment() {
                       render={({ field }) => (
                         <div>
                           <Combobox
-                            label="Bank"
+                            label="Bank (sort / package code)"
                             value={field.value}
-                            onChange={(value: string) => {
-                              field.onChange(value);
-                            }}
-                            options={banks.map((bank: any) => ({
+                            onChange={field.onChange}
+                            options={banks.map((bank) => ({
                               label: bank.label,
                               value: bank.value,
                             }))}
                             placeholder="Select bank"
+                            error={form.formState.errors.bank_code?.message}
                           />
-                          {selectedBankName && (
-                            <p className="mt-1 text-sm text-gray-600">
-                              Selected: {selectedBankName}
-                            </p>
-                          )}
+                          {selectedBank ? (
+                            <div className="mt-2 rounded-md bg-white px-3 py-2 text-sm text-gray-600 ring-1 ring-gray-200 ring-inset">
+                              <p>
+                                <span className="font-medium text-gray-800">
+                                  {selectedBank.name}
+                                </span>
+                              </p>
+                              <p className="mt-0.5 font-mono text-xs">
+                                Sort code: {selectedBank.sortCode}
+                              </p>
+                            </div>
+                          ) : null}
                         </div>
                       )}
                     />
@@ -589,6 +657,7 @@ export function ProcessVendorPayment() {
                       <Input
                         label="Account Number"
                         {...form.register('account_number')}
+                        error={form.formState.errors.account_number?.message}
                         placeholder="Enter account number"
                       />
                     </div>
@@ -606,7 +675,10 @@ export function ProcessVendorPayment() {
                           label="Mobile Money Provider"
                           placeholder="Select provider"
                           value={field.value}
-                          onChange={(value: string) => field.onChange(value)}
+                          onChange={field.onChange}
+                          error={
+                            form.formState.errors.mobile_money_provider?.message
+                          }
                           options={[
                             { label: 'MTN Mobile Money', value: 'mtn' },
                             { label: 'Vodafone Cash', value: 'vodafone' },
@@ -622,6 +694,9 @@ export function ProcessVendorPayment() {
                       <Input
                         label="Mobile Money Number"
                         {...form.register('mobile_money_number')}
+                        error={
+                          form.formState.errors.mobile_money_number?.message
+                        }
                         placeholder="e.g. 233559617908 or +233559617908"
                       />
                     </div>

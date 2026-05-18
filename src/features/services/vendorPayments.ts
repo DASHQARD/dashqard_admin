@@ -137,6 +137,8 @@ export type VendorPaymentMethodsBankAccount = {
   bank_name?: string;
   account_number?: string;
   account_name?: string;
+  sort_code?: string;
+  bank_code?: string;
   [key: string]: unknown;
 };
 
@@ -208,7 +210,16 @@ export const getVendorPaymentById = async (
   id: string
 ): Promise<VendorPaymentDetail> => {
   const raw = await getMethod<unknown>(commonUrl, id);
-  return unwrapVendorPaymentDetail(raw);
+  const detail = unwrapVendorPaymentDetail(raw);
+  // Some API responses omit `id` on the body; keep the requested id for mutations.
+  if (detail.id == null && id.trim()) {
+    const asNum = Number(id);
+    return {
+      ...detail,
+      id: Number.isFinite(asNum) ? asNum : (id as unknown as number),
+    };
+  }
+  return detail;
 };
 
 export type UpdateVendorPaymentData = {
@@ -253,8 +264,37 @@ export const deleteVendorPayment = async (id: string): Promise<any> => {
   return response?.data || response;
 };
 
-export const getBanks = async (): Promise<any> => {
-  return await getMethod('payments/banks');
+/** Normalized bank row from GET /payments/banks for vendor payouts */
+export type PayoutBankOption = {
+  name: string;
+  /** Provider / internal code (e.g. Paystack code) */
+  code: string;
+  /** GhIPSS sort code or ExpressPay package code — sent as `bank_code` on process-payment */
+  sortCode: string;
+};
+
+function normalizePayoutBank(raw: Record<string, unknown>): PayoutBankOption {
+  const name = String(raw.name ?? raw.bank_name ?? 'Unknown bank');
+  const code = String(raw.code ?? raw.bank_code ?? '').trim();
+  const sortCode = String(
+    raw.sort_code ??
+      raw.sortCode ??
+      raw.sortcode ??
+      raw.package_code ??
+      raw.packageCode ??
+      code
+  ).trim();
+  return { name, code, sortCode };
+}
+
+export const getBanks = async (): Promise<PayoutBankOption[]> => {
+  const raw = await getMethod<unknown>('payments/banks');
+  const list = Array.isArray(raw)
+    ? raw
+    : ((raw as { data?: unknown[] })?.data ?? []);
+  return list.map((item) =>
+    normalizePayoutBank(item as Record<string, unknown>)
+  );
 };
 
 export const getVendorPaymentPreferences = async (
@@ -294,7 +334,7 @@ export const updateVendorPaymentPreferences = async (
  * GET /payment-provider-config (Paystack, Eganow, ExpressPay BillPay).
  */
 export type ProcessVendorPaymentPayload = {
-  id: number;
+  id: string;
   payment_method: 'bank' | 'mobile_money';
   /** ISO 8601 datetime */
   payment_date: string;
