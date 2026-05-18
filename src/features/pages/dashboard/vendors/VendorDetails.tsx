@@ -168,7 +168,8 @@ export default function VendorDetails() {
                 className="border-amber-500 text-amber-700"
                 onClick={() =>
                   paymentPreferencesModal.openModal(
-                    MODALS.VENDOR_PAYMENT_MANAGEMENT.CHILDREN.MANAGE_PREFERENCES,
+                    MODALS.VENDOR_PAYMENT_MANAGEMENT.CHILDREN
+                      .MANAGE_PREFERENCES,
                     {
                       id: vendorDetails?.id ?? vendorDetails?.vendor_id,
                       vendor_id: vendorDetails?.vendor_id ?? vendorDetails?.id,

@@ -188,10 +188,9 @@ export function CreateVendorPayment() {
 
   const vendorId = form.watch('vendor_id');
 
-  const { data: vendorDetailsResponse } = useGetVendorDetails(
-    vendorId || '',
-    { enabled: isOpen && !!vendorId }
-  );
+  const { data: vendorDetailsResponse } = useGetVendorDetails(vendorId || '', {
+    enabled: isOpen && !!vendorId,
+  });
 
   const vendorDetails = React.useMemo(() => {
     if (!vendorDetailsResponse) return null;

@@ -116,9 +116,7 @@ export function CreateRole() {
                   render={({ field }) => (
                     <Checkbox
                       label={`${permission.permission} - ${permission.description}`}
-                      checked={
-                        field.value?.includes(permission.id) || false
-                      }
+                      checked={field.value?.includes(permission.id) || false}
                       onChange={(e) => {
                         const currentPermissions = field.value || [];
                         if (e.target.checked) {

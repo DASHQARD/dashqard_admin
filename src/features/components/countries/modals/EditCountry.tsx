@@ -43,9 +43,7 @@ const statusOptions = [
   { label: 'Inactive', value: 'inactive' },
 ];
 
-const normalizeStatus = (
-  status?: string
-): EditCountrySchemaType['status'] => {
+const normalizeStatus = (status?: string): EditCountrySchemaType['status'] => {
   return status === 'inactive' ? 'inactive' : 'active';
 };
 

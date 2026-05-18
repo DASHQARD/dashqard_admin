@@ -63,7 +63,9 @@ const authStore: StateCreator<State & Actions> = (set, get) => ({
   authenticate: ({ token, refreshToken, role, permissions }) => {
     const currentState = get();
     const nextRefreshToken =
-      refreshToken !== undefined ? refreshToken ?? null : currentState.refreshToken;
+      refreshToken !== undefined
+        ? (refreshToken ?? null)
+        : currentState.refreshToken;
 
     const oldRefresh = currentState.refreshToken;
     const refreshTokenChanged =

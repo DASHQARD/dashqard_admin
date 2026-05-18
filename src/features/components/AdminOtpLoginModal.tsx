@@ -12,7 +12,10 @@ type Props = {
   onBackToLogin: () => void;
 };
 
-export default function AdminOtpLoginModal({ sessionId, onBackToLogin }: Props) {
+export default function AdminOtpLoginModal({
+  sessionId,
+  onBackToLogin,
+}: Props) {
   const { useVerifyLoginTokenService } = useAuth();
   const { mutate, isPending } = useVerifyLoginTokenService();
   const [isLockedOut, setIsLockedOut] = React.useState(false);
@@ -44,7 +47,10 @@ export default function AdminOtpLoginModal({ sessionId, onBackToLogin }: Props) 
   };
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
+    <form
+      onSubmit={form.handleSubmit(onSubmit)}
+      className="flex flex-col gap-4"
+    >
       <div className="flex items-center gap-3">
         <div className="bg-primary-500 rounded-full h-10 w-10 flex items-center justify-center">
           <Icon icon="bi:shield-check" className="size-5 text-white" />

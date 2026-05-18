@@ -9,7 +9,11 @@ import {
 } from '@/features/hooks/vendorPaymentsManagement';
 import { paymentProviderConfigManagementQueries } from '@/features/hooks/paymentProviderConfigManagement';
 import { PAYMENT_GATEWAY_OPTIONS } from '@/utils/constants';
-import { Controller, type SubmitHandler } from 'react-hook-form';
+import {
+  Controller,
+  type FieldErrors,
+  type SubmitHandler,
+} from 'react-hook-form';
 import { Icon, useCustomForm } from '@/libs';
 import { formatCurrency, formatDate } from '@/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -196,7 +200,7 @@ export function ProcessVendorPayment() {
   ]);
 
   const onInvalid = React.useCallback(
-    (errors: typeof form.formState.errors) => {
+    (errors: FieldErrors<z.infer<typeof PaymentFormSchema>>) => {
       const firstMessage =
         errors.payment_method?.message ||
         errors.bank_code?.message ||
@@ -215,9 +219,7 @@ export function ProcessVendorPayment() {
     if (!paymentData) return;
 
     if (!resolvedPaymentId) {
-      toast.error(
-        'Missing payment id. Close and open process payment again.'
-      );
+      toast.error('Missing payment id. Close and open process payment again.');
       return;
     }
 

@@ -46,8 +46,12 @@ export default function InviteAdmin() {
   const { mutate: inviteAdmin, isPending } = useInviteAdmin();
   const { useGetAllRoles } = rolesManagementQueries();
   const { data: rolesData, isLoading: isLoadingRoles } = useGetAllRoles();
-  const [rateLimitMessage, setRateLimitMessage] = React.useState<string | null>(null);
-  const [rateLimitedEmail, setRateLimitedEmail] = React.useState<string | null>(null);
+  const [rateLimitMessage, setRateLimitMessage] = React.useState<string | null>(
+    null
+  );
+  const [rateLimitedEmail, setRateLimitedEmail] = React.useState<string | null>(
+    null
+  );
 
   const form = useCustomForm({
     resolver: zodResolver(inviteAdminSchema),

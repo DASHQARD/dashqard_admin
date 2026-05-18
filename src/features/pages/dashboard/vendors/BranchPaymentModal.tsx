@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import { Button, Input, Modal, Text } from '@/components';
 
@@ -28,18 +28,26 @@ export default function BranchPaymentModal({
   const [method, setMethod] = useState('Bank Transfer');
   const [amount, setAmount] = useState('');
 
-  useEffect(() => {
-    if (!isOpen) {
-      setReference('');
-      setMethod('Bank Transfer');
-      setAmount('');
-    }
-  }, [isOpen]);
+  const resetForm = () => {
+    setReference('');
+    setMethod('Bank Transfer');
+    setAmount('');
+  };
+
+  const handleSetIsOpen = (open: boolean) => {
+    if (!open) resetForm();
+    setIsOpen(open);
+  };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const parsedAmount = Number(amount);
-    if (!reference.trim() || !method.trim() || Number.isNaN(parsedAmount) || parsedAmount <= 0) {
+    if (
+      !reference.trim() ||
+      !method.trim() ||
+      Number.isNaN(parsedAmount) ||
+      parsedAmount <= 0
+    ) {
       return;
     }
 
@@ -51,11 +59,16 @@ export default function BranchPaymentModal({
       amount: parsedAmount,
       status: 'processing',
     });
-    setIsOpen(false);
+    handleSetIsOpen(false);
   };
 
   return (
-    <Modal isOpen={isOpen} setIsOpen={setIsOpen} showClose panelClass="max-w-[520px]">
+    <Modal
+      isOpen={isOpen}
+      setIsOpen={handleSetIsOpen}
+      showClose
+      panelClass="max-w-[520px]"
+    >
       <div className="p-6">
         <Text className="text-lg font-semibold text-primary-900">
           Make Payment To Branch
@@ -93,7 +106,11 @@ export default function BranchPaymentModal({
           />
 
           <div className="flex justify-end gap-3 pt-2">
-            <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => handleSetIsOpen(false)}
+            >
               Cancel
             </Button>
             <Button type="submit" variant="secondary">

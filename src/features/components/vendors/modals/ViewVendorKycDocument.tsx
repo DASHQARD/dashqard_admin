@@ -19,7 +19,9 @@ export const ViewVendorKycDocument = () => {
   const fileType = fileUrl
     ? (() => {
         try {
-          return new URL(fileUrl).pathname.split('.').pop()?.toLowerCase() ?? '';
+          return (
+            new URL(fileUrl).pathname.split('.').pop()?.toLowerCase() ?? ''
+          );
         } catch {
           return fileUrl.split('.').pop()?.toLowerCase() ?? '';
         }

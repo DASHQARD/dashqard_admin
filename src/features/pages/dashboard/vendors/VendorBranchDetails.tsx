@@ -2,7 +2,9 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 
 import { Button, CustomIcon, Tag, Text } from '@/components';
-import BranchPaymentModal, { type NewBranchPayment } from './BranchPaymentModal';
+import BranchPaymentModal, {
+  type NewBranchPayment,
+} from './BranchPaymentModal';
 
 type BranchStatus = 'active' | 'inactive';
 type PaymentStatus = 'paid' | 'processing' | 'failed';
@@ -230,7 +232,9 @@ export default function VendorBranchDetails() {
 
       <div className="border border-gray-200 rounded-lg">
         <div className="bg-[#FAFAFA] p-3">
-          <h2 className="text-gray-500 font-medium">Payments Made To This Branch</h2>
+          <h2 className="text-gray-500 font-medium">
+            Payments Made To This Branch
+          </h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[760px]">
@@ -263,11 +267,15 @@ export default function VendorBranchDetails() {
                   className="border-b border-gray-100 last:border-b-0"
                 >
                   <td className="p-3 text-sm text-primary-900">{payment.id}</td>
-                  <td className="p-3 text-sm text-primary-900">{payment.reference}</td>
+                  <td className="p-3 text-sm text-primary-900">
+                    {payment.reference}
+                  </td>
                   <td className="p-3 text-sm text-primary-900">
                     {new Date(payment.date).toLocaleDateString()}
                   </td>
-                  <td className="p-3 text-sm text-primary-900">{payment.method}</td>
+                  <td className="p-3 text-sm text-primary-900">
+                    {payment.method}
+                  </td>
                   <td className="p-3 text-sm text-primary-900">
                     {new Intl.NumberFormat('en-GH', {
                       style: 'currency',

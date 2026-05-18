@@ -90,9 +90,7 @@ export function EditRole() {
 
       const fromRolePermissionsApi = rolePermissionsRows.length
         ? rolePermissionsRows
-            .map((p: any) =>
-              String(p?.permission_id || p?.id || '').trim()
-            )
+            .map((p: any) => String(p?.permission_id || p?.id || '').trim())
             .filter(Boolean)
         : [];
 
@@ -101,13 +99,17 @@ export function EditRole() {
             .map((p: any) =>
               typeof p === 'string'
                 ? p
-                : String(p?.permission_id || p?.id || p?.permission || '').trim()
+                : String(
+                    p?.permission_id || p?.id || p?.permission || ''
+                  ).trim()
             )
             .filter(Boolean)
         : [];
 
       const rolePermissions =
-        fromRolePermissionsApi.length > 0 ? fromRolePermissionsApi : fromRoleObject;
+        fromRolePermissionsApi.length > 0
+          ? fromRolePermissionsApi
+          : fromRoleObject;
 
       form.reset({
         id: String(role.id),

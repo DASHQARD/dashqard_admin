@@ -128,9 +128,9 @@ export default function Fees() {
             <Text variant="span" className="text-gray-600 text-sm block -mt-2">
               Enter each rate as a proportion from <strong>0</strong> to{' '}
               <strong>1</strong>, where <strong>1</strong> equals 100%. For
-              example, <strong>0.025</strong> is 2.5% and <strong>0.09</strong> is
-              9%. The maximum value allowed here is <strong>1</strong>; your API
-              may enforce stricter limits.
+              example, <strong>0.025</strong> is 2.5% and <strong>0.09</strong>{' '}
+              is 9%. The maximum value allowed here is <strong>1</strong>; your
+              API may enforce stricter limits.
             </Text>
 
             <Input

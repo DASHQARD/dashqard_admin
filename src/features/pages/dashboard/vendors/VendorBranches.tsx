@@ -1,12 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 
-import {
-  Button,
-  CustomIcon,
-  Tag,
-  Text,
-} from '@/components';
+import { Button, CustomIcon, Tag, Text } from '@/components';
 import BranchPaymentModal from './BranchPaymentModal';
 
 type BranchStatus = 'active' | 'inactive';
@@ -51,7 +46,6 @@ const mockBranches: Branch[] = [
   },
 ];
 
-
 export default function VendorBranches() {
   const navigate = useNavigate();
   const params = useParams();
@@ -60,7 +54,10 @@ export default function VendorBranches() {
   const [paymentBranchName, setPaymentBranchName] = useState('');
 
   const branches = useMemo(
-    () => mockBranches.filter((branch) => branch.vendorId === vendorId || vendorId === ''),
+    () =>
+      mockBranches.filter(
+        (branch) => branch.vendorId === vendorId || vendorId === ''
+      ),
     [vendorId]
   );
 
@@ -142,9 +139,7 @@ export default function VendorBranches() {
                   </td>
                   <td className="p-3 text-sm">
                     <Tag
-                      value={
-                        branch.status === 'active' ? 'Active' : 'Inactive'
-                      }
+                      value={branch.status === 'active' ? 'Active' : 'Inactive'}
                       variant={branchVariant(branch.status)}
                     />
                   </td>

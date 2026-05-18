@@ -11,7 +11,12 @@ type JwtPayload = {
 };
 const REFRESH_THRESHOLD_MS = 60_000; // refresh 1 minute before expiry
 
-const ACTIVITY_EVENTS = ['mousedown', 'keydown', 'click', 'touchstart'] as const;
+const ACTIVITY_EVENTS = [
+  'mousedown',
+  'keydown',
+  'click',
+  'touchstart',
+] as const;
 
 export function useAutoRefreshToken() {
   const token = useAuthStore((state) => state.token);
