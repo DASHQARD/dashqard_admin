@@ -1,10 +1,9 @@
-import { DateCell, StatusCell } from '@/components';
+import { DateCellTimestamp, StatusCell } from '@/components';
 import type { CsvHeader } from '@/types/shared';
 import { formatDate } from '@/utils';
 import { PaymentActionCell } from './PaymentActionCell';
 
 export const paymentListColumns = [
-  { header: 'ID', accessorKey: 'id' },
   { header: 'Transaction ID', accessorKey: 'trans_id' },
   { header: 'Receipt Number', accessorKey: 'receipt_number' },
   { header: 'User Name', accessorKey: 'user_name' },
@@ -15,13 +14,12 @@ export const paymentListColumns = [
   {
     header: 'Created At',
     accessorKey: 'created_at',
-    cell: DateCell,
+    cell: DateCellTimestamp,
   },
   { id: 'actions', header: '', accessorKey: '', cell: PaymentActionCell },
 ];
 
 export const paymentListCsvHeaders: Array<CsvHeader> = [
-  { name: 'ID', accessor: 'id' },
   { name: 'Transaction ID', accessor: 'trans_id' },
   { name: 'Receipt Number', accessor: 'receipt_number' },
   { name: 'User Name', accessor: 'user_name' },
@@ -32,6 +30,6 @@ export const paymentListCsvHeaders: Array<CsvHeader> = [
   {
     name: 'Created At',
     accessor: 'created_at',
-    transform: (value) => formatDate(value, 'DD MMM YYYY'),
+    transform: (value) => formatDate(value, 'DD MMM YYYY, HH:mm'),
   },
 ];
