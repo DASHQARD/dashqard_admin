@@ -7,6 +7,10 @@ import { useSearch } from '@/hooks/useSearch';
 import { useAuthStore } from '@/stores';
 import React, { useCallback, useMemo } from 'react';
 import { usePersistedModalState } from '@/hooks';
+import {
+  isCorporateRequest,
+  isVendorRequest,
+} from '@/features/utils/requestFilters';
 
 export function useRequestManagementBase() {
   const { state } = useSearch();
@@ -39,6 +43,13 @@ export function useRequestManagementBase() {
     }
     if (query.status) {
       apiParams.status = query.status;
+    }
+    const q = query as Record<string, unknown>;
+    if (q.dateFrom) {
+      apiParams.date_from = String(q.dateFrom);
+    }
+    if (q.dateTo) {
+      apiParams.date_to = String(q.dateTo);
     }
     return apiParams;
   }, [query]);
@@ -87,19 +98,17 @@ export function useRequestManagementBase() {
     };
   }, [allRequestsResponse]);
 
-  // Filter corporate requests (user_type includes "corporate")
   const requestCorporatesList = React.useMemo(() => {
     if (!allRequestsList || !Array.isArray(allRequestsList)) return [];
-    return allRequestsList.filter((request: any) =>
-      request.user_type?.toLowerCase().includes('corporate')
+    return allRequestsList.filter((request: Record<string, unknown>) =>
+      isCorporateRequest(request as { user_type?: string })
     );
   }, [allRequestsList]);
 
-  // Filter vendor requests (user_type === "vendor")
   const requestVendorsList = React.useMemo(() => {
     if (!allRequestsList || !Array.isArray(allRequestsList)) return [];
-    return allRequestsList.filter(
-      (request: any) => request.user_type?.toLowerCase() === 'vendor'
+    return allRequestsList.filter((request: Record<string, unknown>) =>
+      isVendorRequest(request as { user_type?: string })
     );
   }, [allRequestsList]);
 
@@ -150,7 +159,9 @@ export function useRequestManagementBase() {
     // Approve option - only show if status is not already approved
     if (
       option?.hasApprove &&
-      requestCorporate.status?.toLowerCase() !== 'approved' &&
+      !String(requestCorporate.status ?? '')
+        .toLowerCase()
+        .includes('approved') &&
       (permissionsToCheck.some(
         (p) =>
           p.toLowerCase().includes('corporates:manage') ||
@@ -269,7 +280,9 @@ export function useRequestManagementBase() {
     // Approve option - only show if status is not already approved
     if (
       option?.hasApprove &&
-      requestVendor.status?.toLowerCase() !== 'approved' &&
+      !String(requestVendor.status ?? '')
+        .toLowerCase()
+        .includes('approved') &&
       (permissionsToCheck.some(
         (p) =>
           p.toLowerCase().includes('vendors:manage') ||

@@ -57,10 +57,11 @@ export function ViewVendorRequestDetails() {
     requestDetailsResponse?.data ?? requestDetailsResponse ?? null;
 
   const requestId = details?.id ?? requestData?.id;
+  const statusValue = (
+    details?.status ?? (requestData as { status?: string })?.status
+  )?.toLowerCase();
   const isPending =
-    (
-      details?.status ?? (requestData as { status?: string })?.status
-    )?.toLowerCase() === 'pending';
+    statusValue === 'pending' || Boolean(statusValue?.includes('awaiting'));
 
   const handleApprove = () => {
     if (requestId == null) return;

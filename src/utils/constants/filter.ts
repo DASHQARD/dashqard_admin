@@ -38,4 +38,10 @@ export const OPTIONS = {
   VENDOR_PAYMENT_FREQUENCY: ['daily', 'weekly', 'bi-weekly', 'monthly'],
   SUPER_ADMIN_INVITATIONS_STATUS: ['pending', 'accepted'],
   PAYMENT_STATUS: ['pending', 'paid'],
+  REQUEST_STATUS: [
+    'awaiting admin approval',
+    'pending',
+    'approved',
+    'rejected',
+  ],
 };

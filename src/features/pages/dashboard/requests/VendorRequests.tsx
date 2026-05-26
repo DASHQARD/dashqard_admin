@@ -35,6 +35,9 @@ export default function VendorRequests() {
     isLoadingRequestCorporatesList,
     query,
     setQuery,
+    pagination,
+    handleNextPage,
+    handleSetAfter,
   } = useRequestManagementBase();
 
   return (
@@ -66,35 +69,30 @@ export default function VendorRequests() {
                 simpleSelects: [
                   {
                     label: 'status',
-                    options: OPTIONS.VENDOR_MANAGEMENT_STATUS,
+                    options: OPTIONS.REQUEST_STATUS,
                   },
                 ],
                 date: [{ queryKey: 'dateFrom' }, { queryKey: 'dateTo' }],
               }}
               printTitle="Vendor Requests"
-              hasNextPage={false}
-              hasPreviousPage={false}
+              hasNextPage={pagination?.hasNextPage}
+              hasPreviousPage={pagination?.hasPreviousPage}
               currentAfter={
-                (query as any).after ? String((query as any).after) : undefined
+                (query as { after?: string }).after
+                  ? String((query as { after?: string }).after)
+                  : undefined
               }
-              previousCursor={null}
-              onNextPage={() => {
-                // Pagination will be implemented when hook supports it
-              }}
+              previousCursor={pagination?.previous ?? null}
+              onNextPage={handleNextPage}
               onPreviousPage={() => {
-                // Pagination will be implemented when hook supports it
-              }}
-              onSetAfter={(after: string) => {
-                // Pagination will be implemented when hook supports it
-                const queryWithAfter = query as any;
-                if (after) {
-                  setQuery({ ...query, after } as any);
+                const queryWithAfter = query as { after?: string };
+                if (queryWithAfter.after && pagination?.previous) {
+                  handleSetAfter(pagination.previous);
                 } else {
-                  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                  const { after: _, ...rest } = queryWithAfter;
-                  setQuery(rest);
+                  handleSetAfter('');
                 }
               }}
+              onSetAfter={handleSetAfter}
             />
           </div>
         </div>

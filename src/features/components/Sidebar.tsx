@@ -8,7 +8,6 @@ import { cn } from '@/libs';
 import { SidebarSection } from './SidebarSection';
 import { usePendingRequestsCount } from '@/features/hooks/requestManagement/usePendingRequestsCount';
 import { usePendingCustomersCount } from '@/features/hooks/customerManagement';
-import { useInactiveVendorsCount } from '@/features/hooks/vendorManagement';
 import { useOverduePaymentsCount } from '@/features/hooks/vendorPaymentsManagement';
 import { useAdminService } from '@/features/hooks/useAdminService';
 import { adminLogout } from '@/features/services';
@@ -109,7 +108,6 @@ export default function AdminSidebar() {
   const { corporate: corporatePendingCount, vendor: vendorPendingCount } =
     usePendingRequestsCount();
 
-  const inactiveVendorsCount = useInactiveVendorsCount();
   const overduePaymentsCount = useOverduePaymentsCount();
   const pendingCustomersCount = usePendingCustomersCount();
 
@@ -151,12 +149,12 @@ export default function AdminSidebar() {
         return {
           ...item,
           children: childrenWithBadges,
-          // Customers: pending count; Vendors parent: inactive vendors; Corporates: pending requests
+          // Customers: pending count; Vendors parent: pending vendor/branch requests; Corporates: pending requests
           badgeCount:
             isCustomersItem && pendingCustomersCount > 0
               ? pendingCustomersCount
-              : isVendorsItem && inactiveVendorsCount > 0
-                ? inactiveVendorsCount
+              : isVendorsItem && vendorPendingCount > 0
+                ? vendorPendingCount
                 : isCorporatesItem && corporatePendingCount > 0
                   ? corporatePendingCount
                   : undefined,
@@ -166,7 +164,6 @@ export default function AdminSidebar() {
   }, [
     corporatePendingCount,
     vendorPendingCount,
-    inactiveVendorsCount,
     overduePaymentsCount,
     pendingCustomersCount,
   ]);

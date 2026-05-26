@@ -3,7 +3,7 @@ import { vendorManagementQueries } from './vendorQueries';
 
 export function useInactiveVendorsCount(): number {
   const { useGetVendors } = vendorManagementQueries();
-  const { data } = useGetVendors({ status: 'inactive', limit: 100 });
+  const { data } = useGetVendors({ limit: 100 });
 
   return useMemo(() => {
     const list = data?.data ?? [];

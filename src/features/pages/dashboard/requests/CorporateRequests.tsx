@@ -26,6 +26,9 @@ export default function Corporates() {
     isLoadingRequestCorporatesList,
     query,
     setQuery,
+    pagination,
+    handleNextPage,
+    handleSetAfter,
   } = useRequestManagementBase();
 
   return (
@@ -65,12 +68,30 @@ export default function Corporates() {
                 simpleSelects: [
                   {
                     label: 'status',
-                    options: OPTIONS.CORPORATE_MANAGEMENT_STATUS,
+                    options: OPTIONS.REQUEST_STATUS,
                   },
                 ],
                 date: [{ queryKey: 'dateFrom' }, { queryKey: 'dateTo' }],
               }}
-              printTitle="Corporates"
+              printTitle="Corporate Requests"
+              hasNextPage={pagination?.hasNextPage}
+              hasPreviousPage={pagination?.hasPreviousPage}
+              currentAfter={
+                (query as { after?: string }).after
+                  ? String((query as { after?: string }).after)
+                  : undefined
+              }
+              previousCursor={pagination?.previous ?? null}
+              onNextPage={handleNextPage}
+              onPreviousPage={() => {
+                const queryWithAfter = query as { after?: string };
+                if (queryWithAfter.after && pagination?.previous) {
+                  handleSetAfter(pagination.previous);
+                } else {
+                  handleSetAfter('');
+                }
+              }}
+              onSetAfter={handleSetAfter}
             />
           </div>
         </div>
