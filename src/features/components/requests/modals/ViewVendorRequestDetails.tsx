@@ -3,6 +3,7 @@ import { requestManagementQueries } from '@/features/hooks/requestManagement ';
 import { usePersistedModalState } from '@/hooks';
 import { MODALS } from '@/utils/constants';
 import { formatDate, getStatusVariant } from '@/utils/helpers';
+import { EntityDetailsSection } from './EntityDetailsSection';
 
 type RequestDetailsData = {
   id?: number;
@@ -15,15 +16,18 @@ type RequestDetailsData = {
   type?: string;
   entity_id?: number | string;
   user_id?: number;
-  initiated_by_user_id?: number;
+  initiated_by_user_id?: number | string;
   initiated_by_user_type?: string;
+  initiated_by_name?: string;
+  reviewed_by_name?: string;
   current_approver_level?: string;
   approval_chain?: Array<{
     level?: string;
     status?: string;
     reviewed_at?: string | null;
-    approver_user_id?: number;
+    approver_user_id?: number | string;
     approver_user_type?: string;
+    approver_name?: string;
   }>;
   rejection_reason?: string | null;
   request_data?: Record<string, unknown>;
@@ -32,6 +36,7 @@ type RequestDetailsData = {
   reviewed_at?: string | null;
   created_at?: string;
   updated_at?: string;
+  entity_details?: Record<string, unknown>;
 };
 
 function formatLabel(key: string): string {
@@ -146,25 +151,12 @@ export function ViewVendorRequestDetails() {
               <DetailRow label="Type" value={details?.type} />
               <DetailRow label="User Type" value={details?.user_type} />
               <DetailRow
-                label="Entity ID"
+                label="Initiated By"
                 value={
-                  details?.entity_id != null
-                    ? String(details.entity_id)
-                    : undefined
-                }
-              />
-              <DetailRow
-                label="User ID"
-                value={
-                  details?.user_id != null ? String(details.user_id) : undefined
-                }
-              />
-              <DetailRow
-                label="Initiated By User ID"
-                value={
-                  details?.initiated_by_user_id != null
+                  details?.initiated_by_name ??
+                  (details?.initiated_by_user_id != null
                     ? String(details.initiated_by_user_id)
-                    : undefined
+                    : undefined)
                 }
               />
               <DetailRow
@@ -189,8 +181,16 @@ export function ViewVendorRequestDetails() {
                   />
                 )}
 
-              {details?.reviewed_by != null && details.reviewed_by !== '' && (
-                <DetailRow label="Reviewed By" value={details.reviewed_by} />
+              {(details?.reviewed_by_name || details?.reviewed_by) && (
+                <DetailRow
+                  label="Reviewed By"
+                  value={
+                    details?.reviewed_by_name ??
+                    (details?.reviewed_by != null
+                      ? String(details.reviewed_by)
+                      : undefined)
+                  }
+                />
               )}
 
               {details?.reviewed_at != null && details.reviewed_at !== '' && (
@@ -219,14 +219,25 @@ export function ViewVendorRequestDetails() {
               </div>
             </div>
 
+            {details?.entity_details &&
+              typeof details.entity_details === 'object' && (
+                <EntityDetailsSection entityDetails={details.entity_details} />
+              )}
+
             {details?.request_data &&
               Object.keys(details.request_data).length > 0 && (
                 <DetailRow
                   label="Request Data"
                   children={
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5 mt-1">
-                      {Object.entries(details.request_data).map(
-                        ([key, val]) => (
+                      {Object.entries(details.request_data)
+                        .filter(
+                          ([key]) =>
+                            !['id', 'user_id', 'vendor_id', 'entity_id'].includes(
+                              key.toLowerCase()
+                            )
+                        )
+                        .map(([key, val]) => (
                           <div
                             key={key}
                             className="flex justify-between gap-2 text-sm min-w-0"
@@ -244,8 +255,7 @@ export function ViewVendorRequestDetails() {
                                 : String(val)}
                             </Text>
                           </div>
-                        )
-                      )}
+                        ))}
                     </div>
                   }
                 />
@@ -273,11 +283,15 @@ export function ViewVendorRequestDetails() {
                             className="w-fit text-xs"
                           />
                         </div>
-                        {step.approver_user_type != null && (
+                        {(step.approver_name ||
+                          step.approver_user_type != null) && (
                           <p className="text-gray-500 text-xs mt-1">
-                            {step.approver_user_type}
-                            {step.approver_user_id != null &&
-                              ` (ID: ${step.approver_user_id})`}
+                            {step.approver_name ??
+                              (step.approver_user_id != null
+                                ? String(step.approver_user_id)
+                                : '-')}
+                            {step.approver_user_type != null &&
+                              ` · ${step.approver_user_type}`}
                           </p>
                         )}
                         {step.reviewed_at && (

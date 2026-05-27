@@ -46,6 +46,8 @@ export default function Profile() {
     },
   });
 
+  // Reset when profile loads or server data changes — not when `form` changes (unstable
+  // identity from useCustomForm would reset on every keystroke and block typing).
   React.useEffect(() => {
     if (!adminProfile) return;
 
@@ -54,7 +56,14 @@ export default function Profile() {
       last_name: adminProfile.last_name || '',
       phone_number: adminProfile.phone_number || '',
     });
-  }, [adminProfile, form]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    adminProfile?.id,
+    adminProfile?.updated_at,
+    adminProfile?.first_name,
+    adminProfile?.last_name,
+    adminProfile?.phone_number,
+  ]);
 
   const adminInfo = React.useMemo(() => {
     if (!adminProfile) return [];

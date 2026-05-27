@@ -3,11 +3,24 @@ import { requestManagementQueries } from '@/features/hooks/requestManagement ';
 import { usePersistedModalState } from '@/hooks';
 import { MODALS } from '@/utils/constants';
 import { formatDate, getStatusVariant } from '@/utils/helpers';
+import { EntityDetailsSection } from './EntityDetailsSection';
 
 function formatValue(key: string, value: unknown): string {
   if (value == null) return '-';
   if (key.includes('_at') && typeof value === 'string') {
     return formatDate(value, 'DD MMM YYYY, HH:mm');
+  }
+  if (typeof value === 'object') {
+    if (Array.isArray(value)) {
+      return value.length === 0 ? '-' : JSON.stringify(value);
+    }
+    const parts = Object.entries(value as Record<string, unknown>)
+      .filter(([, v]) => v != null && v !== '')
+      .map(([k, v]) => {
+        const label = k.replace(/_/g, ' ');
+        return `${label}: ${formatValue(k, v)}`;
+      });
+    return parts.length > 0 ? parts.join(' · ') : '-';
   }
   return String(value);
 }
@@ -144,20 +157,6 @@ export function ViewRequestDetails() {
             </div>
 
             <div className="flex flex-col gap-1">
-              <p className="text-gray-400 text-xs">Entity ID</p>
-              <Text variant="span" weight="normal" className="text-gray-800">
-                {requestCorporateDetails?.entity_id || '-'}
-              </Text>
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <p className="text-gray-400 text-xs">User ID</p>
-              <Text variant="span" weight="normal" className="text-gray-800">
-                {requestCorporateDetails?.user_id || '-'}
-              </Text>
-            </div>
-
-            <div className="flex flex-col gap-1">
               <p className="text-gray-400 text-xs">Access</p>
               <Text variant="span" weight="normal" className="text-gray-800">
                 {requestCorporateDetails?.access || '-'}
@@ -173,11 +172,13 @@ export function ViewRequestDetails() {
               </div>
             )}
 
-            {requestCorporateDetails?.initiated_by_user_id && (
+            {(requestCorporateDetails?.initiated_by_name ||
+              requestCorporateDetails?.initiated_by_user_id) && (
               <div className="flex flex-col gap-1">
-                <p className="text-gray-400 text-xs">Initiated By User ID</p>
+                <p className="text-gray-400 text-xs">Initiated By</p>
                 <Text variant="span" weight="normal" className="text-gray-800">
-                  {requestCorporateDetails.initiated_by_user_id}
+                  {requestCorporateDetails.initiated_by_name ??
+                    requestCorporateDetails.initiated_by_user_id}
                 </Text>
               </div>
             )}
@@ -191,11 +192,13 @@ export function ViewRequestDetails() {
               </div>
             )}
 
-            {requestCorporateDetails?.reviewed_by && (
+            {(requestCorporateDetails?.reviewed_by_name ||
+              requestCorporateDetails?.reviewed_by) && (
               <div className="flex flex-col gap-1">
                 <p className="text-gray-400 text-xs">Reviewed By</p>
                 <Text variant="span" weight="normal" className="text-gray-800">
-                  {requestCorporateDetails.reviewed_by}
+                  {requestCorporateDetails.reviewed_by_name ??
+                    requestCorporateDetails.reviewed_by}
                 </Text>
               </div>
             )}
@@ -271,8 +274,9 @@ export function ViewRequestDetails() {
                         level?: string;
                         status?: string;
                         reviewed_at?: string | null;
-                        approver_user_id?: number;
+                        approver_user_id?: number | string;
                         approver_user_type?: string;
+                        approver_name?: string;
                       },
                       index: number
                     ) => (
@@ -301,17 +305,17 @@ export function ViewRequestDetails() {
                               className="w-fit"
                             />
                           </div>
-                          {approval.approver_user_id && (
+                          {(approval.approver_name ||
+                            approval.approver_user_id) && (
                             <div className="flex items-center justify-between">
-                              <p className="text-gray-400 text-xs">
-                                Approver User ID
-                              </p>
+                              <p className="text-gray-400 text-xs">Approver</p>
                               <Text
                                 variant="span"
                                 weight="normal"
                                 className="text-gray-800 text-sm"
                               >
-                                {approval.approver_user_id}
+                                {approval.approver_name ??
+                                  approval.approver_user_id}
                               </Text>
                             </div>
                           )}
@@ -357,18 +361,14 @@ export function ViewRequestDetails() {
           {/* Entity Details - shown when API returns entity_details */}
           {requestCorporateDetails?.entity_details &&
             typeof requestCorporateDetails.entity_details === 'object' && (
-              <div className="flex flex-col gap-4 pb-4 border-b border-gray-200">
-                <KeyValueGrid
-                  data={
-                    requestCorporateDetails.entity_details as Record<
-                      string,
-                      unknown
-                    >
-                  }
-                  title="Entity Details"
-                  className="p-4 bg-gray-50 rounded-lg border border-gray-200"
-                />
-              </div>
+              <EntityDetailsSection
+                entityDetails={
+                  requestCorporateDetails.entity_details as Record<
+                    string,
+                    unknown
+                  >
+                }
+              />
             )}
 
           {/* Request Data - layout depends on module */}
