@@ -5,7 +5,7 @@ import { VendorStatusCell } from './VendorStatusCell';
 export const vendorListColumns = [
   {
     header: 'Vendor ID',
-    accessorKey: 'vendor_id',
+    accessorKey: 'gvid',
   },
   {
     header: 'Vendor Name',
@@ -43,6 +43,6 @@ export const vendorListCsvHeaders: Array<CsvHeader> = [
   },
   {
     name: 'Vendor ID',
-    accessor: 'vendor_id',
+    accessor: 'gvid',
   },
 ];

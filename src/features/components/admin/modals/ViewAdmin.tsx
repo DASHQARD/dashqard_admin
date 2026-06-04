@@ -60,8 +60,8 @@ export function ViewAdmin() {
   const { data: adminData, isLoading } = useGetAdminDetails(adminId);
 
   const admin = React.useMemo(() => {
-    return adminData || modal.modalData;
-  }, [adminData, modal.modalData]);
+    return adminData ?? null;
+  }, [adminData]);
 
   if (!admin) {
     return null;

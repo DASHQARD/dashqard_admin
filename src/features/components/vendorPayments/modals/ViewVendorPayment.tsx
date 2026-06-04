@@ -1,5 +1,6 @@
 import { Modal, Tag, Text } from '@/components';
 import { usePersistedModalState } from '@/hooks';
+import { vendorPaymentsManagementQueries } from '@/features/hooks/vendorPaymentsManagement';
 import { MODALS } from '@/utils/constants';
 import { formatDate, getStatusVariant, formatCurrency } from '@/utils/helpers';
 import type { VendorPaymentData } from '@/types';
@@ -11,7 +12,15 @@ export function ViewVendorPayment() {
     paramName: MODALS.VENDOR_PAYMENT_MANAGEMENT.PARAM_NAME,
   });
 
-  const modalData = modal.modalData;
+  const paymentId =
+    modal.modalData?.id != null ? String(modal.modalData.id) : '';
+  const isOpen = modal.isModalOpen(MODALS.VENDOR_PAYMENT_MANAGEMENT.CHILDREN.VIEW);
+  const { useGetVendorPaymentById } = vendorPaymentsManagementQueries();
+  const { data: fetchedPayment, isLoading } = useGetVendorPaymentById(paymentId, {
+    enabled: isOpen && Boolean(paymentId),
+  });
+
+  const payment = (fetchedPayment ?? modal.modalData) as VendorPaymentData | null;
 
   const handleSetIsOpen = useCallback(
     (isOpen: boolean) => {
@@ -25,17 +34,17 @@ export function ViewVendorPayment() {
   const paymentInfo = [
     {
       label: 'Invoice Number',
-      value: modalData?.invoice_number || '-',
+      value: payment?.invoice_number || '-',
       icon: 'bi:receipt',
     },
     {
       label: 'Payment ID',
-      value: modalData?.id || '-',
+      value: payment?.id || '-',
       icon: 'bi:hash',
     },
     {
       label: 'Transaction Reference',
-      value: modalData?.transaction_reference || '-',
+      value: payment?.transaction_reference || '-',
       icon: 'bi:arrow-left-right',
     },
   ];
@@ -43,22 +52,22 @@ export function ViewVendorPayment() {
   const vendorInfo = [
     {
       label: 'Vendor Name',
-      value: modalData?.vendor_name || '-',
+      value: payment?.vendor_name || '-',
       icon: 'bi:person-circle',
     },
     {
       label: 'Vendor ID',
-      value: modalData?.vendor_id || '-',
+      value: payment?.vendor_id || '-',
       icon: 'bi:id-card',
     },
     {
       label: 'Vendor GVID',
-      value: modalData?.vendor_gvid || '-',
+      value: payment?.vendor_gvid || '-',
       icon: 'bi:building',
     },
     {
       label: 'Branch Location',
-      value: modalData?.branch_location || '-',
+      value: payment?.branch_location || '-',
       icon: 'bi:geo-alt',
     },
   ];
@@ -66,11 +75,11 @@ export function ViewVendorPayment() {
   const paymentDetails = [
     {
       label: 'Payment Amount',
-      value: modalData?.payment_amount
+      value: payment?.payment_amount
         ? formatCurrency(
-            typeof modalData?.payment_amount === 'string'
-              ? parseFloat(modalData?.payment_amount)
-              : modalData?.payment_amount,
+            typeof payment?.payment_amount === 'string'
+              ? parseFloat(payment?.payment_amount)
+              : payment?.payment_amount,
             'GHS'
           )
         : '-',
@@ -79,20 +88,20 @@ export function ViewVendorPayment() {
     },
     {
       label: 'Payment Method',
-      value: modalData?.payment_method
-        ? modalData.payment_method.charAt(0).toUpperCase() +
-          modalData.payment_method.slice(1).replace('_', ' ')
+      value: payment?.payment_method
+        ? payment.payment_method.charAt(0).toUpperCase() +
+          payment.payment_method.slice(1).replace('_', ' ')
         : '-',
       icon: 'bi:credit-card',
     },
     {
       label: 'Payment Frequency',
-      value: modalData?.payment_frequency || '-',
+      value: payment?.payment_frequency || '-',
       icon: 'bi:clock-history',
     },
     {
       label: 'Payment Period',
-      value: modalData?.payment_period || '-',
+      value: payment?.payment_period || '-',
       icon: 'bi:calendar-range',
     },
   ];
@@ -100,22 +109,22 @@ export function ViewVendorPayment() {
   const timelineInfo = [
     {
       label: 'Due Date',
-      value: modalData?.due_date ? formatDate(modalData?.due_date) : '-',
+      value: payment?.due_date ? formatDate(payment?.due_date) : '-',
       icon: 'bi:calendar-check',
     },
     {
       label: 'Paid Date',
-      value: modalData?.paid_date ? formatDate(modalData?.paid_date) : '-',
+      value: payment?.paid_date ? formatDate(payment?.paid_date) : '-',
       icon: 'bi:calendar-event',
     },
     {
       label: 'Created Date',
-      value: modalData?.created_at ? formatDate(modalData?.created_at) : '-',
+      value: payment?.created_at ? formatDate(payment?.created_at) : '-',
       icon: 'bi:calendar-plus',
     },
     {
       label: 'Last Updated',
-      value: modalData?.updated_at ? formatDate(modalData?.updated_at) : '-',
+      value: payment?.updated_at ? formatDate(payment?.updated_at) : '-',
       icon: 'bi:calendar2-date',
     },
   ];
@@ -123,19 +132,38 @@ export function ViewVendorPayment() {
   const additionalInfo = [
     {
       label: 'Description',
-      value: modalData?.description || '-',
+      value: payment?.description || '-',
       icon: 'bi:text-paragraph',
       fullWidth: true,
     },
     {
       label: 'Notes',
-      value: modalData?.notes || '-',
+      value: payment?.notes || '-',
       icon: 'bi:sticky',
       fullWidth: true,
     },
   ];
 
-  if (!modalData) return null;
+  if (!paymentId) return null;
+
+  if (isLoading) {
+    return (
+      <Modal
+        panelClass="!w-[750px] min-w-full max-h-[90vh]"
+        title="Vendor Payment Details"
+        isOpen={isOpen}
+        setIsOpen={handleSetIsOpen}
+        position="side"
+        showClose={true}
+      >
+        <div className="h-full px-6 flex items-center justify-center py-12">
+          <Text variant="span">Loading payment details...</Text>
+        </div>
+      </Modal>
+    );
+  }
+
+  if (!payment) return null;
 
   const renderInfoSection = (title: string, items: any[], columns = 2) => (
     <div className="space-y-4">
@@ -203,17 +231,17 @@ export function ViewVendorPayment() {
                 Payment Details
               </Text>
               <Text variant="span" className="text-gray-500 mt-1">
-                Invoice: {modalData.invoice_number || 'N/A'}
+                Invoice: {payment.invoice_number || 'N/A'}
               </Text>
             </div>
             <Tag
               value={
-                modalData.status
-                  ? modalData.status.charAt(0).toUpperCase() +
-                    modalData.status.slice(1)
+                payment.status
+                  ? payment.status.charAt(0).toUpperCase() +
+                    payment.status.slice(1)
                   : 'Pending'
               }
-              variant={getStatusVariant(modalData?.status || 'pending')}
+              variant={getStatusVariant(payment?.status || 'pending')}
               className="px-4 py-1.5 text-sm"
             />
           </div>
@@ -236,11 +264,11 @@ export function ViewVendorPayment() {
                   Total Payment Amount
                 </Text>
                 <Text variant="h3" weight="bold" className="text-blue-900">
-                  {modalData?.payment_amount
+                  {payment?.payment_amount
                     ? formatCurrency(
-                        typeof modalData?.payment_amount === 'string'
-                          ? parseFloat(modalData?.payment_amount)
-                          : modalData?.payment_amount,
+                        typeof payment?.payment_amount === 'string'
+                          ? parseFloat(payment?.payment_amount)
+                          : payment?.payment_amount,
                         'GHS'
                       )
                     : '-'}
@@ -256,7 +284,7 @@ export function ViewVendorPayment() {
                   Vendor
                 </Text>
                 <Text variant="span" weight="medium" className="text-gray-800">
-                  {modalData.vendor_name}
+                  {payment.vendor_name}
                 </Text>
               </div>
               <div>
@@ -264,11 +292,11 @@ export function ViewVendorPayment() {
                   Payment Method
                 </Text>
                 <Text variant="span" weight="medium" className="text-gray-800">
-                  {modalData.vendor_preferred_payment_method
-                    ? modalData.vendor_preferred_payment_method
+                  {payment.vendor_preferred_payment_method
+                    ? payment.vendor_preferred_payment_method
                         .charAt(0)
                         .toUpperCase() +
-                      modalData.vendor_preferred_payment_method
+                      payment.vendor_preferred_payment_method
                         .slice(1)
                         .replace('_', ' ')
                     : '-'}
@@ -290,7 +318,7 @@ export function ViewVendorPayment() {
           <div className="flex items-center justify-between">
             <Text variant="span" className="text-gray-400">
               Last updated:{' '}
-              {modalData.updated_at ? formatDate(modalData.updated_at) : 'N/A'}
+              {payment.updated_at ? formatDate(payment.updated_at) : 'N/A'}
             </Text>
           </div>
         </div>

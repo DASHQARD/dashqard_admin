@@ -109,7 +109,7 @@ export default function VendorDetails() {
     documentModal.openModal(
       MODALS.VENDOR_MANAGEMENT.CHILDREN.VIEW_KYC_DOCUMENT,
       {
-        id: String(vendorId),
+        id: String(document.id ?? `${vendorId}:${document.type}`),
         file_url: document.file_url,
         verified:
           vendorDetails?.approval_status === 'approved' ||

@@ -35,8 +35,8 @@ export function ViewPayment() {
   const { data: paymentDetails, isLoading } = useGetPaymentById(paymentId);
 
   const payment = React.useMemo(() => {
-    return paymentDetails || paymentData;
-  }, [paymentDetails, paymentData]);
+    return paymentDetails ?? null;
+  }, [paymentDetails]);
 
   if (isLoading) {
     return (

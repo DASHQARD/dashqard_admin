@@ -121,7 +121,7 @@ export const ViewKYC = ({ corporate, noProfile }: Props) => {
     documentModal.openModal(
       MODALS.CORPORATE_MANAGEMENT.CHILDREN.VIEW_KYC_DOCUMENT,
       {
-        id: String(corporateId),
+        id: String(document.id ?? `${corporateId}:${document.type}`),
         file_url: document.file_url,
         verified: status === 'approved',
       }

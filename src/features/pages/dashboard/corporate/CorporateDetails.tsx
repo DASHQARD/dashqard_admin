@@ -94,7 +94,7 @@ export default function CorporateDetails() {
     documentModal.openModal(
       MODALS.CORPORATE_MANAGEMENT.CHILDREN.VIEW_KYC_DOCUMENT,
       {
-        id: String(corporateId),
+        id: String(document.id ?? `${corporateId}:${document.type}`),
         file_url: document.file_url,
         verified: corporateData?.status === 'approved',
       }
@@ -106,7 +106,7 @@ export default function CorporateDetails() {
     documentModal.openModal(
       MODALS.CORPORATE_MANAGEMENT.CHILDREN.VIEW_KYC_DOCUMENT,
       {
-        id: String(corporateId),
+        id: String(image.id ?? `${corporateId}:id_image`),
         file_url: image.file_url,
         verified: corporateData?.status === 'approved',
       }

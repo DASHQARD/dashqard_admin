@@ -1,25 +1,43 @@
+import React from 'react';
 import { Modal, Text } from '@/components';
 import { usePersistedModalState } from '@/hooks';
-import { useUserOnboardingProgress } from '@/features/hooks/usersManagement';
+import {
+  useUserInfo,
+  useUserOnboardingProgress,
+} from '@/features/hooks/usersManagement';
 import { formatDate } from '@/utils';
 import { MODALS } from '@/utils/constants';
 import type { Customer } from '@/types/customer';
 
 export function ViewCustomerDetailsModal() {
-  const modal = usePersistedModalState<Customer>({
+  const modal = usePersistedModalState<Pick<Customer, 'id'>>({
     paramName: MODALS.CUSTOMER.ROOT,
   });
 
-  const customerData = modal.modalData;
-  const customerId = customerData?.id ? Number(customerData.id) : undefined;
+  const customerId = modal.modalData?.id
+    ? String(modal.modalData.id)
+    : undefined;
 
-  // Get onboarding progress for the customer
-  // Use customer.id as the user_id for the onboarding progress endpoint
+  const { data: userInfoResponse, isLoading: isLoadingCustomer } =
+    useUserInfo(customerId);
   const { data: onboardingProgress, isLoading: isLoadingProgress } =
     useUserOnboardingProgress(customerId);
 
+  const customer = React.useMemo(() => {
+    const user = userInfoResponse?.data;
+    if (!user) return null;
+    return {
+      id: user.id,
+      fullname: user.fullname,
+      email: user.email,
+      phonenumber: user.phonenumber ?? user.phone_number,
+      status: user.status,
+      created_at: user.created_at,
+    } as Customer;
+  }, [userInfoResponse]);
+
   const progressData = onboardingProgress;
-  const customer = customerData;
+  const isLoading = isLoadingCustomer || isLoadingProgress;
 
   return (
     <Modal
@@ -33,7 +51,7 @@ export function ViewCustomerDetailsModal() {
       position="side"
     >
       <div className="px-6 py-4 max-h-[80vh] overflow-y-auto">
-        {isLoadingProgress ? (
+        {isLoading ? (
           <div className="text-center py-4">
             Loading customer information...
           </div>

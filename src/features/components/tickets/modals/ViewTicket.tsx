@@ -28,8 +28,8 @@ export function ViewTicket() {
   const { data: ticketDetails, isLoading } = useGetTicketById(ticketId);
 
   const ticket = React.useMemo(() => {
-    return ticketDetails || ticketData;
-  }, [ticketDetails, ticketData]);
+    return ticketDetails ?? null;
+  }, [ticketDetails]);
 
   if (isLoading) {
     return (
