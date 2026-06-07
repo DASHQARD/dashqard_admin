@@ -32,11 +32,11 @@ export function useCustomersManagementBase() {
     if (query.status) {
       apiParams.status = query.status;
     }
-    if (query.dateFrom) {
-      apiParams.date_from = String(query.dateFrom);
+    if (query.date_from) {
+      apiParams.date_from = String(query.date_from);
     }
-    if (query.dateTo) {
-      apiParams.date_to = String(query.dateTo);
+    if (query.date_to) {
+      apiParams.date_to = String(query.date_to);
     }
     return apiParams;
   }, [query]);

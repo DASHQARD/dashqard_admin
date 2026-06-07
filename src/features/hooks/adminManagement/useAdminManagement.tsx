@@ -51,11 +51,11 @@ export function useAdminManagementBase() {
       apiParams.status = query.status;
     }
     // Include date filters if present
-    if (query.dateFrom) {
-      apiParams.dateFrom = query.dateFrom;
+    if (query.date_from) {
+      apiParams.date_from = String(query.date_from);
     }
-    if (query.dateTo) {
-      apiParams.dateTo = query.dateTo;
+    if (query.date_to) {
+      apiParams.date_to = String(query.date_to);
     }
     return apiParams;
   }, [query]);

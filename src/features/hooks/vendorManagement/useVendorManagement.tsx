@@ -46,6 +46,12 @@ export function useVendorManagementBase() {
     if (query.status) {
       apiParams.vendor_status = query.status;
     }
+    if (query.date_from) {
+      apiParams.date_from = String(query.date_from);
+    }
+    if (query.date_to) {
+      apiParams.date_to = String(query.date_to);
+    }
     return apiParams;
   }, [query]);
 

@@ -1,7 +1,7 @@
 import { PaginatedTable, Text } from '@/components';
 import { useSearchParams } from 'react-router-dom';
 
-import { OPTIONS } from '@/utils/constants';
+import { OPTIONS, DATE_RANGE_FILTER } from '@/utils/constants';
 import { useCustomersManagementBase } from '@/features/hooks';
 import { customerListColumns } from '@/features/components';
 import { UpdateCustomerStatusModal } from './UpdateCustomerStatusModal';
@@ -58,7 +58,7 @@ export default function Customers() {
                   options: OPTIONS.CUSTOMER_MANAGEMENT_STATUS,
                 },
               ],
-              date: [{ queryKey: 'dateFrom' }, { queryKey: 'dateTo' }],
+              date: DATE_RANGE_FILTER,
             }}
             noSearch
             hasNextPage={pagination?.hasNextPage}

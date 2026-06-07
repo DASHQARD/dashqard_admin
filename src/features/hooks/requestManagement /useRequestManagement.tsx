@@ -44,12 +44,11 @@ export function useRequestManagementBase() {
     if (query.status) {
       apiParams.status = query.status;
     }
-    const q = query as Record<string, unknown>;
-    if (q.dateFrom) {
-      apiParams.date_from = String(q.dateFrom);
+    if (query.date_from) {
+      apiParams.date_from = String(query.date_from);
     }
-    if (q.dateTo) {
-      apiParams.date_to = String(q.dateTo);
+    if (query.date_to) {
+      apiParams.date_to = String(query.date_to);
     }
     return apiParams;
   }, [query]);

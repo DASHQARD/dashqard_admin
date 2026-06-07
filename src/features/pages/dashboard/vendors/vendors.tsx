@@ -1,6 +1,6 @@
 import { PaginatedTable, Text } from '@/components';
 
-import { OPTIONS } from '@/utils/constants/filter';
+import { OPTIONS, DATE_RANGE_FILTER } from '@/utils/constants/filter';
 import {
   vendorListColumns,
   vendorListCsvHeaders,
@@ -54,7 +54,7 @@ export default function Vendors() {
                     options: OPTIONS.VENDOR_MANAGEMENT_STATUS,
                   },
                 ],
-                date: [{ queryKey: 'dateFrom' }, { queryKey: 'dateTo' }],
+                date: DATE_RANGE_FILTER,
               }}
               printTitle="Vendors"
               hasNextPage={pagination?.hasNextPage}

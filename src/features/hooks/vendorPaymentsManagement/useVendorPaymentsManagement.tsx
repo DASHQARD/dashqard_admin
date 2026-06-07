@@ -57,11 +57,11 @@ export function useVendorPaymentsManagementBase() {
     if (q.payment_period) {
       apiParams.payment_period = String(q.payment_period);
     }
-    if (q.dateFrom) {
-      apiParams.date_from = String(q.dateFrom);
+    if (q.date_from) {
+      apiParams.date_from = String(q.date_from);
     }
-    if (q.dateTo) {
-      apiParams.date_to = String(q.dateTo);
+    if (q.date_to) {
+      apiParams.date_to = String(q.date_to);
     }
     return apiParams;
   }, [query]);

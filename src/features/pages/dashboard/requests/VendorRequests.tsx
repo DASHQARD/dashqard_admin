@@ -1,6 +1,6 @@
 import { PaginatedTable, Text } from '@/components';
 
-import { OPTIONS } from '@/utils/constants/filter';
+import { OPTIONS, DATE_RANGE_FILTER } from '@/utils/constants/filter';
 
 import {
   ApproveVendorRequestStatus,
@@ -72,7 +72,7 @@ export default function VendorRequests() {
                     options: OPTIONS.REQUEST_STATUS,
                   },
                 ],
-                date: [{ queryKey: 'dateFrom' }, { queryKey: 'dateTo' }],
+                date: DATE_RANGE_FILTER,
               }}
               printTitle="Vendor Requests"
               hasNextPage={pagination?.hasNextPage}

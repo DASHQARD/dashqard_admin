@@ -124,16 +124,7 @@ export function PaginatedTable({
       const dateConfig =
         typeof dateFilter === 'string' ? { queryKey: dateFilter } : dateFilter;
       const key = dateConfig.queryKey as string;
-      return (
-        key === 'date' ||
-        key === 'date_from' ||
-        key === 'date_to' ||
-        key === 'dateFrom' ||
-        key === 'dateTo' ||
-        key === 'startDate' ||
-        key === 'endDate' ||
-        key.toLowerCase().includes('date')
-      );
+      return key === 'date_from' || key === 'date_to' || key === 'date';
     });
 
     if (!config) return null;
@@ -143,22 +134,20 @@ export function PaginatedTable({
       : config;
   }, [filterBy]);
 
-  // Parse dateFrom and dateTo from query
   const startDate = React.useMemo(() => {
-    const start = query.dateFrom;
+    const start = query.date_from;
     if (!start) return null;
     const parsed = dayjs(start);
     return parsed.isValid() ? parsed.toDate() : null;
-  }, [query.dateFrom]);
+  }, [query.date_from]);
 
   const endDate = React.useMemo(() => {
-    const end = query.dateTo;
+    const end = query.date_to;
     if (!end) return null;
     const parsed = dayjs(end);
     return parsed.isValid() ? parsed.toDate() : null;
-  }, [query.dateTo]);
+  }, [query.date_to]);
 
-  // Handle date range change - use dateFrom and dateTo to match QueryType
   const handleDateRangeChange = React.useCallback(
     (dates: [Date | null, Date | null]) => {
       const [start, end] = dates;
@@ -167,8 +156,8 @@ export function PaginatedTable({
         ...queryWithoutPage,
         page: 1,
         after: '',
-        dateFrom: start ? dayjs(start).format('YYYY-MM-DD') : '',
-        dateTo: end ? dayjs(end).format('YYYY-MM-DD') : '',
+        date_from: start ? dayjs(start).format('YYYY-MM-DD') : '',
+        date_to: end ? dayjs(end).format('YYYY-MM-DD') : '',
       } as QueryType);
     },
     [query, setQuery]

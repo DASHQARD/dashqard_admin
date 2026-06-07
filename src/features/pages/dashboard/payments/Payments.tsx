@@ -8,7 +8,7 @@ import {
   DeletePayment,
 } from '@/features/components/payments';
 import { usePaymentsManagementBase } from '@/features/hooks/paymentsManagement';
-import { OPTIONS } from '@/utils/constants';
+import { OPTIONS, DATE_RANGE_FILTER } from '@/utils/constants';
 
 export default function Payments() {
   const {
@@ -53,7 +53,7 @@ export default function Payments() {
                     options: OPTIONS.PAYMENT_STATUS,
                   },
                 ],
-                date: [{ queryKey: 'dateFrom' }, { queryKey: 'dateTo' }],
+                date: DATE_RANGE_FILTER,
               }}
               printTitle="Payments"
               hasNextPage={pagination?.hasNextPage}

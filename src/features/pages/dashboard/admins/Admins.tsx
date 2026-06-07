@@ -1,7 +1,7 @@
 import { PaginatedTable, Text, Button } from '@/components';
 import { useNavigate } from 'react-router-dom';
 
-import { OPTIONS } from '@/utils/constants/filter';
+import { OPTIONS, DATE_RANGE_FILTER } from '@/utils/constants/filter';
 import { ROUTES } from '@/utils/constants';
 
 import { useAdminManagementBase } from '@/features/hooks/adminManagement';
@@ -62,7 +62,7 @@ export default function Admins() {
                     options: OPTIONS.ADMIN_STATUS,
                   },
                 ],
-                date: [{ queryKey: 'dateFrom' }, { queryKey: 'dateTo' }],
+                date: DATE_RANGE_FILTER,
               }}
               printTitle="Admins"
               hasNextPage={pagination?.hasNextPage}

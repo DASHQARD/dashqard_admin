@@ -23,6 +23,12 @@ export function usePaymentsManagementBase() {
     if (query.status) {
       apiParams.status = query.status;
     }
+    if (query.date_from) {
+      apiParams.date_from = String(query.date_from);
+    }
+    if (query.date_to) {
+      apiParams.date_to = String(query.date_to);
+    }
     return apiParams;
   }, [query]);
 

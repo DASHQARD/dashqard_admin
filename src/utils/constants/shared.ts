@@ -198,13 +198,11 @@ export const DEFAULT_QUERY = {
   after: '',
   status: '',
   search: '',
-  dateFrom: '',
-  dateTo: '',
+  date_from: '',
+  date_to: '',
   role: '',
   type: '',
   tier: '',
-  endDate: '',
-  startDates: '',
 };
 
 /**

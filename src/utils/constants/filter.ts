@@ -59,3 +59,8 @@ export const OPTIONS = {
     'rejected',
   ],
 };
+
+/** Shared PaginatedTable date-range filter config (query keys: date_from / date_to). */
+export const DATE_RANGE_FILTER = [
+  { queryKey: 'date_from' as const, label: 'Date range' },
+];

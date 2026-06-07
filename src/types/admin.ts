@@ -90,6 +90,8 @@ export interface AdminsQueryParams {
   after?: string;
   search?: string;
   status?: string;
+  date_from?: string;
+  date_to?: string;
 }
 
 export interface AdminsPaginationMeta {
