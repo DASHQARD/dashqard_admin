@@ -88,3 +88,45 @@ export function getFirstRouteFromUser(
 
   return null;
 }
+
+function normalizeAdminType(value: unknown): string {
+  return String(value ?? '')
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '_');
+}
+
+/** True when the logged-in account is a super admin (JWT type, stored role, or flag). */
+export function isSuperAdminAccount(
+  user?: Record<string, unknown> | null,
+  authRole?: Record<string, unknown> | null
+): boolean {
+  if (user?.isSuperAdmin === true) return true;
+
+  const candidates = [user?.type, authRole?.type, user?.user_type, authRole?.user_type];
+  return candidates.some((value) => {
+    const normalized = normalizeAdminType(value);
+    return (
+      normalized === 'super_admin' ||
+      normalized === 'superadmin' ||
+      normalized.includes('super_admin')
+    );
+  });
+}
+
+/** Case-insensitive permission match (exact or substring). */
+export function hasPermissionMatch(
+  userPermissions: string[],
+  matchers: string[]
+): boolean {
+  const normalized = userPermissions.map((p) => p.toLowerCase());
+  return matchers.some((matcher) => {
+    const target = matcher.toLowerCase();
+    return normalized.some((p) => p === target || p.includes(target));
+  });
+}
+
+/** PATCH /roles/assign-role requires `roles:assign` (distinct from roles:get). */
+export function canAssignAdminRole(userPermissions: string[]): boolean {
+  return hasPermissionMatch(userPermissions, ['roles:assign']);
+}

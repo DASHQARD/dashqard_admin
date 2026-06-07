@@ -166,6 +166,7 @@ export function PaginatedTable({
       setQuery({
         ...queryWithoutPage,
         page: 1,
+        after: '',
         dateFrom: start ? dayjs(start).format('YYYY-MM-DD') : '',
         dateTo: end ? dayjs(end).format('YYYY-MM-DD') : '',
       } as QueryType);
@@ -274,7 +275,7 @@ export function PaginatedTable({
   return (
     <div className={cn('grid gap-4', className)}>
       <div
-        className={`flex flex-wrap justify-end items-center gap-2 ${filterWrapperClassName}`}
+        className={`relative z-10 flex flex-wrap justify-end items-center gap-2 ${filterWrapperClassName ?? ''}`}
       >
         {noSearch ? null : (
           <DebouncedSearch

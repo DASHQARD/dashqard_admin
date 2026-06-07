@@ -42,9 +42,10 @@ export function DateRangeFilter({
             variant="outline"
             as="span"
             className={cn(
-              'font-normal w-max cursor-default !rounded-[6px] border border-[#E4E7EC] bg-white px-4 py-2 text-sm text-[#7C8689] hover:bg-white hover:border-[#E4E7EC] h-[38px]',
+              'font-normal w-max cursor-pointer !rounded-[6px] border border-[#E4E7EC] bg-white px-4 py-2 text-sm text-[#7C8689] hover:!bg-white hover:!text-[#7C8689] hover:!border-[#E4E7EC] h-[38px]',
               {
-                'font-medium text-[#212123]': startDate && endDate,
+                'font-medium text-[#212123] hover:!text-[#212123]':
+                  startDate && endDate,
               }
             )}
             iconPosition="right"

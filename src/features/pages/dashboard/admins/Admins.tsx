@@ -9,6 +9,7 @@ import {
   adminListColumns,
   adminListCsvHeaders,
   ViewAdmin,
+  AssignAdminRole,
 } from '@/features/components';
 
 export default function Admins() {
@@ -87,6 +88,7 @@ export default function Admins() {
         </div>
       </div>
       <ViewAdmin />
+      <AssignAdminRole />
     </>
   );
 }

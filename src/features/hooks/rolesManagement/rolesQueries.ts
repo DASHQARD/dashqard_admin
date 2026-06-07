@@ -8,10 +8,17 @@ import {
 import { useQuery } from '@tanstack/react-query';
 
 export function rolesManagementQueries() {
-  function useGetAllRoles() {
+  function useGetAllRoles(query?: Record<string, unknown>) {
     return useQuery({
-      queryKey: ['roles'],
-      queryFn: getAllRoles,
+      queryKey: ['roles', query],
+      queryFn: () => getAllRoles(query),
+    });
+  }
+
+  function useGetRolesForSelect() {
+    return useQuery({
+      queryKey: ['roles', 'select', { limit: 100 }],
+      queryFn: () => getAllRoles({ limit: 100 }),
     });
   }
 
@@ -47,6 +54,7 @@ export function rolesManagementQueries() {
 
   return {
     useGetAllRoles,
+    useGetRolesForSelect,
     useGetSingleRole,
     useGetAllRolesPermissions,
     useGetRolesCount,

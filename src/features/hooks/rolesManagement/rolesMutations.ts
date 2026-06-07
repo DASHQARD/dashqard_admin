@@ -78,9 +78,18 @@ export function rolesManagementMutations() {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['roles'] });
         queryClient.invalidateQueries({ queryKey: ['admins'] });
-        success('Role assigned successfully');
+        queryClient.invalidateQueries({ queryKey: ['admin-details'] });
+        success(
+          'Role assigned successfully. The affected admin must log in again for new permissions to apply.'
+        );
       },
-      onError: (err: any) => {
+      onError: (err: { status?: number; message?: string }) => {
+        if (err?.status === 401) {
+          error(
+            'You need the roles:assign permission to change an admin role. Ask a super admin to add roles:assign to your role, then log in again.'
+          );
+          return;
+        }
         error(err?.message || 'Failed to assign role');
       },
     });

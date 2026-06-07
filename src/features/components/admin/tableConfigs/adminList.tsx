@@ -21,6 +21,10 @@ export const adminListColumns = [
     accessorKey: 'type',
   },
   {
+    header: 'Role',
+    accessorKey: 'role_name',
+  },
+  {
     header: 'Status',
     accessorKey: 'status',
     cell: StatusCell,
@@ -59,6 +63,10 @@ export const adminListCsvHeaders: Array<CsvHeader> = [
   {
     name: 'Type',
     accessor: 'type',
+  },
+  {
+    name: 'Role',
+    accessor: 'role_name',
   },
   {
     name: 'Date Created',

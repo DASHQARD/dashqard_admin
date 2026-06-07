@@ -29,6 +29,8 @@ export type CustomersQueryParams = {
   status?: string;
   search?: string;
   after?: string;
+  date_from?: string;
+  date_to?: string;
 };
 
 export type CustomerDetailsResponse = {

@@ -5,6 +5,11 @@ import {
 } from '@/hooks';
 
 import { DEFAULT_QUERY, MODALS } from '@/utils';
+import {
+  canAssignAdminRole,
+  hasPermissionMatch,
+  isSuperAdminAccount,
+} from '@/utils/helpers/role';
 
 import { adminManagementQueries } from './adminQueries';
 
@@ -18,7 +23,8 @@ export function useAdminManagementBase() {
   const [query, setQuery] = useReducerSpread(DEFAULT_QUERY);
   const { userPermissions = [] } = useContentGuard();
 
-  const user = useAuthStore().user;
+  const user = useAuthStore((state) => state.user);
+  const authRole = useAuthStore((state) => state.role);
 
   React.useEffect(() => {
     if (state?.searchQuery) {
@@ -129,6 +135,7 @@ export function useAdminManagementBase() {
       hasDelete?: boolean;
       hasActivate?: boolean;
       hasDeactivate?: boolean;
+      hasAssignRole?: boolean;
     };
     loginUser: any;
     userPermissions: string[];
@@ -138,16 +145,19 @@ export function useAdminManagementBase() {
     const actions = [];
     const permissionsToCheck = providedPermissions || userPermissions;
     const userToCheck = loginUser || user;
+    const isSuperAdmin = isSuperAdminAccount(
+      userToCheck as Record<string, unknown> | null,
+      authRole as Record<string, unknown> | null
+    );
 
     // View option
     if (
       option?.hasView &&
-      (permissionsToCheck.some(
-        (p) =>
-          p.toLowerCase().includes('admins:get') ||
-          p.toLowerCase().includes('admin management view')
-      ) ||
-        userToCheck?.isSuperAdmin)
+      (hasPermissionMatch(permissionsToCheck, [
+        'admins:get',
+        'admin management view',
+      ]) ||
+        isSuperAdmin)
     ) {
       actions.push({
         label: 'View',
@@ -158,16 +168,24 @@ export function useAdminManagementBase() {
     // Edit option
     if (
       option?.hasUpdate &&
-      (permissionsToCheck.some(
-        (p) =>
-          p.toLowerCase().includes('admins:update') ||
-          p.toLowerCase().includes('admin management edit')
-      ) ||
-        userToCheck?.isSuperAdmin)
+      (hasPermissionMatch(permissionsToCheck, [
+        'admins:update',
+        'admin management edit',
+      ]) ||
+        isSuperAdmin)
     ) {
       actions.push({
         label: 'Edit',
         onClickFn: () => modalInstance.openModal(MODALS.ADMIN.EDIT, admin),
+      });
+    }
+
+    // Change role — API requires roles:assign (roles:get alone is not enough).
+    if (option?.hasAssignRole && canAssignAdminRole(permissionsToCheck)) {
+      actions.push({
+        label: 'Change Role',
+        onClickFn: () =>
+          modalInstance.openModal(MODALS.ADMIN.ASSIGN_ROLE, admin),
       });
     }
 
@@ -181,12 +199,11 @@ export function useAdminManagementBase() {
     if (
       !isAdminActive &&
       option?.hasActivate &&
-      (permissionsToCheck.some(
-        (p) =>
-          p.toLowerCase().includes('admins:update') ||
-          p.toLowerCase().includes('admin management deactivate/activate')
-      ) ||
-        userToCheck?.isSuperAdmin)
+      (hasPermissionMatch(permissionsToCheck, [
+        'admins:update',
+        'admin management deactivate/activate',
+      ]) ||
+        isSuperAdmin)
     ) {
       actions.push({
         label: 'Activate',
@@ -199,12 +216,11 @@ export function useAdminManagementBase() {
     if (
       isAdminActive &&
       option?.hasDeactivate &&
-      (permissionsToCheck.some(
-        (p) =>
-          p.toLowerCase().includes('admins:update') ||
-          p.toLowerCase().includes('admin management deactivate/activate')
-      ) ||
-        userToCheck?.isSuperAdmin)
+      (hasPermissionMatch(permissionsToCheck, [
+        'admins:update',
+        'admin management deactivate/activate',
+      ]) ||
+        isSuperAdmin)
     ) {
       actions.push({
         label: 'Deactivate',

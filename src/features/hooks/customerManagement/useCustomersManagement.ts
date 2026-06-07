@@ -19,12 +19,11 @@ export function useCustomersManagementBase() {
   });
 
   const paramsForApi = useMemo(() => {
-    const apiParams: any = {
+    const apiParams: Record<string, string | number> = {
       limit: query.limit || 10,
     };
-    const queryWithAfter = query as any;
+    const queryWithAfter = query as typeof query & { after?: string };
     if (queryWithAfter.after) {
-      // Send after as date string (API expects date string format)
       apiParams.after = queryWithAfter.after;
     }
     if (query.search) {
@@ -32,6 +31,12 @@ export function useCustomersManagementBase() {
     }
     if (query.status) {
       apiParams.status = query.status;
+    }
+    if (query.dateFrom) {
+      apiParams.date_from = String(query.dateFrom);
+    }
+    if (query.dateTo) {
+      apiParams.date_to = String(query.dateTo);
     }
     return apiParams;
   }, [query]);

@@ -76,6 +76,7 @@ export const MODALS = {
     BULK_INVITE_PREVIEW: 'bulk-invite-admin-preview',
     REMOVE: 'delete-admin',
     TOGGLE_STATUS: 'toggle-admin-status',
+    ASSIGN_ROLE: 'assign-admin-role',
     RESEND_INVITE: 'resend-admin-invite',
     RESTORE: 'restore-admin',
     PERMANENTLY_DELETE: 'permanently-delete-admin',

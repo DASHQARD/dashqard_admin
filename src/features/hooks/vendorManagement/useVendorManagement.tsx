@@ -44,7 +44,7 @@ export function useVendorManagementBase() {
       apiParams.search = query.search;
     }
     if (query.status) {
-      apiParams.status = query.status;
+      apiParams.vendor_status = query.status;
     }
     return apiParams;
   }, [query]);

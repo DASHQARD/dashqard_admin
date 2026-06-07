@@ -22,9 +22,8 @@ export function AdminActionCell({ row }: TableCellProps<{ id: string }>) {
         admin: row.original as any,
         option: {
           hasView: true,
-          // hasDeactivate: true,
+          hasAssignRole: true,
           hasActivate: true,
-          // hasUpdate: true,
         },
         loginUser: user!,
         userPermissions,
