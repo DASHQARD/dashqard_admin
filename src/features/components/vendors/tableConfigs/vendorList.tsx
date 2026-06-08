@@ -21,6 +21,11 @@ export const vendorListColumns = [
     cell: VendorStatusCell,
   },
   {
+    header: 'Approval Status',
+    accessorKey: 'approval_status',
+    cell: VendorStatusCell,
+  },
+  {
     id: 'actions',
     header: '',
     accessorKey: '',
@@ -40,6 +45,10 @@ export const vendorListCsvHeaders: Array<CsvHeader> = [
   {
     name: 'Vendor Status',
     accessor: 'vendor_status',
+  },
+  {
+    name: 'Approval Status',
+    accessor: 'approval_status',
   },
   {
     name: 'Vendor ID',

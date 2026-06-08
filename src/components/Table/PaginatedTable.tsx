@@ -23,6 +23,7 @@ type DateOmits = 'page' | 'limit' | 'search';
 type FilterType = {
   simpleSelects?: Array<{
     label: string;
+    filterLabel?: string;
     options: string[] | DropdownOption[];
   }>;
   date?:
@@ -271,7 +272,11 @@ export function PaginatedTable({
             value={query.search}
             onChange={(value) => {
               const queryWithoutPage = removePageFromQuery(query);
-              setQuery({ ...queryWithoutPage, search: value } as QueryType);
+              setQuery({
+                ...queryWithoutPage,
+                search: value,
+                after: '',
+              } as QueryType);
             }}
             placeholder={searchPlaceholder ?? 'Search...'}
             className="md:w-[343px]"
@@ -287,7 +292,12 @@ export function PaginatedTable({
               ? typeof selectedOption === 'string'
                 ? selectedOption
                 : selectedOption.label
-              : `Filter by ${item.label === 'direction' ? 'transaction type' : item.label}`;
+              : `Filter by ${
+                  item.filterLabel ??
+                  (item.label === 'direction'
+                    ? 'transaction type'
+                    : item.label.replaceAll('_', ' '))
+                }`;
 
           return (
             <Dropdown
@@ -309,6 +319,7 @@ export function PaginatedTable({
                   setQuery({
                     ...queryWithoutPage,
                     [item.label]: option.value,
+                    after: '',
                   } as QueryType);
                 },
               }))}

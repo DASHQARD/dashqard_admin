@@ -3,11 +3,12 @@ import {
   getVendorDetails,
   getVendorQrCode,
 } from '@/features/services';
+import type { AdminVendorsQueryParams } from '@/types';
 import { useQuery } from '@tanstack/react-query';
 
 export function vendorManagementQueries() {
   function useGetVendors(
-    queryParams?: Record<string, any>,
+    queryParams?: AdminVendorsQueryParams,
     options?: { enabled?: boolean }
   ) {
     return useQuery({

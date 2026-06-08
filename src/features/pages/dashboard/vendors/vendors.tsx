@@ -45,13 +45,29 @@ export default function Vendors() {
               loading={isLoadingVendorsList}
               query={query}
               setQuery={setQuery}
-              searchPlaceholder="Search by vendor name..."
+              searchPlaceholder="Search by vendor name, email, or business..."
               csvHeaders={vendorListCsvHeaders}
               filterBy={{
                 simpleSelects: [
                   {
+                    label: 'vendor_status',
+                    filterLabel: 'Vendor status',
+                    options: OPTIONS.VENDOR_USER_STATUS,
+                  },
+                  {
+                    label: 'approval_status',
+                    filterLabel: 'Approval status',
+                    options: OPTIONS.VENDOR_APPROVAL_STATUS,
+                  },
+                  {
                     label: 'status',
-                    options: OPTIONS.VENDOR_MANAGEMENT_STATUS,
+                    filterLabel: 'Account status',
+                    options: OPTIONS.VENDOR_ACCOUNT_STATUS,
+                  },
+                  {
+                    label: 'relationship_type',
+                    filterLabel: 'Relationship',
+                    options: OPTIONS.VENDOR_RELATIONSHIP_TYPE,
                   },
                 ],
                 date: DATE_RANGE_FILTER,
@@ -59,18 +75,13 @@ export default function Vendors() {
               printTitle="Vendors"
               hasNextPage={pagination?.hasNextPage}
               hasPreviousPage={pagination?.hasPreviousPage}
-              currentAfter={
-                (query as any).after ? String((query as any).after) : undefined
-              }
+              currentAfter={query.after ? String(query.after) : undefined}
               previousCursor={pagination?.previous || null}
               onNextPage={handleNextPage}
               onPreviousPage={() => {
-                // Handle previous page
-                const queryWithAfter = query as any;
-                if (queryWithAfter.after && pagination?.previous) {
+                if (query.after && pagination?.previous) {
                   handleSetAfter(pagination.previous);
                 } else {
-                  // Reset to first page
                   handleSetAfter('');
                 }
               }}

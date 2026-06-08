@@ -4,6 +4,7 @@ import {
   useReducerSpread,
 } from '@/hooks';
 
+import type { AdminVendorsQueryParams } from '@/types';
 import { DEFAULT_QUERY, formatDate, MODALS } from '@/utils';
 
 import { vendorManagementQueries } from './vendorQueries';
@@ -32,19 +33,30 @@ export function useVendorManagementBase() {
   const { useGetVendors } = vendorManagementQueries();
 
   const paramsForApi = useMemo(() => {
-    const apiParams: any = {
+    const apiParams: AdminVendorsQueryParams = {
       limit: query.limit || 10,
     };
-    const queryWithAfter = query as any;
-    if (queryWithAfter.after) {
-      // Send after as date string (API expects date string format)
-      apiParams.after = queryWithAfter.after;
+
+    if (query.after) {
+      apiParams.after = String(query.after);
     }
     if (query.search) {
       apiParams.search = query.search;
     }
     if (query.status) {
-      apiParams.vendor_status = query.status;
+      apiParams.status = query.status as AdminVendorsQueryParams['status'];
+    }
+    if (query.vendor_status) {
+      apiParams.vendor_status =
+        query.vendor_status as AdminVendorsQueryParams['vendor_status'];
+    }
+    if (query.approval_status) {
+      apiParams.approval_status =
+        query.approval_status as AdminVendorsQueryParams['approval_status'];
+    }
+    if (query.relationship_type) {
+      apiParams.relationship_type =
+        query.relationship_type as AdminVendorsQueryParams['relationship_type'];
     }
     if (query.date_from) {
       apiParams.date_from = String(query.date_from);
@@ -52,6 +64,7 @@ export function useVendorManagementBase() {
     if (query.date_to) {
       apiParams.date_to = String(query.date_to);
     }
+
     return apiParams;
   }, [query]);
 
@@ -258,15 +271,13 @@ export function useVendorManagementBase() {
 
   const handleNextPage = useCallback(() => {
     if (pagination?.hasNextPage && pagination?.next) {
-      // Set after as date string (API expects date string format)
-      setQuery({ ...query, after: pagination.next } as any);
+      setQuery({ ...query, after: pagination.next });
     }
   }, [pagination, query, setQuery]);
 
   const handleSetAfter = useCallback(
     (after: string) => {
-      // Set after as date string or empty string to reset
-      setQuery({ ...query, after: after || undefined } as any);
+      setQuery({ ...query, after: after || '' });
     },
     [query, setQuery]
   );

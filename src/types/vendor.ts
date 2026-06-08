@@ -39,6 +39,79 @@ export type VendorsQueryParams = {
   after?: string;
 };
 
+export type VendorDataReference = {
+  id: string;
+  data_type: string;
+  is_copied_from_corporate: boolean;
+  requires_approval: boolean;
+  approval_status: 'pending' | 'approved' | 'rejected' | 'auto_approved';
+};
+
+export type AdminVendorAccount = {
+  id: string;
+  corporate_user_id: string;
+  vendor_user_id: string;
+  vendor_id: string | null;
+  created_by_user_id: string;
+  relationship_type: 'owner_managed' | 'invited';
+  approval_status: 'pending' | 'approved' | 'rejected' | 'auto_approved';
+  approved_by_admin_id: string | null;
+  approved_at: string | null;
+  rejection_reason: string | null;
+  status: 'active' | 'inactive' | 'suspended' | 'pending';
+  created_at: string;
+  updated_at: string;
+  vendor_name: string;
+  vendor_email: string;
+  vendor_phone: string | null;
+  vendor_avatar: string | null;
+  vendor_user_type: string;
+  vendor_status: string;
+  corporate_name: string;
+  corporate_email: string;
+  business_name: string | null;
+  vendor_logo: string | null;
+  gvid: string | null;
+  onboarding_stage: string | null;
+  onboarding_completed: boolean;
+  branch_count: number;
+  data_references: VendorDataReference[];
+};
+
+export type AdminVendorsListResponse = {
+  status: string;
+  statusCode: number;
+  message: string;
+  data: AdminVendorAccount[];
+  pagination: {
+    limit: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+    next: string | null;
+    previous: string | null;
+  };
+};
+
+export type AdminVendorsQueryParams = {
+  limit?: number;
+  after?: string;
+  status?: 'active' | 'inactive' | 'suspended' | 'pending';
+  vendor_status?:
+    | 'active'
+    | 'inactive'
+    | 'suspended'
+    | 'pending'
+    | 'approved'
+    | 'verified';
+  approval_status?: 'pending' | 'approved' | 'rejected' | 'auto_approved';
+  relationship_type?: 'owner_managed' | 'invited';
+  search?: string;
+  date_from?: string;
+  date_to?: string;
+  column?: 'id' | 'created_at' | 'updated_at';
+  direction?: 'ASC' | 'DESC';
+};
+
 export type VendorDetailsResponse = {
   status: string;
   statusCode: number;
