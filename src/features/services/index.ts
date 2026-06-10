@@ -9,7 +9,6 @@ export * from './transactionLimits';
 export * from './countries';
 export * from './fees';
 export * from './cardConfigurations';
-export * from './cards';
 export * from './paymentProviderConfig';
 export * from './tickets';
 export * from './paymentDetails';

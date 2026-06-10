@@ -1,11 +1,4 @@
-import { PaginatedTable } from '@/components';
-import {
-  giftCardMetricsColumns,
-  giftCardMetricsCsvHeaders,
-} from '@/features/components/giftCards';
-import { useGiftCardMetrics } from '@/features/hooks/giftCardMetrics';
 import { Icon } from '@/libs';
-import { DATE_RANGE_FILTER, OPTIONS } from '@/utils/constants/filter';
 
 function KpiCard({
   title,
@@ -47,16 +40,6 @@ function KpiCard({
 }
 
 export default function Home() {
-  const {
-    query,
-    setQuery,
-    metricsList,
-    isLoading: isLoadingGiftCardMetrics,
-    pagination,
-    handleNextPage,
-    handleSetAfter,
-  } = useGiftCardMetrics();
-
   const metrics = {
     totalUsers: 1250,
     totalTransactions: 5432,
@@ -89,14 +72,12 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Key Metrics Section */}
         <div className="flex justify-between items-center">
           <h5 className="text-xl font-semibold text-[#495057] m-0">
             Key Performance Metrics
           </h5>
         </div>
 
-        {/* Top KPI Row */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
           <KpiCard
             title="Total Users"
@@ -128,63 +109,12 @@ export default function Home() {
           />
         </div>
 
-        {/* Analytics Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* System Overview */}
-          <div className="lg:col-span-2 bg-white rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-[#f1f3f4] overflow-hidden">
-            <div className="p-6 pb-0 mb-5">
-              <h5 className="text-lg font-semibold text-[#495057] m-0 flex items-center">
-                <Icon icon="bi:credit-card" className="text-[#402D87] mr-2" />
-                Gift Card Metrics
-              </h5>
-            </div>
-
-            <div className="px-6 pb-6">
-              <PaginatedTable
-                columns={giftCardMetricsColumns}
-                data={metricsList}
-                total={metricsList.length}
-                loading={isLoadingGiftCardMetrics}
-                query={query}
-                setQuery={setQuery}
-                searchPlaceholder="Search by product or vendor..."
-                csvHeaders={giftCardMetricsCsvHeaders}
-                filterBy={{
-                  simpleSelects: [
-                    {
-                      label: 'card_type',
-                      filterLabel: 'Card type',
-                      options: OPTIONS.CARD_TYPE,
-                    },
-                  ],
-                  date: DATE_RANGE_FILTER,
-                }}
-                printTitle="Gift Card Metrics"
-                hasNextPage={pagination.hasNextPage}
-                hasPreviousPage={pagination.hasPreviousPage}
-                currentAfter={query.after ? String(query.after) : undefined}
-                previousCursor={pagination.previous}
-                onNextPage={handleNextPage}
-                onPreviousPage={() => {
-                  if (query.after && pagination.previous) {
-                    handleSetAfter(pagination.previous);
-                  } else {
-                    handleSetAfter('');
-                  }
-                }}
-                onSetAfter={handleSetAfter}
-              />
-            </div>
-          </div>
-
-          {/* Access Analytics */}
-          <div className="bg-white rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-[#f1f3f4] overflow-hidden">
-            <div className="p-6 pb-0 mb-5">
-              <h5 className="text-lg font-semibold text-[#495057] m-0 flex items-center">
-                <Icon icon="bi:graph-up" className="text-[#402D87] mr-2" />
-                Access Analytics
-              </h5>
-            </div>
+        <div className="bg-white rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-[#f1f3f4] overflow-hidden">
+          <div className="p-6 pb-0 mb-5">
+            <h5 className="text-lg font-semibold text-[#495057] m-0 flex items-center">
+              <Icon icon="bi:graph-up" className="text-[#402D87] mr-2" />
+              Access Analytics
+            </h5>
           </div>
         </div>
       </section>
