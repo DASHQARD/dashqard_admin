@@ -1,26 +1,49 @@
 import { useReducerSpread } from '@/hooks';
 import { DEFAULT_QUERY } from '@/utils';
 import { countriesManagementQueries } from './countriesQueries';
+import type { CountriesListQuery, Country } from '@/types/countries';
 import React from 'react';
+
+const VALID_COUNTRY_STATUSES = new Set(['active', 'inactive']);
 
 export function useCountriesManagementBase() {
   const [query, setQuery] = useReducerSpread(DEFAULT_QUERY);
+  const cursorStackRef = React.useRef<string[]>([]);
 
   const { useGetCountries } = countriesManagementQueries();
-  const queryWithAfter = query as any;
-  const queryParams = React.useMemo(
-    () => ({
+
+  const queryParams = React.useMemo((): CountriesListQuery => {
+    const queryWithAfter = query as CountriesListQuery & { after?: string };
+    const params: CountriesListQuery = {
       limit: query.limit || 10,
-      after: queryWithAfter.after || undefined,
-      search: query.search || undefined,
-      status: query.status || undefined,
-    }),
-    [query.limit, query.search, query.status, queryWithAfter.after]
-  );
+    };
+
+    if (queryWithAfter.after?.trim()) {
+      params.after = queryWithAfter.after.trim();
+    }
+    if (query.search?.trim()) {
+      params.search = query.search.trim();
+    }
+    if (
+      query.status &&
+      VALID_COUNTRY_STATUSES.has(String(query.status).toLowerCase())
+    ) {
+      params.status = String(query.status).toLowerCase() as
+        | 'active'
+        | 'inactive';
+    }
+
+    return params;
+  }, [query]);
+
+  React.useEffect(() => {
+    cursorStackRef.current = [];
+  }, [query.search, query.status]);
+
   const { data, isLoading: isLoadingCountries } = useGetCountries(queryParams);
 
-  const countriesList = React.useMemo(() => {
-    if (!data) return [];
+  const countriesList = React.useMemo((): Country[] => {
+    if (!data?.data || !Array.isArray(data.data)) return [];
     return data.data;
   }, [data]);
 
@@ -34,19 +57,26 @@ export function useCountriesManagementBase() {
   }, [data]);
 
   const handleNextPage = React.useCallback(() => {
-    if (pagination.hasNextPage && pagination.next) {
-      setQuery({ ...query, after: pagination.next } as any);
-    }
+    if (!pagination.hasNextPage || !pagination.next) return;
+
+    const currentAfter = (query as { after?: string }).after?.trim() ?? '';
+    cursorStackRef.current.push(currentAfter);
+    setQuery({ ...query, after: pagination.next } as typeof query);
   }, [pagination.hasNextPage, pagination.next, query, setQuery]);
 
   const handlePreviousPage = React.useCallback(() => {
-    if (!pagination.hasPreviousPage) return;
-    setQuery({ ...query, after: pagination.previous ?? '' } as any);
-  }, [pagination.hasPreviousPage, pagination.previous, query, setQuery]);
+    if (cursorStackRef.current.length === 0) {
+      setQuery({ ...query, after: '' } as typeof query);
+      return;
+    }
+
+    const previousAfter = cursorStackRef.current.pop() ?? '';
+    setQuery({ ...query, after: previousAfter } as typeof query);
+  }, [query, setQuery]);
 
   const handleSetAfter = React.useCallback(
     (after: string) => {
-      setQuery({ ...query, after: after || '' } as any);
+      setQuery({ ...query, after: after || '' } as typeof query);
     },
     [query, setQuery]
   );

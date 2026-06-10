@@ -1,8 +1,9 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from 'axios';
 
 import { useAuthStore } from '@/stores';
+import { clearAuthSessionAndRedirect } from '@/utils/authSession';
 
-import { ENV_VARS, ROUTES } from '../utils/constants';
+import { ENV_VARS } from '../utils/constants';
 
 const instance = axios.create({
   baseURL: `${ENV_VARS.API_BASE_URL}/api/v1`,
@@ -30,17 +31,11 @@ const processQueue = (error: any = null) => {
   failedQueue = [];
 };
 
-// Check if token is valid (not expired)
-const isTokenValid = (token: string | null): boolean => {
-  if (!token) return false;
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    const exp = payload.exp * 1000; // Convert to milliseconds
-    return Date.now() < exp;
-  } catch {
-    return false;
-  }
-};
+/** Clears in-flight refresh queue — call when the session ends. */
+export function resetAuthInterceptorState() {
+  isRefreshing = false;
+  failedQueue = [];
+}
 
 // Refresh token function
 const refreshAccessToken = async (): Promise<string | null> => {
@@ -84,12 +79,7 @@ const refreshAccessToken = async (): Promise<string | null> => {
 
     return accessToken;
   } catch (error) {
-    // Refresh failed, logout user
-    const reset = useAuthStore.getState().reset;
-    reset();
-    if (!window.location.pathname.includes('auth')) {
-      window.location.pathname = ROUTES.IN_APP.AUTH.LOGIN;
-    }
+    clearAuthSessionAndRedirect();
     throw error;
   }
 };
@@ -141,21 +131,22 @@ instance.interceptors.response.use(
     if (status === 401 && !window.location.pathname.includes('auth')) {
       // Skip refresh for refresh token endpoint to avoid infinite loop
       if (originalRequest?.url?.includes('/admin/refresh-token')) {
-        const reset = useAuthStore.getState().reset;
-        reset();
-        window.location.pathname = ROUTES.IN_APP.AUTH.LOGIN;
+        resetAuthInterceptorState();
+        clearAuthSessionAndRedirect();
         return errorHandler(error);
       }
 
-      // Check if token is valid first
-      const currentToken = useAuthStore.getState().getToken();
-      if (currentToken && isTokenValid(currentToken)) {
-        // Token is valid but request failed, might be a different issue
-        return errorHandler(error);
-      }
-
-      // If already retried, don't retry again
+      // Already retried once after refresh — session is no longer valid
       if (originalRequest._retry) {
+        resetAuthInterceptorState();
+        clearAuthSessionAndRedirect();
+        return errorHandler(error);
+      }
+
+      const refreshTokenValue = useAuthStore.getState().getRefreshToken();
+      if (!refreshTokenValue) {
+        resetAuthInterceptorState();
+        clearAuthSessionAndRedirect();
         return errorHandler(error);
       }
 
@@ -198,7 +189,8 @@ instance.interceptors.response.use(
       } catch (refreshError) {
         isRefreshing = false;
         processQueue(refreshError);
-        return errorHandler(error);
+        const handled = errorHandler(error);
+        return Promise.reject(handled);
       }
     }
 

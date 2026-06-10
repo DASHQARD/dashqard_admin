@@ -5,31 +5,29 @@ import { usePersistedModalState } from '@/hooks';
 import { useCustomForm } from '@/libs';
 import { MODALS } from '@/utils/constants';
 import { countriesManagementMutations } from '@/features/hooks/countriesManagement';
+import type { Country, CountryStatus } from '@/types/countries';
 import { z } from 'zod';
 import { useEffect } from 'react';
 
 const updateStatusSchema = z.object({
-  status: z.string().min(1, 'Status is required'),
+  status: z.enum(['active', 'inactive'], {
+    message: 'Status must be either active or inactive',
+  }),
 });
 
 type UpdateStatusSchemaType = z.infer<typeof updateStatusSchema>;
-
-type CountryData = {
-  id: number | string;
-  code: string;
-  iso_code: string;
-  name: string;
-  currency: string;
-  status?: string;
-};
 
 const statusOptions = [
   { label: 'Active', value: 'active' },
   { label: 'Inactive', value: 'inactive' },
 ];
 
+const normalizeStatus = (status?: string): CountryStatus => {
+  return status === 'inactive' ? 'inactive' : 'active';
+};
+
 export function UpdateCountryStatus() {
-  const modal = usePersistedModalState<CountryData>({
+  const modal = usePersistedModalState<Country>({
     paramName: MODALS.COUNTRIES_MANAGEMENT.PARAM_NAME,
   });
 
@@ -39,14 +37,14 @@ export function UpdateCountryStatus() {
   const form = useCustomForm({
     resolver: zodResolver(updateStatusSchema),
     defaultValues: {
-      status: 'active',
+      status: 'active' as CountryStatus,
     },
   });
 
   useEffect(() => {
     if (modal.modalData) {
       form.reset({
-        status: modal.modalData.status || 'active',
+        status: normalizeStatus(modal.modalData.status),
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -58,7 +56,7 @@ export function UpdateCountryStatus() {
     updateStatusMutation.mutate(
       {
         id: String(modal.modalData.id),
-        data,
+        data: { status: data.status },
       },
       {
         onSuccess: () => {

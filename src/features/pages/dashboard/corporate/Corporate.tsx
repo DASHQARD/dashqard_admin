@@ -51,6 +51,7 @@ export default function Corporates() {
                 simpleSelects: [
                   {
                     label: 'status',
+                    filterLabel: 'status',
                     options: OPTIONS.CORPORATE_MANAGEMENT_STATUS,
                   },
                 ],

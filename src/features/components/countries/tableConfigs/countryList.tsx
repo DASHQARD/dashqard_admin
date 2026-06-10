@@ -8,7 +8,7 @@ export const countryListColumns = [
     accessorKey: 'name',
   },
   {
-    header: 'Code',
+    header: 'Internal Code',
     accessorKey: 'code',
   },
   {
@@ -38,7 +38,7 @@ export const countryListCsvHeaders: Array<CsvHeader> = [
     accessor: 'name',
   },
   {
-    name: 'Code',
+    name: 'Internal Code',
     accessor: 'code',
   },
   {

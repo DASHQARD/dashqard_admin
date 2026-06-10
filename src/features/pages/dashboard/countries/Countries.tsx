@@ -2,6 +2,7 @@ import { Button, PaginatedTable, Text } from '@/components';
 import { useCountriesManagementBase } from '@/features/hooks/countriesManagement';
 import { usePersistedModalState } from '@/hooks';
 import { MODALS } from '@/utils/constants';
+import { OPTIONS } from '@/utils/constants/filter';
 import {
   countryListColumns,
   countryListCsvHeaders,
@@ -58,7 +59,16 @@ export default function Countries() {
               loading={isLoadingCountries}
               query={query}
               setQuery={setQuery}
-              searchPlaceholder="Search by country name, code, or currency..."
+              searchPlaceholder="Search by name, ISO code, internal code, or currency..."
+              filterBy={{
+                simpleSelects: [
+                  {
+                    label: 'status',
+                    filterLabel: 'Status',
+                    options: OPTIONS.COUNTRY_MANAGEMENT_STATUS,
+                  },
+                ],
+              }}
               csvHeaders={countryListCsvHeaders}
               printTitle="Countries"
               hasNextPage={pagination.hasNextPage}

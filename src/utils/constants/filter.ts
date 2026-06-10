@@ -13,11 +13,15 @@ export const OPTIONS = {
     'verified',
   ],
   CORPORATE_MANAGEMENT_STATUS: [
-    'active',
-    'approved',
-    'pending',
-    'deactivated',
-    'inactive',
+    { label: 'Active', value: 'active' },
+    { label: 'Inactive', value: 'inactive' },
+    { label: 'Verified', value: 'verified' },
+    { label: 'Suspended', value: 'suspended' },
+    { label: 'Approved', value: 'approved' },
+  ],
+  COUNTRY_MANAGEMENT_STATUS: [
+    { label: 'Active', value: 'active' },
+    { label: 'Inactive', value: 'inactive' },
   ],
   VENDOR_ACCOUNT_STATUS: [
     { label: 'Active', value: 'active' },

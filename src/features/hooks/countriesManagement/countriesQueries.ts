@@ -1,11 +1,12 @@
 import {
+  getActiveCountriesList,
   getAllCountriesList,
   getCountriesList,
   getCountryById,
   getCountryByCode,
   getCountryByIso,
-  type CountriesListQuery,
 } from '@/features/services';
+import type { CountriesListQuery } from '@/types/countries';
 import { useQuery } from '@tanstack/react-query';
 
 export function countriesManagementQueries() {
@@ -20,6 +21,13 @@ export function countriesManagementQueries() {
     return useQuery({
       queryKey: ['countries', 'all'],
       queryFn: () => getAllCountriesList(),
+    });
+  }
+
+  function useGetActiveCountries() {
+    return useQuery({
+      queryKey: ['countries', 'active'],
+      queryFn: () => getActiveCountriesList(),
     });
   }
 
@@ -50,6 +58,7 @@ export function countriesManagementQueries() {
   return {
     useGetCountries,
     useGetAllCountries,
+    useGetActiveCountries,
     useGetCountryById,
     useGetCountryByCode,
     useGetCountryByIso,

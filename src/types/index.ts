@@ -11,6 +11,7 @@ export * from './payment';
 export * from './search';
 export * from './forms';
 export * from './shared';
+export * from './countries';
 export type {
   Role as RoleType,
   Permission as PermissionType,

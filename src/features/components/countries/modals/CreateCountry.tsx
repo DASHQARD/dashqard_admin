@@ -14,9 +14,7 @@ const createCountrySchema = z.object({
   code: z
     .string()
     .trim()
-    .min(1, 'Country calling code is required')
-    .regex(/^\d+$/, 'Use digits only (e.g. 233)')
-    .max(6, 'Country code is too long'),
+    .length(2, 'Internal code must be exactly 2 characters'),
 });
 
 type CreateCountrySchemaType = z.infer<typeof createCountrySchema>;
@@ -106,9 +104,9 @@ export function CreateCountry() {
           />
 
           <Input
-            label="Country code"
-            placeholder="e.g. 233"
-            inputMode="numeric"
+            label="Internal code"
+            placeholder="e.g. 01"
+            maxLength={2}
             autoComplete="off"
             {...form.register('code')}
             error={form.formState.errors.code?.message}

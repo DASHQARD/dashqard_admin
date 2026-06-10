@@ -6,14 +6,14 @@ import { useCustomForm } from '@/libs';
 import { MODALS } from '@/utils/constants';
 import { superAdminInvitationsManagementMutations } from '@/features/hooks/superAdminInvitationsManagement';
 import { countriesManagementQueries } from '@/features/hooks/countriesManagement';
+import type { Country } from '@/types/countries';
 import { z } from 'zod';
 import React from 'react';
 
 const createInvitationSchema = z.object({
   email: z.string().email('Invalid email address'),
   phone_number: z.string().min(1, 'Phone number is required'),
-  country: z.string().min(1, 'Country is required'),
-  country_code: z.string().min(1, 'Country code is required'),
+  country_iso: z.string().min(1, 'Country is required'),
 });
 
 type CreateInvitationSchemaType = z.infer<typeof createInvitationSchema>;
@@ -27,35 +27,59 @@ export function CreateSuperAdminInvitation() {
     superAdminInvitationsManagementMutations();
   const createInvitationMutation = useCreateSuperAdminInvitation();
 
-  const { useGetAllCountries } = countriesManagementQueries();
-  const { data: countriesData } = useGetAllCountries();
+  const { useGetActiveCountries } = countriesManagementQueries();
+  const { data: countriesData } = useGetActiveCountries();
 
   const form = useCustomForm({
     resolver: zodResolver(createInvitationSchema),
     defaultValues: {
       email: '',
       phone_number: '',
-      country: '',
-      country_code: '',
+      country_iso: '',
     },
   });
 
+  const countriesByIso = React.useMemo(() => {
+    if (!countriesData || !Array.isArray(countriesData)) {
+      return new Map<string, Country>();
+    }
+    return new Map(countriesData.map((country) => [country.iso_code, country]));
+  }, [countriesData]);
+
   const countriesOptions = React.useMemo(() => {
     if (!countriesData || !Array.isArray(countriesData)) return [];
-    return countriesData.map((country: any) => ({
-      label: country.name || '',
-      value: country.name || '',
-      code: country.code || '',
+    return countriesData.map((country) => ({
+      label: country.name,
+      value: country.iso_code,
     }));
   }, [countriesData]);
 
+  const selectedCountry = countriesByIso.get(form.watch('country_iso'));
+
   const onSubmit: SubmitHandler<CreateInvitationSchemaType> = (data) => {
-    createInvitationMutation.mutate(data, {
-      onSuccess: () => {
-        modal.closeModal();
-        form.reset();
+    const country = countriesByIso.get(data.country_iso);
+    if (!country) {
+      form.setError('country_iso', {
+        type: 'manual',
+        message: 'Invalid country selection',
+      });
+      return;
+    }
+
+    createInvitationMutation.mutate(
+      {
+        email: data.email,
+        phone_number: data.phone_number,
+        country: country.name,
+        country_code: country.code,
       },
-    });
+      {
+        onSuccess: () => {
+          modal.closeModal();
+          form.reset();
+        },
+      }
+    );
   };
 
   return (
@@ -99,7 +123,7 @@ export function CreateSuperAdminInvitation() {
 
           <Controller
             control={form.control}
-            name="country"
+            name="country_iso"
             render={({ field }) => (
               <Combobox
                 label="Country"
@@ -107,24 +131,19 @@ export function CreateSuperAdminInvitation() {
                 options={countriesOptions}
                 value={field.value}
                 onChange={(e: { target: { value: string } }) => {
-                  const countryName = e.target.value;
-                  field.onChange(countryName);
-                  const selectedCountry = countriesData?.find(
-                    (c: any) => c.name === countryName
-                  );
-                  form.setValue('country_code', selectedCountry?.code || '');
+                  field.onChange(e.target.value ?? '');
                 }}
-                error={form.formState.errors.country?.message}
+                error={form.formState.errors.country_iso?.message}
               />
             )}
           />
 
           <Input
-            label="Country Code"
-            placeholder="Country code (auto-filled)"
-            {...form.register('country_code')}
-            error={form.formState.errors.country_code?.message}
+            label="Internal Country Code"
+            placeholder="Auto-filled from selection"
+            value={selectedCountry?.code ?? ''}
             disabled
+            readOnly
           />
 
           <div className="flex gap-4 justify-end pt-4">

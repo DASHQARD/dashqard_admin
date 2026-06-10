@@ -5,23 +5,28 @@ import { usePersistedModalState } from '@/hooks';
 import { useCustomForm } from '@/libs';
 import { MODALS } from '@/utils/constants';
 import { countriesManagementMutations } from '@/features/hooks/countriesManagement';
+import type { Country, CountryStatus } from '@/types/countries';
 import { z } from 'zod';
 import { useEffect } from 'react';
 
 const editCountrySchema = z.object({
   code: z
     .string()
-    .min(1, 'Code is required')
-    .max(10, 'Code must be 10 characters or less'),
+    .trim()
+    .length(2, 'Internal code must be exactly 2 characters'),
   iso_code: z
     .string()
-    .min(1, 'ISO code is required')
-    .max(10, 'ISO code must be 10 characters or less'),
-  name: z.string().min(1, 'Name is required'),
+    .trim()
+    .length(2, 'ISO code must be exactly 2 characters'),
+  name: z
+    .string()
+    .trim()
+    .min(2, 'Name must be at least 2 characters')
+    .max(100, 'Name must be 100 characters or less'),
   currency: z
     .string()
-    .min(1, 'Currency is required')
-    .max(10, 'Currency must be 10 characters or less'),
+    .trim()
+    .length(3, 'Currency must be exactly 3 characters'),
   status: z.enum(['active', 'inactive'], {
     message: 'Status must be either active or inactive',
   }),
@@ -29,26 +34,17 @@ const editCountrySchema = z.object({
 
 type EditCountrySchemaType = z.infer<typeof editCountrySchema>;
 
-type CountryData = {
-  id: number | string;
-  code: string;
-  iso_code: string;
-  name: string;
-  currency: string;
-  status?: string;
-};
-
 const statusOptions = [
   { label: 'Active', value: 'active' },
   { label: 'Inactive', value: 'inactive' },
 ];
 
-const normalizeStatus = (status?: string): EditCountrySchemaType['status'] => {
+const normalizeStatus = (status?: string): CountryStatus => {
   return status === 'inactive' ? 'inactive' : 'active';
 };
 
 export function EditCountry() {
-  const modal = usePersistedModalState<CountryData>({
+  const modal = usePersistedModalState<Country>({
     paramName: MODALS.COUNTRIES_MANAGEMENT.PARAM_NAME,
   });
 
@@ -85,7 +81,13 @@ export function EditCountry() {
     updateCountryMutation.mutate(
       {
         id: String(modal.modalData.id),
-        data,
+        data: {
+          code: data.code.trim(),
+          iso_code: data.iso_code.trim().toUpperCase(),
+          name: data.name.trim(),
+          currency: data.currency.trim().toUpperCase(),
+          status: data.status,
+        },
       },
       {
         onSuccess: () => {
@@ -120,27 +122,31 @@ export function EditCountry() {
                 label="Country Name"
                 className="col-span-full"
                 placeholder="Enter country name"
+                maxLength={100}
                 {...form.register('name')}
                 error={form.formState.errors.name?.message}
               />
 
               <Input
-                label="Code"
-                placeholder="Enter country code"
+                label="Internal code"
+                placeholder="e.g. 01"
+                maxLength={2}
                 {...form.register('code')}
                 error={form.formState.errors.code?.message}
               />
 
               <Input
                 label="ISO Code"
-                placeholder="Enter ISO code"
+                placeholder="e.g. GH"
+                maxLength={2}
                 {...form.register('iso_code')}
                 error={form.formState.errors.iso_code?.message}
               />
 
               <Input
                 label="Currency"
-                placeholder="Enter currency code"
+                placeholder="e.g. GHS"
+                maxLength={3}
                 {...form.register('currency')}
                 error={form.formState.errors.currency?.message}
               />

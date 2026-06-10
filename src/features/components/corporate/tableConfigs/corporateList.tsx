@@ -3,23 +3,36 @@ import type { CsvHeader } from '@/types/shared';
 import { formatDate } from '@/utils';
 import { CorporateActionCell } from './CorporateActionCell';
 
+function EmptyTextCell({
+  getValue,
+}: Readonly<{ getValue: () => string | null | undefined }>) {
+  const value = getValue();
+  const text =
+    value == null || String(value).trim() === '' ? '--' : String(value);
+  return <div>{text}</div>;
+}
+
 export const corporateListColumns = [
   {
     header: 'Corporate ID',
     accessorKey: 'corporate_id',
+    cell: EmptyTextCell,
   },
   {
     header: 'Company Name',
     accessorKey: 'business_name',
+    cell: EmptyTextCell,
   },
 
   {
     header: 'Location',
     accessorKey: 'business_address',
+    cell: EmptyTextCell,
   },
   {
     header: 'Phone Number',
     accessorKey: 'phonenumber',
+    cell: EmptyTextCell,
   },
   {
     header: 'Status',
@@ -38,19 +51,27 @@ export const corporateListCsvHeaders: Array<CsvHeader> = [
   {
     name: 'Corporate ID',
     accessor: 'corporate_id',
+    transform: (value) =>
+      value == null || String(value).trim() === '' ? '--' : String(value),
   },
   {
     name: 'Company Name',
     accessor: 'business_name',
+    transform: (value) =>
+      value == null || String(value).trim() === '' ? '--' : String(value),
   },
 
   {
     name: 'Location',
     accessor: 'business_address',
+    transform: (value) =>
+      value == null || String(value).trim() === '' ? '--' : String(value),
   },
   {
     name: 'Phone Number',
     accessor: 'phonenumber',
+    transform: (value) =>
+      value == null || String(value).trim() === '' ? '--' : String(value),
   },
   {
     name: 'Date Created',

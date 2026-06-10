@@ -3,6 +3,8 @@ import { jwtDecode } from 'jwt-decode';
 
 import { useAuthStore } from '@/stores';
 import { SESSION_IDLE_TIMEOUT_MS } from '@/utils/constants';
+import { clearAuthSessionAndRedirect } from '@/utils/authSession';
+import { resetAuthInterceptorState } from '@/libs/axios';
 import { useToast } from './useToast';
 import { refreshToken as refreshTokenService } from '@/features/services';
 
@@ -48,16 +50,13 @@ export function useAutoRefreshToken() {
     };
 
     const forceLogout = (reason: 'session' | 'idle') => {
-      reset();
+      resetAuthInterceptorState();
       if (reason === 'idle') {
         toast.error('You were signed out due to inactivity.');
       } else {
         toast.error('Your session has expired. Please sign in again.');
       }
-      const path = window.location.pathname;
-      if (!path.includes('auth')) {
-        window.location.assign('/auth/login');
-      }
+      clearAuthSessionAndRedirect();
     };
 
     const runRefresh = async (activeRefreshToken: string) => {

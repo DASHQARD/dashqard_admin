@@ -11,6 +11,7 @@ import { usePendingCustomersCount } from '@/features/hooks/customerManagement';
 import { useOverduePaymentsCount } from '@/features/hooks/vendorPaymentsManagement';
 import { useAdminService } from '@/features/hooks/useAdminService';
 import { adminLogout } from '@/features/services';
+import { resetAuthInterceptorState } from '@/libs/axios';
 
 export default function AdminSidebar() {
   const location = useLocation();
@@ -47,6 +48,7 @@ export default function AdminSidebar() {
       // Continue with client logout even if server-side logout fails.
       console.error('Admin logout endpoint failed', error);
     } finally {
+      resetAuthInterceptorState();
       // Clear auth state
       logout();
       // Clear React Query cache

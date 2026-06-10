@@ -1,6 +1,13 @@
 import { useContentGuard, useReducerSpread } from '@/hooks';
 
 import { DEFAULT_QUERY, formatDate, MODALS, ROUTES } from '@/utils';
+import { OPTIONS } from '@/utils/constants/filter';
+
+const CORPORATE_API_STATUSES = new Set(
+  OPTIONS.CORPORATE_MANAGEMENT_STATUS.map((option) =>
+    typeof option === 'string' ? option : option.value
+  )
+);
 
 import { corporateManagementQueries } from './corporateQueries';
 import { useAuthStore } from '@/stores';
@@ -33,7 +40,7 @@ export function useCorporateManagementBase() {
     if (query.search) {
       apiParams.search = query.search;
     }
-    if (query.status) {
+    if (query.status && CORPORATE_API_STATUSES.has(String(query.status))) {
       apiParams.status = query.status;
     }
     if (query.date_from) {

@@ -1,15 +1,10 @@
-import { getCountries, getCountryCallingCode } from 'react-phone-number-input';
 import countries from 'world-countries';
 import type { Country as WorldCountry } from 'world-countries';
 
 import type { DropdownOption } from '@/types';
 
-/** ISO2 values supported by `react-phone-number-input` (no direct `libphonenumber-js` import; works with pnpm hoisting). */
-type SupportedPhoneCountry = ReturnType<typeof getCountries>[number];
-
 export type CountryCreatePayload = {
   name: string;
-  code: string;
   iso_code: string;
   currency: string;
 };
@@ -18,49 +13,32 @@ export type CountryCreateFormOption = DropdownOption & {
   meta: CountryCreatePayload;
 };
 
-const phoneSupportedIso2 = new Set(getCountries() as string[]);
-
 function primaryCurrencyCode(country: WorldCountry): string | null {
   const keys = Object.keys(country.currencies ?? {});
   return keys[0] ?? null;
 }
 
-function dialCodeDigits(country: WorldCountry): string {
-  const iso2 = country.cca2;
-  if (phoneSupportedIso2.has(iso2)) {
-    return getCountryCallingCode(iso2 as SupportedPhoneCountry);
-  }
-
-  const root = (country.idd?.root ?? '').replace(/\D/g, '');
-  const firstSuffix = country.idd?.suffixes?.[0]?.replace(/\D/g, '') ?? '';
-  if (root && firstSuffix) return `${root}${firstSuffix}`;
-  if (root) return root;
-  if (firstSuffix) return firstSuffix;
-  return '';
-}
-
 function toMeta(country: WorldCountry): CountryCreatePayload | null {
   const currency = primaryCurrencyCode(country);
-  const code = dialCodeDigits(country);
   const name = country.name?.common?.trim();
-  if (!currency || !code || !name) return null;
+  const iso_code = country.cca2?.trim().toUpperCase();
+  if (!currency || !name || !iso_code) return null;
 
   return {
     name,
-    code,
-    iso_code: country.cca2,
-    currency,
+    iso_code,
+    currency: currency.toUpperCase(),
   };
 }
 
-/** Options for country create flow: metadata from `world-countries`, dial codes aligned with `react-phone-number-input` where available. */
+/** Options for country create flow: name, ISO code, and currency from `world-countries`. */
 export function getCountryCreateFormOptions(): CountryCreateFormOption[] {
   return countries
     .map((country) => {
       const meta = toMeta(country);
       if (!meta) return null;
       return {
-        label: meta.name,
+        label: `${meta.name} (${meta.iso_code})`,
         value: meta.iso_code,
         meta,
       };
