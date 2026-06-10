@@ -53,8 +53,7 @@ export default function AdminSidebar() {
       queryClient.clear();
       // Clear sidebar state from localStorage
       localStorage.removeItem('adminSidebarCollapsed');
-      // Force full page reload to login page - use direct path since ROUTES.IN_APP.AUTH.LOGIN is '/'
-      window.location.href = '/auth/login';
+      window.location.href = ROUTES.IN_APP.AUTH.LOGIN;
     }
   };
 

@@ -43,6 +43,10 @@ export const OPTIONS = {
     { label: 'Owner managed', value: 'owner_managed' },
     { label: 'Invited', value: 'invited' },
   ],
+  CARD_TYPE: [
+    { label: 'DashX', value: 'DashX' },
+    { label: 'DashPass', value: 'dashPass' },
+  ],
   ADMIN_STATUS: ['active', 'deactivated', 'pending'],
   AGENT_STATUS: ['active', 'deactivated', 'inactive'],
   AGENT_TIER: ['A1', 'A2', 'A3'],

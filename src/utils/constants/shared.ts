@@ -200,6 +200,7 @@ export const DEFAULT_QUERY = {
   vendor_status: '',
   approval_status: '',
   relationship_type: '',
+  card_type: '',
   search: '',
   date_from: '',
   date_to: '',

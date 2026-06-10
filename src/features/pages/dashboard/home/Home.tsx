@@ -1,5 +1,11 @@
-import { LoaderGif } from '@/assets/gifs';
+import { PaginatedTable } from '@/components';
+import {
+  giftCardMetricsColumns,
+  giftCardMetricsCsvHeaders,
+} from '@/features/components/giftCards';
+import { useGiftCardMetrics } from '@/features/hooks/giftCardMetrics';
 import { Icon } from '@/libs';
+import { DATE_RANGE_FILTER, OPTIONS } from '@/utils/constants/filter';
 
 function KpiCard({
   title,
@@ -41,7 +47,15 @@ function KpiCard({
 }
 
 export default function Home() {
-  const isLoading = false;
+  const {
+    query,
+    setQuery,
+    metricsList,
+    isLoading: isLoadingGiftCardMetrics,
+    pagination,
+    handleNextPage,
+    handleSetAfter,
+  } = useGiftCardMetrics();
 
   const metrics = {
     totalUsers: 1250,
@@ -57,23 +71,6 @@ export default function Home() {
       minimumFractionDigits: 2,
     }).format(amount);
   };
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px] bg-white rounded-xl">
-        <div className="text-center">
-          <img
-            src={LoaderGif}
-            alt="Loading..."
-            className="w-20 h-auto mx-auto mb-5"
-          />
-          <p className="text-[#6c757d] text-base m-0">
-            Loading admin dashboard...
-          </p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="bg-[#f8f9fa] rounded-xl overflow-hidden min-h-[600px]">
@@ -137,24 +134,46 @@ export default function Home() {
           <div className="lg:col-span-2 bg-white rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-[#f1f3f4] overflow-hidden">
             <div className="p-6 pb-0 mb-5">
               <h5 className="text-lg font-semibold text-[#495057] m-0 flex items-center">
-                <Icon icon="bi:activity" className="text-[#402D87] mr-2" />
-                System Overview
+                <Icon icon="bi:credit-card" className="text-[#402D87] mr-2" />
+                Gift Card Metrics
               </h5>
             </div>
 
             <div className="px-6 pb-6">
-              <div className="text-center py-10 text-[#6c757d]">
-                <Icon
-                  icon="bi:graph-up"
-                  className="text-5xl text-[#e9ecef] mb-4"
-                />
-                <p className="m-0 text-sm">
-                  System analytics will be displayed here
-                </p>
-                <p className="m-0 text-xs mt-2 text-[#adb5bd]">
-                  Connect to your analytics API to view detailed metrics
-                </p>
-              </div>
+              <PaginatedTable
+                columns={giftCardMetricsColumns}
+                data={metricsList}
+                total={metricsList.length}
+                loading={isLoadingGiftCardMetrics}
+                query={query}
+                setQuery={setQuery}
+                searchPlaceholder="Search by product or vendor..."
+                csvHeaders={giftCardMetricsCsvHeaders}
+                filterBy={{
+                  simpleSelects: [
+                    {
+                      label: 'card_type',
+                      filterLabel: 'Card type',
+                      options: OPTIONS.CARD_TYPE,
+                    },
+                  ],
+                  date: DATE_RANGE_FILTER,
+                }}
+                printTitle="Gift Card Metrics"
+                hasNextPage={pagination.hasNextPage}
+                hasPreviousPage={pagination.hasPreviousPage}
+                currentAfter={query.after ? String(query.after) : undefined}
+                previousCursor={pagination.previous}
+                onNextPage={handleNextPage}
+                onPreviousPage={() => {
+                  if (query.after && pagination.previous) {
+                    handleSetAfter(pagination.previous);
+                  } else {
+                    handleSetAfter('');
+                  }
+                }}
+                onSetAfter={handleSetAfter}
+              />
             </div>
           </div>
 
