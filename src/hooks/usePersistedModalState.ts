@@ -135,8 +135,10 @@ export function usePersistedModalState<TModalData = unknown>({
     [modalState]
   );
 
-  const resolvedModalData = useMemo(() => {
-    if (!modalState) return null;
+  const { resolvedModalData, activeCacheKey } = useMemo(() => {
+    if (!modalState) {
+      return { resolvedModalData: null, activeCacheKey: null };
+    }
 
     if (modalIdFromUrl) {
       const cacheKey = buildModalCacheKey(
@@ -147,15 +149,21 @@ export function usePersistedModalState<TModalData = unknown>({
       );
       const cached = getModalDataCache<TModalData>(cacheKey);
       if (cached !== undefined) {
-        activeCacheKeyRef.current = cacheKey;
-        return cached;
+        return { resolvedModalData: cached, activeCacheKey: cacheKey };
       }
 
-      return { id: modalIdFromUrl } as TModalData;
+      return {
+        resolvedModalData: { id: modalIdFromUrl } as TModalData,
+        activeCacheKey: null,
+      };
     }
 
-    return null;
+    return { resolvedModalData: null, activeCacheKey: null };
   }, [modalState, modalIdFromUrl, location.pathname, paramName]);
+
+  useEffect(() => {
+    activeCacheKeyRef.current = activeCacheKey;
+  }, [activeCacheKey]);
 
   useEffect(() => {
     if (resetOnRouteChange && location.pathname !== previousPathRef.current) {

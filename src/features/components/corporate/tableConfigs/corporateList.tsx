@@ -2,15 +2,7 @@ import { StatusCell } from '@/components';
 import type { CsvHeader } from '@/types/shared';
 import { formatDate } from '@/utils';
 import { CorporateActionCell } from './CorporateActionCell';
-
-function EmptyTextCell({
-  getValue,
-}: Readonly<{ getValue: () => string | null | undefined }>) {
-  const value = getValue();
-  const text =
-    value == null || String(value).trim() === '' ? '--' : String(value);
-  return <div>{text}</div>;
-}
+import { EmptyTextCell } from './EmptyTextCell';
 
 export const corporateListColumns = [
   {
