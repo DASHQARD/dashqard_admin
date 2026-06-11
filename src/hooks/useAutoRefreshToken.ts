@@ -28,7 +28,7 @@ export function useAutoRefreshToken() {
   );
   const authenticate = useAuthStore((state) => state.authenticate);
   const reset = useAuthStore((state) => state.reset);
-  const toast = useToast();
+  const { error: showErrorToast } = useToast();
   const refreshPromiseRef = useRef<Promise<void> | null>(null);
 
   useEffect(() => {
@@ -52,9 +52,9 @@ export function useAutoRefreshToken() {
     const forceLogout = (reason: 'session' | 'idle') => {
       resetAuthInterceptorState();
       if (reason === 'idle') {
-        toast.error('You were signed out due to inactivity.');
+        showErrorToast('You were signed out due to inactivity.');
       } else {
-        toast.error('Your session has expired. Please sign in again.');
+        showErrorToast('Your session has expired. Please sign in again.');
       }
       clearAuthSessionAndRedirect();
     };
@@ -178,6 +178,6 @@ export function useAutoRefreshToken() {
     sessionAbsoluteExpiresAt,
     authenticate,
     reset,
-    toast,
+    showErrorToast,
   ]);
 }

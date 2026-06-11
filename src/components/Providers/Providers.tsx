@@ -5,18 +5,26 @@ import { ToastProvider } from '../ToastProvider';
 import { useAutoRefreshToken } from '@/hooks';
 
 const queryClient = new QueryClient();
-export function Providers({
+
+function AuthSessionWatcher({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   useAutoRefreshToken();
+  return children;
+}
 
+export function Providers({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <ToastProvider>
-      <NuqsAdapter>
-        <QueryClientProvider client={queryClient}>
-          {children}
-        </QueryClientProvider>
-      </NuqsAdapter>
+      <AuthSessionWatcher>
+        <NuqsAdapter>
+          <QueryClientProvider client={queryClient}>
+            {children}
+          </QueryClientProvider>
+        </NuqsAdapter>
+      </AuthSessionWatcher>
     </ToastProvider>
   );
 }
