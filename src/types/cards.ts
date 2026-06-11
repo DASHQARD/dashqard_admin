@@ -121,4 +121,3 @@ export type PublicCardsResponse = {
   data: PublicCardsResponse[];
   pagination: PaginationResponse;
 };
-

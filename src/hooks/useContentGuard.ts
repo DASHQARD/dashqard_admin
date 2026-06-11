@@ -3,13 +3,19 @@ import React from 'react';
 import { useAuthStore } from '@/stores';
 import type { PermissionType } from '@/types/roles';
 import { isTesting } from '@/utils/constants';
-import { getAllAdminPermissions, isSuperAdminAccount } from '@/utils/helpers/role';
+import {
+  getAllAdminPermissions,
+  isSuperAdminAccount,
+} from '@/utils/helpers/role';
 
 export function useContentGuard(
   permission?: PermissionType | PermissionType[]
 ) {
-  const { user, permissions: storedPermissions, role: authRole } =
-    useAuthStore();
+  const {
+    user,
+    permissions: storedPermissions,
+    role: authRole,
+  } = useAuthStore();
 
   const userPermissions = React.useMemo(() => {
     // Prefer permissions from login response (auth store)

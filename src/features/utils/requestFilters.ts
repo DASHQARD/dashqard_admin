@@ -13,7 +13,9 @@ function isCorporateType(type: string): boolean {
 
 function isSuperAdminType(type: string): boolean {
   return (
-    type.includes('super_admin') || type === 'superadmin' || type === 'super_admin'
+    type.includes('super_admin') ||
+    type === 'superadmin' ||
+    type === 'super_admin'
   );
 }
 

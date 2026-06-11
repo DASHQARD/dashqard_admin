@@ -89,7 +89,8 @@ export function AssignAdminRole() {
   }, [modal.modalData?.id, modal.modalData?.role_id]);
 
   const onSubmit: SubmitHandler<AssignAdminRoleSchemaType> = (data) => {
-    const adminId = modal.modalData?.id != null ? String(modal.modalData.id) : '';
+    const adminId =
+      modal.modalData?.id != null ? String(modal.modalData.id) : '';
     if (!adminId) return;
 
     if (!UUID_REGEX.test(adminId) || !UUID_REGEX.test(data.role_id)) {
@@ -125,11 +126,11 @@ export function AssignAdminRole() {
       >
         <div className="p-6">
           <Text variant="span" className="text-sm text-gray-700">
-            Your account has{' '}
-            <strong className="font-medium">roles:get</strong> but not{' '}
-            <strong className="font-medium">roles:assign</strong>. A super admin
-            must add the <strong className="font-medium">roles:assign</strong>{' '}
-            permission to your role. Log out and back in after it is added.
+            Your account has <strong className="font-medium">roles:get</strong>{' '}
+            but not <strong className="font-medium">roles:assign</strong>. A
+            super admin must add the{' '}
+            <strong className="font-medium">roles:assign</strong> permission to
+            your role. Log out and back in after it is added.
           </Text>
         </div>
       </Modal>

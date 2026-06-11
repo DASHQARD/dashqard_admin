@@ -22,7 +22,10 @@ export function deleteModalDataCache(key: string): void {
   modalDataCache.delete(key);
 }
 
-export function clearModalDataCacheForPath(pathname: string, paramName: string): void {
+export function clearModalDataCacheForPath(
+  pathname: string,
+  paramName: string
+): void {
   const prefix = `${pathname}::${paramName}::`;
   for (const key of modalDataCache.keys()) {
     if (key.startsWith(prefix)) {

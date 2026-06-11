@@ -332,7 +332,9 @@ export function matchPayoutBankCode(
   >,
   options: PayoutBankOption[]
 ): string {
-  const sortOrCode = String(account.sort_code ?? account.bank_code ?? '').trim();
+  const sortOrCode = String(
+    account.sort_code ?? account.bank_code ?? ''
+  ).trim();
   if (sortOrCode) {
     const byCode = options.find(
       (b) => b.sortCode === sortOrCode || b.code === sortOrCode
@@ -346,9 +348,7 @@ export function matchPayoutBankCode(
   const byName = options.find((b) => {
     const bankName = b.name.toLowerCase();
     return (
-      bankName === name ||
-      bankName.includes(name) ||
-      name.includes(bankName)
+      bankName === name || bankName.includes(name) || name.includes(bankName)
     );
   });
   return byName?.sortCode ?? '';

@@ -32,13 +32,8 @@ export function countriesManagementMutations() {
     const queryClient = useQueryClient();
     const { error, success } = useToast();
     return useMutation({
-      mutationFn: ({
-        id,
-        data,
-      }: {
-        id: string;
-        data: UpdateCountryPayload;
-      }) => updateCountry(id, data),
+      mutationFn: ({ id, data }: { id: string; data: UpdateCountryPayload }) =>
+        updateCountry(id, data),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['countries'] });
         queryClient.invalidateQueries({ queryKey: ['country'] });

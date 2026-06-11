@@ -233,9 +233,12 @@ export function ViewVendorRequestDetails() {
                       {Object.entries(details.request_data)
                         .filter(
                           ([key]) =>
-                            !['id', 'user_id', 'vendor_id', 'entity_id'].includes(
-                              key.toLowerCase()
-                            )
+                            ![
+                              'id',
+                              'user_id',
+                              'vendor_id',
+                              'entity_id',
+                            ].includes(key.toLowerCase())
                         )
                         .map(([key, val]) => (
                           <div

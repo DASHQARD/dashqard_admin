@@ -103,7 +103,12 @@ export function isSuperAdminAccount(
 ): boolean {
   if (user?.isSuperAdmin === true) return true;
 
-  const candidates = [user?.type, authRole?.type, user?.user_type, authRole?.user_type];
+  const candidates = [
+    user?.type,
+    authRole?.type,
+    user?.user_type,
+    authRole?.user_type,
+  ];
   return candidates.some((value) => {
     const normalized = normalizeAdminType(value);
     return (

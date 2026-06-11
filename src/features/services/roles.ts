@@ -14,7 +14,9 @@ export type AssignRolePayload = {
   admin_id: string;
 };
 
-export const getAllRoles = async (query?: Record<string, unknown>): Promise<any> => {
+export const getAllRoles = async (
+  query?: Record<string, unknown>
+): Promise<any> => {
   return await getList(`${commonUrl}/all`, query);
 };
 

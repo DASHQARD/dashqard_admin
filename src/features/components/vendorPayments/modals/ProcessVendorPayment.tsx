@@ -139,9 +139,7 @@ export function ProcessVendorPayment() {
 
     const sortCode = matchPayoutBankCode(firstBank, banksData);
     const matched = sortCode
-      ? banksData.find(
-          (b) => b.sortCode === sortCode || b.code === sortCode
-        )
+      ? banksData.find((b) => b.sortCode === sortCode || b.code === sortCode)
       : undefined;
 
     if (matched) {
@@ -671,7 +669,9 @@ export function ProcessVendorPayment() {
                           }
                           isLoading={isBanksLoading}
                           isDisabled={isBanksLoading}
-                          extraOnChange={(option: { value?: string } | null) => {
+                          extraOnChange={(
+                            option: { value?: string } | null
+                          ) => {
                             const bank = banks.find(
                               (b) => b.value === option?.value
                             );
@@ -694,7 +694,9 @@ export function ProcessVendorPayment() {
                     {selectedBank ? (
                       <p className="text-xs text-gray-500 -mt-2">
                         Suggested for {selectedBank.name}:{' '}
-                        <span className="font-mono">{selectedBank.sortCode}</span>
+                        <span className="font-mono">
+                          {selectedBank.sortCode}
+                        </span>
                         . You can change the code above if needed.
                       </p>
                     ) : null}

@@ -14,13 +14,19 @@ export function ViewVendorPayment() {
 
   const paymentId =
     modal.modalData?.id != null ? String(modal.modalData.id) : '';
-  const isOpen = modal.isModalOpen(MODALS.VENDOR_PAYMENT_MANAGEMENT.CHILDREN.VIEW);
+  const isOpen = modal.isModalOpen(
+    MODALS.VENDOR_PAYMENT_MANAGEMENT.CHILDREN.VIEW
+  );
   const { useGetVendorPaymentById } = vendorPaymentsManagementQueries();
-  const { data: fetchedPayment, isLoading } = useGetVendorPaymentById(paymentId, {
-    enabled: isOpen && Boolean(paymentId),
-  });
+  const { data: fetchedPayment, isLoading } = useGetVendorPaymentById(
+    paymentId,
+    {
+      enabled: isOpen && Boolean(paymentId),
+    }
+  );
 
-  const payment = (fetchedPayment ?? modal.modalData) as VendorPaymentData | null;
+  const payment = (fetchedPayment ??
+    modal.modalData) as VendorPaymentData | null;
 
   const handleSetIsOpen = useCallback(
     (isOpen: boolean) => {
