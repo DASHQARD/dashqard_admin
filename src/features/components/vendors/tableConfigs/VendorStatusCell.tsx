@@ -1,11 +1,9 @@
 import { Tag } from '@/components';
-import { getStatusVariant } from '@/utils';
+import { formatStatusLabel, getStatusVariant } from '@/utils';
 
 export function VendorStatusCell({ getValue }: { getValue: () => string }) {
   const status = getValue();
-  return (
-    <>
-      {status ? <Tag value={status} variant={getStatusVariant(status)} /> : '-'}
-    </>
-  );
+  const label = formatStatusLabel(status);
+
+  return <>{label ? <Tag value={label} variant={getStatusVariant(status)} /> : '-'}</>;
 }

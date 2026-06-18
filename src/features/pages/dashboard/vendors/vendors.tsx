@@ -31,14 +31,13 @@ export default function Vendors() {
               Vendors management
             </Text>
           </div>
-          <div className="relative space-y-[37px]">
+          <div className="flex flex-col gap-6">
             <div className="text-[#0c4b77] py-2 border-b-2 border-[#0c4b77] w-fit">
               <Text variant="h6" weight="medium">
                 Vendors management
               </Text>
             </div>
             <PaginatedTable
-              filterWrapperClassName="lg:absolute lg:top-0 lg:right-[2px]"
               columns={vendorListColumns}
               data={vendorsList || []}
               total={vendorsList?.length || 0}

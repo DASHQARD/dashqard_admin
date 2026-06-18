@@ -1,6 +1,7 @@
 import { useContentGuard, useReducerSpread } from '@/hooks';
 
 import { DEFAULT_QUERY, formatDate, MODALS, ROUTES } from '@/utils';
+import { toCorporatesAfterParam } from '@/utils/helpers/paginationCursor';
 import { OPTIONS } from '@/utils/constants/filter';
 
 const CORPORATE_API_STATUSES = new Set(
@@ -17,6 +18,7 @@ import { useNavigate, useParams } from 'react-router';
 
 export function useCorporateManagementBase() {
   const [query, setQuery] = useReducerSpread(DEFAULT_QUERY);
+  const cursorStackRef = React.useRef<string[]>([]);
   const { userPermissions = [] } = useContentGuard();
   const paramsForApi = useParams();
 
@@ -32,10 +34,12 @@ export function useCorporateManagementBase() {
     const apiParams: any = {
       limit: query.limit || 10,
     };
-    const queryWithAfter = query as any;
+    const queryWithAfter = query as typeof query & { after?: string };
     if (queryWithAfter.after) {
-      // Send after as date string (database expects timestamp/date format)
-      apiParams.after = queryWithAfter.after;
+      const after = toCorporatesAfterParam(queryWithAfter.after);
+      if (after) {
+        apiParams.after = after;
+      }
     }
     if (query.search) {
       apiParams.search = query.search;
@@ -51,6 +55,10 @@ export function useCorporateManagementBase() {
     }
     return apiParams;
   }, [query]);
+
+  React.useEffect(() => {
+    cursorStackRef.current = [];
+  }, [query.search, query.status, query.date_from, query.date_to]);
 
   const { data, isLoading: isLoadingCorporatesList } = useGetCorporates(params);
 
@@ -318,16 +326,42 @@ export function useCorporateManagementBase() {
   }
 
   const handleNextPage = useCallback(() => {
-    if (pagination?.hasNextPage && pagination?.next) {
-      // Set after as date string (API expects date string format)
-      setQuery({ ...query, after: pagination.next } as any);
+    if (!pagination?.hasNextPage) return;
+
+    const after =
+      toCorporatesAfterParam(pagination?.next) ??
+      toCorporatesAfterParam(
+        Array.isArray(data?.data) && data.data.length > 0
+          ? data.data[data.data.length - 1]?.updated_at
+          : undefined
+      );
+
+    if (!after) return;
+
+    const currentAfter =
+      (query as typeof query & { after?: string }).after?.trim() ?? '';
+    cursorStackRef.current.push(currentAfter);
+    setQuery({ ...query, after } as typeof query & { after: string });
+  }, [pagination, data, query, setQuery]);
+
+  const handlePreviousPage = useCallback(() => {
+    if (cursorStackRef.current.length === 0) {
+      setQuery({ ...query, after: '' } as typeof query & { after: string });
+      return;
     }
-  }, [pagination, query, setQuery]);
+
+    const previousAfter = cursorStackRef.current.pop() ?? '';
+    setQuery({ ...query, after: previousAfter } as typeof query & {
+      after: string;
+    });
+  }, [query, setQuery]);
 
   const handleSetAfter = useCallback(
     (after: string) => {
-      // Set after as date string or empty string to reset
-      setQuery({ ...query, after: after || undefined } as any);
+      const nextAfter = after ? (toCorporatesAfterParam(after) ?? '') : '';
+      setQuery({ ...query, after: nextAfter } as typeof query & {
+        after: string;
+      });
     },
     [query, setQuery]
   );
@@ -353,6 +387,7 @@ export function useCorporateManagementBase() {
     setQuery,
     pagination,
     handleNextPage,
+    handlePreviousPage,
     handleSetAfter,
     estimatedTotal,
   };

@@ -28,8 +28,8 @@ export const vendorListColumns = [
   {
     id: 'actions',
     header: '',
-    accessorKey: '',
     cell: VendorActionCell,
+    enableSorting: false,
   },
 ];
 

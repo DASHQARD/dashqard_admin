@@ -19,6 +19,7 @@ export default function Corporates() {
     setQuery,
     pagination,
     handleNextPage,
+    handlePreviousPage,
     handleSetAfter,
   } = useCorporateManagementBase();
 
@@ -64,16 +65,7 @@ export default function Corporates() {
               }
               previousCursor={pagination?.previous || null}
               onNextPage={handleNextPage}
-              onPreviousPage={() => {
-                // Handle previous page
-                const queryWithAfter = query as any;
-                if (queryWithAfter.after && pagination?.previous) {
-                  handleSetAfter(pagination.previous);
-                } else {
-                  // Reset to first page
-                  handleSetAfter('');
-                }
-              }}
+              onPreviousPage={handlePreviousPage}
               onSetAfter={handleSetAfter}
             />
           </div>

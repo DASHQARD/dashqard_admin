@@ -45,8 +45,13 @@ export function sentenceCase(str: string) {
   );
 }
 
+export function formatStatusLabel(status?: string) {
+  if (!status) return '';
+  return status.replace(/_/g, ' ');
+}
+
 export function getStatusVariant(status?: string) {
-  switch (status) {
+  switch (status?.toLowerCase()) {
     case 'active':
       return 'success';
     case 'verified':
@@ -56,6 +61,8 @@ export function getStatusVariant(status?: string) {
     case 'successful':
       return 'success';
     case 'approved':
+      return 'success';
+    case 'auto_approved':
       return 'success';
     case 'processing':
       return 'warning';
