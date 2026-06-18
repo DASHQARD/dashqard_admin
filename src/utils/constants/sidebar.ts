@@ -49,7 +49,7 @@ export const ADMIN_NAV_ITEMS = [
       },
       {
         path: ROUTES.IN_APP.ADMIN.CORPORATES,
-        label: 'Cooperate',
+        label: 'Corporate',
         icon: 'bi:building',
         permission: 'corporates:view',
         children: [

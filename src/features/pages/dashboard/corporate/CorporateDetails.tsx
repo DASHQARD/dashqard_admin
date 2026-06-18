@@ -16,6 +16,10 @@ import {
 import { usePersistedModalState } from '@/hooks';
 import { MODALS } from '@/utils/constants';
 import { getStatusVariant } from '@/utils';
+import {
+  formatProfileFieldValue,
+  getProfileFieldValueClassName,
+} from '@/utils/helpers/profileField';
 
 import { useCorporateManagementBase } from '@/features/hooks/corporateManagement';
 import {
@@ -189,36 +193,32 @@ export default function CorporateDetails() {
             status={corporateData?.status || 'N/A'}
             logo={logoUrl}
           >
-            <div className="flex flex-col gap-6 w-full">
+            <div className="flex flex-col gap-6 w-full min-w-0">
               <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsList>
+                <TabsList className="h-auto w-full max-w-full flex-wrap justify-start gap-1">
                   <TabsTrigger value="personal">Personal Profile</TabsTrigger>
                   <TabsTrigger value="business">Business Profile</TabsTrigger>
                   <TabsTrigger value="documents">Documents</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="personal" className="mt-6">
-                  <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                  <section className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     {corporateInfo.map((item) => (
                       <div
                         className="flex flex-col gap-1 min-w-0"
                         key={item.label}
                       >
-                        <p className="text-xs text-gray-400 whitespace-nowrap">
-                          {item.label}
-                        </p>
+                        <p className="text-xs text-gray-400">{item.label}</p>
                         <Text
                           variant="span"
-                          className="wrap-break-word overflow-hidden"
+                          className={getProfileFieldValueClassName(item.label)}
                         >
-                          {item.value}
+                          {formatProfileFieldValue(item.label, item.value)}
                         </Text>
                       </div>
                     ))}
                     <div className="flex flex-col gap-1 min-w-0">
-                      <p className="text-xs text-gray-400 whitespace-nowrap">
-                        Status
-                      </p>
+                      <p className="text-xs text-gray-400">Status</p>
                       <Text variant="span" className="capitalize">
                         {corporateData?.status || '-'}
                       </Text>
@@ -227,20 +227,18 @@ export default function CorporateDetails() {
                 </TabsContent>
 
                 <TabsContent value="business" className="mt-6">
-                  <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                  <section className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     {businessInfo.map((item) => (
                       <div
                         className="flex flex-col gap-1 min-w-0"
                         key={item.label}
                       >
-                        <p className="text-xs text-gray-400 whitespace-nowrap">
-                          {item.label}
-                        </p>
+                        <p className="text-xs text-gray-400">{item.label}</p>
                         <Text
                           variant="span"
-                          className="wrap-break-word overflow-hidden"
+                          className={getProfileFieldValueClassName(item.label)}
                         >
-                          {item.value}
+                          {formatProfileFieldValue(item.label, item.value)}
                         </Text>
                       </div>
                     ))}

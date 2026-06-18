@@ -16,6 +16,10 @@ import {
 import { usePersistedModalState } from '@/hooks';
 import { MODALS } from '@/utils/constants';
 import { getStatusVariant } from '@/utils';
+import {
+  formatProfileFieldValue,
+  getProfileFieldValueClassName,
+} from '@/utils/helpers/profileField';
 
 import { useVendorDetailsManagementBase } from '@/features/hooks/vendorManagement/useVendorDetailsManagement';
 import { vendorPaymentsManagementQueries } from '@/features/hooks/vendorPaymentsManagement';
@@ -255,7 +259,6 @@ export default function VendorDetails() {
               <Button
                 variant="danger"
                 size="medium"
-                className="border-primary-500 text-primary-500"
                 onClick={() =>
                   suspendModal.openModal(
                     MODALS.VENDOR_MANAGEMENT.CHILDREN.DEACTIVATE,
@@ -276,7 +279,6 @@ export default function VendorDetails() {
               <Button
                 variant="secondary"
                 size="medium"
-                className="border-primary-500 text-primary-500"
                 onClick={() =>
                   activateModal.openModal(
                     MODALS.VENDOR_MANAGEMENT.CHILDREN.ACTIVATE,
@@ -318,9 +320,9 @@ export default function VendorDetails() {
             status={displayStatus}
             logo={avatarUrl ?? logoUrl}
           >
-            <div className="flex flex-col gap-6 w-full">
+            <div className="flex flex-col gap-6 w-full min-w-0">
               <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsList>
+                <TabsList className="h-auto w-full max-w-full flex-wrap justify-start gap-1">
                   <TabsTrigger value="vendor">Vendor Information</TabsTrigger>
                   <TabsTrigger value="business">Business Profile</TabsTrigger>
                   <TabsTrigger value="documents">Documents</TabsTrigger>
@@ -340,20 +342,18 @@ export default function VendorDetails() {
                 </TabsList>
 
                 <TabsContent value="vendor" className="mt-6">
-                  <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                  <section className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     {vendorInfo.map((item) => (
                       <div
                         className="flex flex-col gap-1 min-w-0"
                         key={item.label}
                       >
-                        <p className="text-xs text-gray-400 whitespace-nowrap">
-                          {item.label}
-                        </p>
+                        <p className="text-xs text-gray-400">{item.label}</p>
                         <Text
                           variant="span"
-                          className="wrap-break-word overflow-hidden capitalize"
+                          className={getProfileFieldValueClassName(item.label)}
                         >
-                          {item.value}
+                          {formatProfileFieldValue(item.label, item.value)}
                         </Text>
                       </div>
                     ))}
@@ -361,20 +361,18 @@ export default function VendorDetails() {
                 </TabsContent>
 
                 <TabsContent value="business" className="mt-6">
-                  <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                  <section className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     {corporateInfo.map((item) => (
                       <div
                         className="flex flex-col gap-1 min-w-0"
                         key={item.label}
                       >
-                        <p className="text-xs text-gray-400 whitespace-nowrap">
-                          {item.label}
-                        </p>
+                        <p className="text-xs text-gray-400">{item.label}</p>
                         <Text
                           variant="span"
-                          className="wrap-break-word overflow-hidden"
+                          className={getProfileFieldValueClassName(item.label)}
                         >
-                          {item.value}
+                          {formatProfileFieldValue(item.label, item.value)}
                         </Text>
                       </div>
                     ))}
@@ -383,14 +381,12 @@ export default function VendorDetails() {
                         className="flex flex-col gap-1 min-w-0"
                         key={item.label}
                       >
-                        <p className="text-xs text-gray-400 whitespace-nowrap">
-                          {item.label}
-                        </p>
+                        <p className="text-xs text-gray-400">{item.label}</p>
                         <Text
                           variant="span"
-                          className="wrap-break-word overflow-hidden capitalize"
+                          className={getProfileFieldValueClassName(item.label)}
                         >
-                          {item.value}
+                          {formatProfileFieldValue(item.label, item.value)}
                         </Text>
                       </div>
                     ))}
