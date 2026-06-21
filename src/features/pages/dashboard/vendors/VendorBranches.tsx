@@ -2,49 +2,9 @@ import { useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 
 import { Button, CustomIcon, Tag, Text } from '@/components';
+import { vendorManagementQueries } from '@/features/hooks/vendorManagement';
+import { extractVendorBranchListItems } from '@/features/utils/vendorBranches';
 import BranchPaymentModal from './BranchPaymentModal';
-
-type BranchStatus = 'active' | 'inactive';
-
-type Branch = {
-  id: string;
-  vendorId: string;
-  branchName: string;
-  branchCode: string;
-  location: string;
-  vendorName: string;
-  status: BranchStatus;
-};
-
-const mockBranches: Branch[] = [
-  {
-    id: 'branch-001',
-    vendorId: '1',
-    branchName: 'Accra Main Branch',
-    branchCode: 'AC-001',
-    location: 'East Legon, Accra',
-    vendorName: 'Dash Logistics',
-    status: 'active',
-  },
-  {
-    id: 'branch-002',
-    vendorId: '1',
-    branchName: 'Kumasi Central Branch',
-    branchCode: 'KS-002',
-    location: 'Adum, Kumasi',
-    vendorName: 'Dash Logistics',
-    status: 'active',
-  },
-  {
-    id: 'branch-003',
-    vendorId: '1',
-    branchName: 'Takoradi Port Branch',
-    branchCode: 'TK-003',
-    location: 'Market Circle, Takoradi',
-    vendorName: 'Dash Logistics',
-    status: 'inactive',
-  },
-];
 
 export default function VendorBranches() {
   const navigate = useNavigate();
@@ -53,15 +13,33 @@ export default function VendorBranches() {
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [paymentBranchName, setPaymentBranchName] = useState('');
 
-  const branches = useMemo(
-    () =>
-      mockBranches.filter(
-        (branch) => branch.vendorId === vendorId || vendorId === ''
-      ),
-    [vendorId]
-  );
+  const { useGetVendorBranches, useGetVendorsAllDetails } =
+    vendorManagementQueries();
 
-  const branchVariant = (status: BranchStatus) =>
+  const { data: vendorBranchesResponse, isLoading: isLoadingVendorBranches } =
+    useGetVendorBranches(
+      vendorId,
+      { include_related_vendors: false },
+      { enabled: !!vendorId }
+    );
+
+  const { data: allVendorsResponse, isLoading: isLoadingAllVendors } =
+    useGetVendorsAllDetails({ limit: 100 }, { enabled: !vendorId });
+
+  const branches = useMemo(() => {
+    if (vendorId) {
+      return extractVendorBranchListItems(
+        vendorBranchesResponse?.data,
+        vendorId
+      );
+    }
+
+    return extractVendorBranchListItems(allVendorsResponse?.data);
+  }, [vendorId, vendorBranchesResponse?.data, allVendorsResponse?.data]);
+
+  const isLoading = vendorId ? isLoadingVendorBranches : isLoadingAllVendors;
+
+  const branchVariant = (status: 'active' | 'inactive') =>
     status === 'active' ? ('success' as const) : ('warning' as const);
 
   return (
@@ -86,10 +64,10 @@ export default function VendorBranches() {
 
       <div className="border border-gray-200 rounded-lg">
         <div className="flex justify-between items-center bg-[#FAFAFA] p-3">
-          <h2 className="text-gray-500 font-medium">Mock Branches List</h2>
+          <h2 className="text-gray-500 font-medium">Branches List</h2>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[760px]">
+          <table className="w-full min-w-[860px]">
             <thead className="border-b border-gray-100">
               <tr>
                 <th className="text-left p-3 text-xs text-gray-400 font-medium">
@@ -103,6 +81,9 @@ export default function VendorBranches() {
                 </th>
                 <th className="text-left p-3 text-xs text-gray-400 font-medium">
                   Vendor
+                </th>
+                <th className="text-left p-3 text-xs text-gray-400 font-medium">
+                  Cards
                 </th>
                 <th className="text-left p-3 text-xs text-gray-400 font-medium">
                   Status
@@ -137,6 +118,9 @@ export default function VendorBranches() {
                   <td className="p-3 text-sm text-primary-900">
                     {branch.vendorName}
                   </td>
+                  <td className="p-3 text-sm text-primary-900">
+                    {branch.cardCount}
+                  </td>
                   <td className="p-3 text-sm">
                     <Tag
                       value={branch.status === 'active' ? 'Active' : 'Inactive'}
@@ -160,10 +144,15 @@ export default function VendorBranches() {
               ))}
             </tbody>
           </table>
-          {branches.length === 0 && (
+          {isLoading && (
+            <div className="p-4">
+              <Text className="text-sm text-gray-500">Loading branches…</Text>
+            </div>
+          )}
+          {!isLoading && branches.length === 0 && (
             <div className="p-4">
               <Text className="text-sm text-gray-500">
-                No mock branches available for this vendor.
+                No branches found{vendorId ? ' for this vendor' : ''}.
               </Text>
             </div>
           )}

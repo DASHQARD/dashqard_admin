@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, useParams } from 'react-router';
+import { useNavigate } from 'react-router';
 
 import {
   Button,
@@ -27,12 +27,12 @@ import {
   ActivateVendor,
   DeactivateVendor,
   ViewVendorKycDocument,
-} from '@/features/components/vendors/modals';
+  VendorCatalogCards,
+} from '@/features/components/vendors';
 import { ManageVendorPaymentPreferences } from '@/features/components/vendorPayments/modals';
 
 export default function VendorDetails() {
   const navigate = useNavigate();
-  const { vendorId: routeVendorId } = useParams();
   const [activeTab, setActiveTab] = useState('vendor');
 
   const activateModal = usePersistedModalState({
@@ -60,7 +60,11 @@ export default function VendorDetails() {
     vendorInfo,
     corporateInfo,
     relationshipInfo,
+    vendorCatalog,
+    catalogBranches,
+    catalogCards,
     isLoadingVendorDetails,
+    isLoadingVendorCatalog,
   } = useVendorDetailsManagementBase();
 
   const vendorId = vendorDetails?.id ?? vendorDetails?.vendor_id;
@@ -329,16 +333,7 @@ export default function VendorDetails() {
                   <TabsTrigger value="payment-details">
                     Payment Details
                   </TabsTrigger>
-                  <TabsTrigger
-                    value="branches"
-                    onClick={() => {
-                      if (routeVendorId) {
-                        navigate(`/admin/vendors/${routeVendorId}/branches`);
-                      }
-                    }}
-                  >
-                    Branches
-                  </TabsTrigger>
+                  <TabsTrigger value="branches">Branches & Cards</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="vendor" className="mt-6">
@@ -532,6 +527,106 @@ export default function VendorDetails() {
                       </div>
                     </div>
                   </div>
+                </TabsContent>
+
+                <TabsContent value="branches" className="mt-6 space-y-6">
+                  {!vendorDetails?.gvid ? (
+                    <div className="border border-gray-200 rounded-lg p-4">
+                      <Text className="text-sm text-gray-500">
+                        No GVID available for this vendor. Catalog cannot be
+                        loaded.
+                      </Text>
+                    </div>
+                  ) : isLoadingVendorCatalog ? (
+                    <div className="h-32 flex justify-center items-center">
+                      <Loader />
+                    </div>
+                  ) : (
+                    <>
+                      {vendorCatalog?.vendor?.qr_code_url && (
+                        <div className="border border-gray-200 rounded-lg p-4">
+                          <p className="text-xs text-gray-400 mb-1">QR Code URL</p>
+                          <a
+                            href={vendorCatalog.vendor.qr_code_url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-sm text-primary-600 break-all hover:underline"
+                          >
+                            {vendorCatalog.vendor.qr_code_url}
+                          </a>
+                        </div>
+                      )}
+
+                      <div className="border border-gray-200 rounded-lg">
+                        <div className="flex justify-between items-center bg-[#FAFAFA] p-3">
+                          <h2 className="text-gray-500 font-medium">Branches</h2>
+                          <Text className="text-xs text-gray-400">
+                            {catalogBranches.length} branch
+                            {catalogBranches.length === 1 ? '' : 'es'}
+                          </Text>
+                        </div>
+                        <div className="overflow-x-auto">
+                          <table className="w-full min-w-[760px]">
+                            <thead className="border-b border-gray-100">
+                              <tr>
+                                <th className="text-left p-3 text-xs text-gray-400 font-medium">
+                                  Branch Name
+                                </th>
+                                <th className="text-left p-3 text-xs text-gray-400 font-medium">
+                                  Branch Code
+                                </th>
+                                <th className="text-left p-3 text-xs text-gray-400 font-medium">
+                                  Full Branch ID
+                                </th>
+                                <th className="text-left p-3 text-xs text-gray-400 font-medium">
+                                  Location
+                                </th>
+                                <th className="text-left p-3 text-xs text-gray-400 font-medium">
+                                  GVID
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {catalogBranches.map((branch) => (
+                                <tr
+                                  key={branch.id}
+                                  className="border-b border-gray-100 last:border-b-0"
+                                >
+                                  <td className="p-3 text-sm text-primary-900">
+                                    {branch.branch_name}
+                                  </td>
+                                  <td className="p-3 text-sm text-primary-900">
+                                    {branch.branch_code}
+                                  </td>
+                                  <td className="p-3 text-sm text-primary-900">
+                                    {branch.full_branch_id}
+                                  </td>
+                                  <td className="p-3 text-sm text-primary-900">
+                                    {branch.branch_location}
+                                  </td>
+                                  <td className="p-3 text-sm text-primary-900">
+                                    {branch.gvid}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                          {catalogBranches.length === 0 && (
+                            <div className="p-4">
+                              <Text className="text-sm text-gray-500">
+                                No branches found in catalog.
+                              </Text>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <VendorCatalogCards
+                        cards={catalogCards}
+                        title="Gift Cards"
+                      />
+                    </>
+                  )}
                 </TabsContent>
               </Tabs>
             </div>

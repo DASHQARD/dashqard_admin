@@ -6,12 +6,21 @@ import { useParams } from 'react-router';
 export function useVendorDetailsManagementBase() {
   const params = useParams();
 
-  const { useGetVendorDetails } = vendorManagementQueries();
+  const { useGetVendorDetails, useGetVendorCatalog } = vendorManagementQueries();
   const { data: vendorDetailsResponse, isLoading: isLoadingVendorDetails } =
     useGetVendorDetails(params?.vendorId || '');
 
   // Extract data from response - handle both direct data and nested data.data
   const vendorDetails = vendorDetailsResponse?.data || vendorDetailsResponse;
+
+  const gvid = vendorDetails?.gvid ? String(vendorDetails.gvid) : '';
+
+  const { data: vendorCatalogResponse, isLoading: isLoadingVendorCatalog } =
+    useGetVendorCatalog(gvid, { limit: 100 }, { enabled: !!gvid });
+
+  const vendorCatalog = vendorCatalogResponse?.data;
+  const catalogBranches = vendorCatalog?.vendor?.branches ?? [];
+  const catalogCards = vendorCatalog?.cards ?? [];
 
   const vendorInfo = React.useMemo(() => {
     if (!vendorDetails) return [];
@@ -168,6 +177,10 @@ export function useVendorDetailsManagementBase() {
     vendorInfo,
     corporateInfo,
     relationshipInfo,
+    vendorCatalog,
+    catalogBranches,
+    catalogCards,
     isLoadingVendorDetails,
+    isLoadingVendorCatalog,
   };
 }

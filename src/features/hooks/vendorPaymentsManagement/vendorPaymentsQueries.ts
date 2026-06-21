@@ -4,11 +4,11 @@ import {
   getVendorPaymentById,
   getVendorPaymentPreferences,
   getAdminVendorBranches,
+  getBanks,
   type VendorPaymentsQueryParams,
   type VendorPaymentsSummaryQueryParams,
-  type AdminVendorBranchesQueryParams,
-  getBanks,
 } from '@/features/services';
+import type { AdminVendorBranchesQueryParams } from '@/types';
 import { useQuery } from '@tanstack/react-query';
 
 export function vendorPaymentsManagementQueries() {

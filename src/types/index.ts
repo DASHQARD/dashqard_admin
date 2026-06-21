@@ -4,6 +4,8 @@ export * from './cards';
 export * from './cart';
 export * from './user';
 export * from './vendor';
+export * from './vendorPayments';
+export * from './redemptions';
 export * from './customer';
 export * from './admin';
 export * from './icon-names';

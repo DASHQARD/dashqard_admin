@@ -207,6 +207,85 @@ export type BankAccount = {
   sort_code?: string;
 };
 
+export type VendorBranchCard = {
+  card_id: string;
+  currency: string;
+  card_name: string;
+  card_type: string;
+  card_price: number;
+  card_status: string;
+  expiry_date: string;
+};
+
+export type BranchWithCards = {
+  branch_id: string;
+  branch_name: string;
+  cards: VendorBranchCard[];
+};
+
+export type VendorWithBranchesAndCards = {
+  vendor_id: string;
+  gvid: string;
+  business_name: string;
+  business_country: string | null;
+  vendor_name: string;
+  logo: string | null;
+  logo_key: string | null;
+  qr_url: string | null;
+  updated_at: string;
+  branches_with_cards: BranchWithCards[];
+};
+
+export type VendorsAllDetailsQueryParams = {
+  limit?: number;
+  after?: string;
+};
+
+export type VendorsAllDetailsResponse = {
+  status: string;
+  statusCode: number;
+  message: string;
+  data: VendorWithBranchesAndCards[];
+  pagination: {
+    limit: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+    next: string | null;
+    previous: string | null;
+  };
+  url?: string;
+};
+
+/** Legacy flat branch row from GET /branches/vendor/:vendor_id */
+export type VendorBranchRecord = {
+  id: string;
+  vendor_id: string;
+  gvid: string;
+  branch_code: string;
+  full_branch_id: string;
+  branch_name: string;
+  branch_location: string;
+  branch_manager_name: string;
+  branch_manager_email: string;
+  branch_manager_user_id: string;
+  user_id: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type VendorBranchesQueryParams = {
+  include_related_vendors?: boolean;
+};
+
+export type VendorBranchesListResponse = {
+  status: string;
+  statusCode: number;
+  message: string;
+  data: VendorBranchRecord[] | VendorWithBranchesAndCards[];
+  url?: string;
+};
+
 export type VendorPaymentData = {
   branch_id: number;
   branch_location: string;
