@@ -136,6 +136,7 @@ export function useAdminManagementBase() {
       hasActivate?: boolean;
       hasDeactivate?: boolean;
       hasAssignRole?: boolean;
+      hasResendInvite?: boolean;
     };
     loginUser: any;
     userPermissions: string[];
@@ -145,10 +146,26 @@ export function useAdminManagementBase() {
     const actions = [];
     const permissionsToCheck = providedPermissions || userPermissions;
     const userToCheck = loginUser || user;
+    const actor =
+      (authRole as Record<string, unknown> | null) ||
+      (userToCheck as Record<string, unknown> | null);
     const isSuperAdmin = isSuperAdminAccount(
       userToCheck as Record<string, unknown> | null,
       authRole as Record<string, unknown> | null
     );
+
+    const actorId = String(actor?.id ?? '');
+    const targetId = String(admin.id ?? '');
+    const isSelf = actorId !== '' && actorId === targetId;
+    const targetIsSuperAdmin =
+      String(admin.type ?? '')
+        .toLowerCase()
+        .replace(/\s+/g, '_') === 'super_admin' ||
+      String(admin.type ?? '')
+        .toLowerCase()
+        .includes('super_admin');
+    const canActOnTarget =
+      !isSelf && (isSuperAdmin || !targetIsSuperAdmin);
 
     // View option
     if (
@@ -168,6 +185,7 @@ export function useAdminManagementBase() {
     // Edit option
     if (
       option?.hasUpdate &&
+      canActOnTarget &&
       (hasPermissionMatch(permissionsToCheck, [
         'admins:update',
         'admin management edit',
@@ -181,7 +199,11 @@ export function useAdminManagementBase() {
     }
 
     // Change role — API requires roles:assign (roles:get alone is not enough).
-    if (option?.hasAssignRole && canAssignAdminRole(permissionsToCheck)) {
+    if (
+      option?.hasAssignRole &&
+      canActOnTarget &&
+      canAssignAdminRole(permissionsToCheck)
+    ) {
       actions.push({
         label: 'Change Role',
         onClickFn: () =>
@@ -189,16 +211,16 @@ export function useAdminManagementBase() {
       });
     }
 
-    // Determine admin status
-    const adminStatus = admin.status || '';
-    const isAdminActive =
-      adminStatus?.toLowerCase() === 'active' ||
-      adminStatus?.toLowerCase() === 'enabled';
+    const adminStatus = String(admin.status || '').toLowerCase();
+    const isAdminActive = adminStatus === 'active' || adminStatus === 'enabled';
+    const isAdminDeactivated = adminStatus === 'deactivated';
+    const isAdminPending = adminStatus === 'pending';
 
-    // Activate option - only show if admin is NOT active
+    // Activate — only for deactivated (pending cannot be activated via status API)
     if (
-      !isAdminActive &&
+      isAdminDeactivated &&
       option?.hasActivate &&
+      canActOnTarget &&
       (hasPermissionMatch(permissionsToCheck, [
         'admins:update',
         'admin management deactivate/activate',
@@ -208,14 +230,18 @@ export function useAdminManagementBase() {
       actions.push({
         label: 'Activate',
         onClickFn: () =>
-          modalInstance.openModal(MODALS.ADMIN.TOGGLE_STATUS, admin),
+          modalInstance.openModal(MODALS.ADMIN.TOGGLE_STATUS, {
+            ...admin,
+            _statusAction: 'active',
+          }),
       });
     }
 
-    // Deactivate option - only show if admin IS active
+    // Deactivate — only for active
     if (
       isAdminActive &&
       option?.hasDeactivate &&
+      canActOnTarget &&
       (hasPermissionMatch(permissionsToCheck, [
         'admins:update',
         'admin management deactivate/activate',
@@ -225,7 +251,41 @@ export function useAdminManagementBase() {
       actions.push({
         label: 'Deactivate',
         onClickFn: () =>
-          modalInstance.openModal(MODALS.ADMIN.TOGGLE_STATUS, admin),
+          modalInstance.openModal(MODALS.ADMIN.TOGGLE_STATUS, {
+            ...admin,
+            _statusAction: 'deactivated',
+          }),
+      });
+    }
+
+    // Resend invitation — only for pending
+    if (
+      isAdminPending &&
+      option?.hasResendInvite &&
+      canActOnTarget &&
+      (hasPermissionMatch(permissionsToCheck, ['admins:create']) ||
+        isSuperAdmin)
+    ) {
+      actions.push({
+        label: 'Resend Invitation',
+        onClickFn: () =>
+          modalInstance.openModal(MODALS.ADMIN.RESEND_INVITE, admin),
+      });
+    }
+
+    // Delete
+    if (
+      option?.hasDelete &&
+      canActOnTarget &&
+      (hasPermissionMatch(permissionsToCheck, [
+        'admins:delete',
+        'admin management delete',
+      ]) ||
+        isSuperAdmin)
+    ) {
+      actions.push({
+        label: 'Delete',
+        onClickFn: () => modalInstance.openModal(MODALS.ADMIN.REMOVE, admin),
       });
     }
 

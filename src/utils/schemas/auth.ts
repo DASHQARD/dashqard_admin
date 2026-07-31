@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import {
+  getAdminPasswordSchema,
   getRequiredAlphaNumericStringSchema,
   getRequiredEmailSchema,
   getRequiredNumberSchema,
@@ -70,14 +71,28 @@ export const ForgotPasswordSchema = z.object({
 
 export const ResetPasswordSchema = z
   .object({
-    password: getRequiredAlphaNumericStringSchema('Password'),
-    confirmPassword: getRequiredAlphaNumericStringSchema('Confirm Password'),
+    password: getAdminPasswordSchema('Password'),
+    confirmPassword: getAdminPasswordSchema('Confirm Password'),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'Passwords do not match',
     path: ['confirmPassword'],
   });
 
+export const ChangePasswordSchema = z
+  .object({
+    currentPassword: getRequiredStringSchema('Current password'),
+    newPassword: getAdminPasswordSchema('New password'),
+    confirmPassword: getAdminPasswordSchema('Confirm password'),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  })
+  .refine((data) => data.currentPassword !== data.newPassword, {
+    message: 'New password cannot be the same as current password',
+    path: ['newPassword'],
+  });
 export const OnboardingSchema = z.object({
   first_name: getRequiredStringSchema('First Name'),
   last_name: getRequiredStringSchema('Last Name'),

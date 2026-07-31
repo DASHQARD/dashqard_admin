@@ -132,6 +132,35 @@ const adminLogout = async (refreshToken?: string | null) => {
   return await postMethod(`/admin/logout`, payload);
 };
 
+/** POST /admin/forgot-password — no auth. Trim + lowercase email before send. */
+const forgotAdminPassword = async (data: { email: string }) => {
+  return await postMethod(`/admin/forgot-password`, {
+    email: data.email.trim().toLowerCase(),
+  });
+};
+
+/** POST /admin/reset-password — no auth. Only token + password (no confirmPassword). */
+const resetAdminPassword = async (data: {
+  token: string;
+  password: string;
+}) => {
+  return await postMethod(`/admin/reset-password`, {
+    token: data.token,
+    password: data.password,
+  });
+};
+
+/** POST /admin/change-password — auth required. Only currentPassword + newPassword. */
+const changeAdminPassword = async (data: {
+  currentPassword: string;
+  newPassword: string;
+}) => {
+  return await postMethod(`/admin/change-password`, {
+    currentPassword: data.currentPassword,
+    newPassword: data.newPassword,
+  });
+};
+
 export {
   adminLogin,
   verifyLoginToken,
@@ -147,4 +176,7 @@ export {
   getPermissionDetails,
   refreshToken,
   adminLogout,
+  forgotAdminPassword,
+  resetAdminPassword,
+  changeAdminPassword,
 };

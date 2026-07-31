@@ -3,6 +3,7 @@ export const ROUTES = {
     AUTH: {
       LOGIN: '/',
       REGISTER: '/auth/register',
+      FORGOT_PASSWORD: '/auth/forgot-password',
       RESET_PASSWORD: '/auth/reset-password',
       CREATE_PASSWORD: '/auth/create-password',
       OTP_VERIFICATION: '/auth/otp-verification',
@@ -23,10 +24,10 @@ export const ROUTES = {
     ADMIN: {
       ROOT: 'admin-modal',
       AUTH: {
-        LOGIN: '/admin/auth/login',
+        LOGIN: '/auth/login',
         ONBOARD: '/admin/onboard',
-        FORGET_PASSWORD: '/admin/auth/forget-password',
-        RESET_PASSWORD: '/admin/auth/reset-password',
+        FORGET_PASSWORD: '/auth/forgot-password',
+        RESET_PASSWORD: '/auth/reset-password',
       },
       HOME: '/admin',
       CUSTOMERS: '/admin/customers',

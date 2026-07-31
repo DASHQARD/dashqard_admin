@@ -51,10 +51,9 @@ export const inviteAdmin = async (data: any) => {
 export const inviteBulkAdmin = async (data: any) => {
   return await postMethod(`${ROUTES.ENDPOINT.ADMIN.BULK_INVITE}`, data);
 };
+/** POST /admin/{id}/resend-invitation */
 export const resendInviteAdmin = async (id: string) => {
-  const response = await postMethod(`/admin/${id}/resend-invite`);
-
-  return response;
+  return await postMethod(`/admin/${id}/resend-invitation`);
 };
 export const editAdmin = async (data: any) => {
   const response = await patchMethod(
@@ -117,12 +116,14 @@ export const removeRoleFromAdmin = async (payload: {
   );
   return response;
 };
+/** PATCH /admin/{id}/status — body: { status: 'active' | 'deactivated' } */
 export const toggleAdminStatus = async (data: {
   id: string;
-  status: string;
+  status: 'active' | 'deactivated';
 }) => {
-  const response = await putMethod(`${'/admin'}/${data.id}/${data.status}`);
-  return response;
+  return await patchMethod(`/admin/${data.id}/status`, {
+    status: data.status,
+  });
 };
 
 export const uploadAdminImage = async (adminId: string, fileName: string) => {

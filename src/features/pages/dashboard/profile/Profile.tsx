@@ -12,6 +12,7 @@ import { useCustomForm } from '@/libs';
 import { formatDate } from '@/utils';
 import React from 'react';
 import { z } from 'zod';
+import { ChangePasswordForm } from './ChangePasswordForm';
 
 const updateProfileSchema = z.object({
   first_name: z
@@ -240,6 +241,15 @@ export default function Profile() {
                   </Button>
                 </div>
               </form>
+            </section>
+
+            <section className="w-full border border-gray-200 rounded-lg p-6">
+              <div className="flex items-center justify-between mb-5">
+                <Text variant="h5" weight="medium">
+                  Change Password
+                </Text>
+              </div>
+              <ChangePasswordForm />
             </section>
 
             <Text variant="h5" weight="medium">

@@ -37,6 +37,17 @@ export function getRequiredAlphaNumericStringSchema(label: string = 'Field') {
     });
 }
 
+/** Admin password policy from API: min 8, max 128, upper + lower + digit. */
+export function getAdminPasswordSchema(label: string = 'Password') {
+  return z
+    .string()
+    .min(8, { message: `${label} must be at least 8 characters` })
+    .max(128, { message: `${label} must be at most 128 characters` })
+    .refine((val) => /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(val), {
+      message: `${label} must contain at least one uppercase letter, one lowercase letter, and one number`,
+    });
+}
+
 export function getRequiredOTPSchema(label: string = 'OTP') {
   return z.string().min(6, `${label} must be 6 digits`);
 }

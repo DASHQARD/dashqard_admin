@@ -107,3 +107,35 @@ export interface AdminsListResponse {
   data: Admin[];
   pagination: AdminsPaginationMeta;
 }
+
+export type UpdateAdminStatusPayload = {
+  id: string;
+  status: 'active' | 'deactivated';
+};
+
+export type UpdateAdminStatusResponse = {
+  status: string;
+  statusCode: number;
+  message: string;
+  data: Admin & {
+    role_name?: string;
+  };
+  url?: string;
+};
+
+export type ResendAdminInvitationResponse = {
+  status: string;
+  statusCode: number;
+  message: string;
+  data: {
+    verification_hash: string;
+  };
+  url?: string;
+};
+
+export type DeleteAdminResponse = {
+  status: string;
+  statusCode: number;
+  message: string;
+  url?: string;
+};

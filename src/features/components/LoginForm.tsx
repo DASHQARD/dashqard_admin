@@ -1,8 +1,8 @@
 import { Input, Modal, Text } from '@/components';
 import { Button } from '@/components/Button';
 import { Icon } from '@/libs';
-// import { ROUTES } from '@/utils/constants';
-// import { Link } from 'react-router-dom';
+import { ROUTES } from '@/utils/constants';
+import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { LoginSchema } from '@/utils/schemas';
@@ -75,6 +75,15 @@ export default function LoginForm() {
                 error={form.formState.errors.password?.message}
               />
 
+              <div className="flex justify-end">
+                <Link
+                  to={ROUTES.IN_APP.AUTH.FORGOT_PASSWORD}
+                  className="text-primary-500 underline text-sm"
+                >
+                  Forgot password?
+                </Link>
+              </div>
+
               <Button
                 disabled={!form.formState.isValid || isPending}
                 loading={isPending}
@@ -84,14 +93,6 @@ export default function LoginForm() {
               >
                 Sign In
               </Button>
-              {/* <Link
-                to={ROUTES.IN_APP.AUTH.RESET_PASSWORD}
-                className="text-primary-500 underline  text-sm"
-              >
-                Forgot password?
-              </Link> */}
-
-              {/* <hr className="border-gray-200" /> */}
             </section>
           </form>
         </>

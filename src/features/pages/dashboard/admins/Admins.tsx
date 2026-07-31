@@ -10,6 +10,9 @@ import {
   adminListCsvHeaders,
   ViewAdmin,
   AssignAdminRole,
+  ToggleAdminStatus,
+  DeleteAdmin,
+  ResendAdminInvite,
 } from '@/features/components';
 
 export default function Admins() {
@@ -89,6 +92,9 @@ export default function Admins() {
       </div>
       <ViewAdmin />
       <AssignAdminRole />
+      <ToggleAdminStatus />
+      <DeleteAdmin />
+      <ResendAdminInvite />
     </>
   );
 }
